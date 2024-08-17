@@ -2,9 +2,7 @@ import Sidebar from "@/components/Sidebar"
 
 function page() {
     return (
-        <div>
-            <Sidebar/>
-        </div>
+            <Sidebar className=''/>   
     )
 }
 

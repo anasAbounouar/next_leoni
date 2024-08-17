@@ -1,27 +1,39 @@
-'use client'
+'use client';
 import * as React from 'react';
 import { styled, useTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import MuiDrawer from '@mui/material/Drawer';
-import MuiAppBar, { AppBarProps as MuiAppBarProps } from '@mui/material/AppBar';
+import MuiAppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import List from '@mui/material/List';
 import CssBaseline from '@mui/material/CssBaseline';
 import Typography from '@mui/material/Typography';
 import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
-import MenuIcon from '@mui/icons-material/Menu'; // Importing the Menu icon
-import ChevronLeftIcon from '@mui/icons-material/ChevronLeft'; // Importing ChevronLeft icon
-import ChevronRightIcon from '@mui/icons-material/ChevronRight'; // Importing ChevronRight icon
+import MenuIcon from '@mui/icons-material/Menu';
+import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
+import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
+import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
-import HomeIcon from '@mui/icons-material/Home'; // Example icon
-import InfoIcon from '@mui/icons-material/Info'; // Example icon
-import ContactMailIcon from '@mui/icons-material/ContactMail'; // Example icon
 
+// Import relevant icons
+import PeopleIcon from '@mui/icons-material/People';
+import PersonAddIcon from '@mui/icons-material/PersonAdd';
+import AssignmentIcon from '@mui/icons-material/Assignment';
+import UpdateIcon from '@mui/icons-material/Update';
+import ListAltIcon from '@mui/icons-material/ListAlt';
+import AnnouncementIcon from '@mui/icons-material/Announcement';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import AssessmentIcon from '@mui/icons-material/Assessment';
+import EventIcon from '@mui/icons-material/Event';
+import FolderIcon from '@mui/icons-material/Folder';
+import VerifiedIcon from '@mui/icons-material/Verified';
+import SearchIcon from '@mui/icons-material/Search';
+import NavbarComponent from './Navbar';
 
-const drawerWidth = 240;
+const drawerWidth = 350;
 
 const openedMixin = (theme) => ({
   width: drawerWidth,
@@ -99,12 +111,32 @@ export default function MiniDrawer() {
     setOpen(false);
   };
 
+  // List of menu items in French with appropriate icons
+  const menuItems = [
+    { text: 'Liste des Autorisés', icon: <PeopleIcon /> },
+    { text: 'Ajouter un Nouvel Employé', icon: <PersonAddIcon /> },
+    { text: 'Planifier Audit', icon: <AssignmentIcon /> },
+    { text: 'Mettre à jour Audit', icon: <UpdateIcon /> },
+    { text: 'Voir la Liste des Audits', icon: <ListAltIcon /> },
+    { text: 'Annonce d\'Audit', icon: <AnnouncementIcon /> },
+    { text: 'Résultat d\'Audit', icon: <CheckCircleIcon /> },
+    { text: 'SWOT', icon: <AssessmentIcon /> },
+    { text: 'Date des Actions Correctives', icon: <EventIcon /> },
+    { text: 'VA3011 Encl.1', icon: <FolderIcon /> },
+    { text: 'Efficacité du Programme d\'Audit', icon: <VerifiedIcon /> },
+    { text: 'Vérifier un Audit Spécifique', icon: <SearchIcon /> },
+  ];
+
   return (
-      <Box sx={{ display: 'flex' }}>
-          
+    <Box sx={{ display: 'flex'}}>
       <CssBaseline />
-      <AppBar position="fixed" open={open}>
-        <Toolbar>
+      <AppBar position="fixed" open={open}
+       
+      >
+        <Toolbar 
+        
+      >
+          
           <IconButton
             color="inherit"
             aria-label="open drawer"
@@ -117,9 +149,8 @@ export default function MiniDrawer() {
           >
             <MenuIcon />
           </IconButton>
-          <Typography variant="h6" noWrap component="div">
-            Mini variant drawer
-          </Typography>
+          
+            <NavbarComponent/>
         </Toolbar>
       </AppBar>
       <Drawer variant="permanent" open={open}>
@@ -130,192 +161,36 @@ export default function MiniDrawer() {
         </DrawerHeader>
         <Divider />
         <List>
-          <ListItem disablePadding sx={{ display: 'block' }}>
-            <ListItemButton
-              component="a"
-              href="#"
-              sx={{
-                minHeight: 48,
-                justifyContent: open ? 'initial' : 'center',
-                px: 2.5,
-              }}
-            >
-              <ListItemText primary="List of Authorized" sx={{ opacity: open ? 1 : 0 }} />
-            </ListItemButton>
-          </ListItem>
-          <ListItem disablePadding sx={{ display: 'block' }}>
-            <ListItemButton
-              component="a"
-              href="form.html"
-              sx={{
-                minHeight: 48,
-                justifyContent: open ? 'initial' : 'center',
-                px: 2.5,
-              }}
-            >
-              <ListItemText primary="Add New Employee" sx={{ opacity: open ? 1 : 0 }} />
-            </ListItemButton>
-          </ListItem>
-          <ListItem disablePadding sx={{ display: 'block' }}>
-            <ListItemButton
-              component="a"
-              href="plan_audit.html"
-              sx={{
-                minHeight: 48,
-                justifyContent: open ? 'initial' : 'center',
-                px: 2.5,
-              }}
-            >
-              <ListItemText primary="Plan Audit" sx={{ opacity: open ? 1 : 0 }} />
-            </ListItemButton>
-          </ListItem>
-          <ListItem disablePadding sx={{ display: 'block' }}>
-            <ListItemButton
-              component="a"
-              href="update_audit.html"
-              sx={{
-                minHeight: 48,
-                justifyContent: open ? 'initial' : 'center',
-                px: 2.5,
-              }}
-            >
-              <ListItemText primary="Update Audit" sx={{ opacity: open ? 1 : 0 }} />
-            </ListItemButton>
-          </ListItem>
-          <ListItem disablePadding sx={{ display: 'block' }}>
-            <ListItemButton
-              component="a"
-              href="#"
-              sx={{
-                minHeight: 48,
-                justifyContent: open ? 'initial' : 'center',
-                px: 2.5,
-              }}
-            >
-              <ListItemText primary="View List of Audits" sx={{ opacity: open ? 1 : 0 }} />
-            </ListItemButton>
-          </ListItem>
-          <ListItem disablePadding sx={{ display: 'block' }}>
-            <ListItemButton
-              component="a"
-              href="#"
-              sx={{
-                minHeight: 48,
-                justifyContent: open ? 'initial' : 'center',
-                px: 2.5,
-              }}
-            >
-              <ListItemText primary="Audit Announcement" sx={{ opacity: open ? 1 : 0 }} />
-            </ListItemButton>
-          </ListItem>
-          <ListItem disablePadding sx={{ display: 'block' }}>
-            <ListItemButton
-              component="a"
-              href="#"
-              sx={{
-                minHeight: 48,
-                justifyContent: open ? 'initial' : 'center',
-                px: 2.5,
-              }}
-            >
-              <ListItemText primary="Audit Result" sx={{ opacity: open ? 1 : 0 }} />
-            </ListItemButton>
-          </ListItem>
-          <ListItem disablePadding sx={{ display: 'block' }}>
-            <ListItemButton
-              component="a"
-              href="#"
-              sx={{
-                minHeight: 48,
-                justifyContent: open ? 'initial' : 'center',
-                px: 2.5,
-              }}
-            >
-              <ListItemText primary="SWOT" sx={{ opacity: open ? 1 : 0 }} />
-            </ListItemButton>
-          </ListItem>
-          <ListItem disablePadding sx={{ display: 'block' }}>
-            <ListItemButton
-              component="a"
-              href="#"
-              sx={{
-                minHeight: 48,
-                justifyContent: open ? 'initial' : 'center',
-                px: 2.5,
-              }}
-            >
-              <ListItemText primary="Date for Corrective Actions" sx={{ opacity: open ? 1 : 0 }} />
-            </ListItemButton>
-          </ListItem>
-          <ListItem disablePadding sx={{ display: 'block' }}>
-            <ListItemButton
-              component="a"
-              href="#"
-              sx={{
-                minHeight: 48,
-                justifyContent: open ? 'initial' : 'center',
-                px: 2.5,
-              }}
-            >
-              <ListItemText primary="VA3011 Encl.1" sx={{ opacity: open ? 1 : 0 }} />
-            </ListItemButton>
-          </ListItem>
-          <ListItem disablePadding sx={{ display: 'block' }}>
-            <ListItemButton
-              component="a"
-              href="form-Audit Programme Effectiveness.html"
-              sx={{
-                minHeight: 48,
-                justifyContent: open ? 'initial' : 'center',
-                px: 2.5,
-              }}
-            >
-              <ListItemText primary="Audit Program Effectiveness" sx={{ opacity: open ? 1 : 0 }} />
-            </ListItemButton>
-          </ListItem>
-          <ListItem disablePadding sx={{ display: 'block' }}>
-            <ListItemButton
-              component="a"
-              href="#"
-              sx={{
-                minHeight: 48,
-                justifyContent: open ? 'initial' : 'center',
-                px: 2.5,
-              }}
-            >
-              <ListItemText primary="Check Specific Audit" sx={{ opacity: open ? 1 : 0 }} />
-            </ListItemButton>
-          </ListItem>
+          {menuItems.map((item, index) => (
+            <ListItem key={item.text} disablePadding sx={{ display: 'block' }}>
+              <ListItemButton
+                sx={{
+                  minHeight: 48,
+                  justifyContent: open ? 'initial' : 'center',
+                  px: 2.5,
+                }}
+              >
+                <ListItemIcon
+                  sx={{
+                    minWidth: 0,
+                    mr: open ? 3 : 'auto',
+                    justifyContent: 'center',
+                  }}
+                >
+                  {item.icon}
+                </ListItemIcon>
+                <ListItemText primary={item.text} sx={{ opacity: open ? 1 : 0 }} />
+              </ListItemButton>
+            </ListItem>
+          ))}
         </List>
+        <Divider />
+        {/* Additional sections or items can be added here */}
       </Drawer>
       <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
         <DrawerHeader />
         <Typography paragraph>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
-          tempor incididunt ut labore et dolore magna aliqua. Rhoncus dolor purus non
-          enim praesent elementum facilisis leo vel. Risus at ultrices mi tempus
-          imperdiet. Semper risus in hendrerit gravida rutrum quisque non tellus.
-          Convallis convallis tellus id interdum velit laoreet id donec ultrices.
-          Odio morbi quis commodo odio aenean sed adipiscing. Amet nisl suscipit
-          adipiscing bibendum est ultricies integer quis. Cursus euismod quis viverra
-          nibh cras. Metus vulputate eu scelerisque felis imperdiet proin fermentum
-          leo. Mauris commodo quis imperdiet massa tincidunt. Cras tincidunt lobortis
-          feugiat vivamus at augue. At augue eget arcu dictum varius duis at
-          consectetur lorem. Velit sed ullamcorper morbi tincidunt. Lorem donec massa
-          sapien faucibus et molestie ac.
-        </Typography>
-        <Typography paragraph>
-          Consequat mauris nunc congue nisi vitae suscipit. Fringilla est ullamcorper
-          eget nulla facilisi etiam dignissim diam. Pulvinar elementum integer enim
-          neque volutpat ac tincidunt. Ornare suspendisse sed nisi lacus sed viverra
-          tellus. Purus sit amet volutpat consequat mauris. Elementum eu facilisis
-          sed odio morbi. Euismod lacinia at quis risus sed vulputate odio. Morbi
-          tincidunt ornare massa eget egestas purus viverra accumsan in. In hendrerit
-          gravida rutrum quisque non tellus orci ac. Pellentesque nec nam aliquam sem
-          et tortor. Habitant morbi tristique senectus et. Adipiscing elit duis
-          tristique sollicitudin nibh sit. Ornare aenean euismod elementum nisi quis
-          eleifend. Commodo viverra maecenas accumsan lacus vel facilisis. Nulla
-          posuere sollicitudin aliquam ultrices sagittis orci a.
+          Le contenu principal se trouve ici.
         </Typography>
       </Box>
     </Box>

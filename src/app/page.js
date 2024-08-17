@@ -2,7 +2,7 @@
 
 
 import Image from 'next/image'
-import HomeIcon from '@mui/icons-material/Home';
+
 export default function Home() {
   return (
     <div>
@@ -22,7 +22,7 @@ export default function Home() {
               At Leoni Maroc, we prioritize sustainability, quality, and continuous
               improvement in all our processes. Our dedicated team works tirelessly to
               meet the evolving needs of the automotive sector, making us a trusted
-              partner in the industry. <HomeIcon />;
+              partner in the industry. 
             </p>
           </div>
         </section>

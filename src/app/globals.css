@@ -31,3 +31,20 @@ body {
     text-wrap: balance;
   }
 }
+
+input, textarea {
+  color: black; /* Text color */
+}
+
+input::placeholder, textarea::placeholder {
+  color: black; /* Placeholder text color */
+}
+
+/* Apply cursor color */
+input, textarea {
+  caret-color: black; /* Cursor color */
+}
+/* modify the navbar of the mui */
+.MuiToolbar-root.MuiToolbar-gutters.MuiToolbar-regular.css-hyum1k-MuiToolbar-root {
+  padding-right: 0px !important;
+}
