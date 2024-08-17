@@ -1,10 +1,28 @@
 'use client';
+import { Alert } from '@mui/material';
 import { Input, Textarea, Button, Select, SelectItem } from '@nextui-org/react';
-
+import { useRef, useState } from 'react';
+import Swal from'sweetalert2';
 // Tailwind CSS custom color variables should be defined in `tailwind.config.js`
 export default function AuditForm() {
-  return (
-    <form className="space-y-8 p-6 bg-background text-text rounded-xl shadow-lg my-10 mx-6">
+ 
+    const formRef = useRef(null);
+  const handleSubmit = (event) => {
+      event.preventDefault(); 
+      
+    Swal.fire({
+        title: 'Succès!',
+      text: 'Le formulaire a été soumis avec succès.',
+      icon: 'success',
+      confirmButtonText: 'OK'
+    })
+      // Reset the form
+      formRef.current.reset();
+  };
+    return (
+        <>
+             
+    <form ref={formRef}  onSubmit={handleSubmit} className="space-y-8 p-6 bg-background text-text rounded-xl shadow-lg my-10 mx-6">
       {/* Scope Section */}
       <section>
         <h2 className="text-2xl font-semibold mb-4 text-primary">Portée</h2>
@@ -16,7 +34,7 @@ export default function AuditForm() {
             name="site" 
             fullWidth 
             className="mb-4 border-border focus:border-primary focus:ring-primary" 
-          />
+            />
           <Input 
             label="Processus :" 
             placeholder="Entrez les processus" 
@@ -40,7 +58,7 @@ export default function AuditForm() {
             name="co_auditor" 
             fullWidth 
             className="mb-4 border-border focus:border-primary focus:ring-primary" 
-          />
+            />
           <Input 
             label="ID d'Audit :" 
             placeholder="Entrez l'ID de l'audit" 
@@ -48,7 +66,7 @@ export default function AuditForm() {
             name="audit_id" 
             fullWidth 
             className="border-border focus:border-primary focus:ring-primary" 
-          />
+            />
         </div>
       </section>
 
@@ -63,7 +81,7 @@ export default function AuditForm() {
             name="lead_auditor" 
             fullWidth 
             className="mb-4 border-border focus:border-primary focus:ring-primary" 
-          />
+            />
           <Input 
             label="Co-Auditeur :" 
             placeholder="Entrez le nom du co-auditeur" 
@@ -71,7 +89,7 @@ export default function AuditForm() {
             name="co_auditor_team" 
             fullWidth 
             className="border-border focus:border-primary focus:ring-primary" 
-          />
+            />
         </div>
       </section>
 
@@ -86,7 +104,7 @@ export default function AuditForm() {
             name="iatf" 
             fullWidth 
             className="mb-4 border-border focus:border-primary focus:ring-primary" 
-          />
+            />
           <Input 
             label="VDA 6.3 :" 
             placeholder="Entrez VDA 6.3" 
@@ -94,7 +112,7 @@ export default function AuditForm() {
             name="vda" 
             fullWidth 
             className="mb-4 border-border focus:border-primary focus:ring-primary" 
-          />
+            />
           <Input 
             label="CSR :" 
             placeholder="Entrez CSR" 
@@ -102,7 +120,7 @@ export default function AuditForm() {
             name="csr" 
             fullWidth 
             className="border-border focus:border-primary focus:ring-primary" 
-          />
+            />
         </div>
       </section>
 
@@ -125,7 +143,7 @@ export default function AuditForm() {
             name="nc2" 
             fullWidth 
             className="mb-4 border-border focus:border-primary focus:ring-primary" 
-          />
+            />
           <Input 
             label="OFI :" 
             placeholder="Entrez OFI" 
@@ -141,7 +159,7 @@ export default function AuditForm() {
             name="vda_result" 
             fullWidth 
             className="border-border focus:border-primary focus:ring-primary" 
-          />
+            />
         </div>
       </section>
 
@@ -157,7 +175,7 @@ export default function AuditForm() {
             type="number" 
             fullWidth 
             className="mb-4 border-border focus:border-primary focus:ring-primary" 
-          />
+            />
           <Textarea 
             label="Remarque :" 
             placeholder="Entrez les remarques" 
@@ -165,7 +183,7 @@ export default function AuditForm() {
             name="remark" 
             fullWidth 
             className="mb-4 border-border focus:border-primary focus:ring-primary" 
-          />
+            />
           <Textarea 
             label="Risques :" 
             placeholder="Entrez les risques" 
@@ -173,7 +191,7 @@ export default function AuditForm() {
             name="risks" 
             fullWidth 
             className="mb-4 border-border focus:border-primary focus:ring-primary" 
-          />
+            />
           <Textarea 
             label="Objectif :" 
             placeholder="Entrez l'objectif" 
@@ -189,7 +207,7 @@ export default function AuditForm() {
             name="audit_criteria" 
             fullWidth 
             className="border-border focus:border-primary focus:ring-primary" 
-          />
+            />
         </div>
       </section>
 
@@ -212,7 +230,7 @@ export default function AuditForm() {
             name="remote" 
             fullWidth 
             className="mb-4 border-border focus:border-primary focus:ring-primary" 
-          />
+            />
           <Input 
             label="Interaction humaine :" 
             placeholder="Entrez la méthode d'interaction humaine" 
@@ -220,7 +238,7 @@ export default function AuditForm() {
             name="human_interaction" 
             fullWidth 
             className="border-border focus:border-primary focus:ring-primary" 
-          />
+            />
         </div>
       </section>
 
@@ -235,7 +253,7 @@ export default function AuditForm() {
             type="date" 
             fullWidth 
             className="mb-4 border-border focus:border-primary focus:ring-primary" 
-          />
+            />
           <Input 
             label="Statut :" 
             placeholder="Entrez le statut" 
@@ -251,7 +269,7 @@ export default function AuditForm() {
             type="date" 
             fullWidth 
             className="border-border focus:border-primary focus:ring-primary" 
-          />
+            />
         </div>
       </section>
 
@@ -266,7 +284,7 @@ export default function AuditForm() {
             name="responsible" 
             fullWidth 
             className="mb-4 border-border focus:border-primary focus:ring-primary" 
-          />
+            />
           <Input 
             label="Échéance :" 
             placeholder="Entrez l'échéance" 
@@ -275,7 +293,7 @@ export default function AuditForm() {
             type="date" 
             fullWidth 
             className="mb-4 border-border focus:border-primary focus:ring-primary" 
-          />
+            />
         </div>
       </section>
 
@@ -287,5 +305,6 @@ export default function AuditForm() {
         Soumettre
       </Button>
     </form>
+        </>
   );
 }

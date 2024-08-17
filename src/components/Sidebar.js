@@ -32,6 +32,7 @@ import FolderIcon from '@mui/icons-material/Folder';
 import VerifiedIcon from '@mui/icons-material/Verified';
 import SearchIcon from '@mui/icons-material/Search';
 import NavbarComponent from './Navbar';
+import { useRouter } from 'next/navigation';
 
 const drawerWidth = 350;
 
@@ -110,23 +111,24 @@ export default function MiniDrawer() {
   const handleDrawerClose = () => {
     setOpen(false);
   };
+  const router=useRouter()
+
 
   // List of menu items in French with appropriate icons
   const menuItems = [
-    { text: 'Liste des Autorisés', icon: <PeopleIcon /> },
-    { text: 'Ajouter un Nouvel Employé', icon: <PersonAddIcon /> },
-    { text: 'Planifier Audit', icon: <AssignmentIcon /> },
-    { text: 'Mettre à jour Audit', icon: <UpdateIcon /> },
-    { text: 'Voir la Liste des Audits', icon: <ListAltIcon /> },
-    { text: 'Annonce d\'Audit', icon: <AnnouncementIcon /> },
-    { text: 'Résultat d\'Audit', icon: <CheckCircleIcon /> },
-    { text: 'SWOT', icon: <AssessmentIcon /> },
-    { text: 'Date des Actions Correctives', icon: <EventIcon /> },
-    { text: 'VA3011 Encl.1', icon: <FolderIcon /> },
-    { text: 'Efficacité du Programme d\'Audit', icon: <VerifiedIcon /> },
-    { text: 'Vérifier un Audit Spécifique', icon: <SearchIcon /> },
+    { text: 'Liste des Autorisés', icon: <PeopleIcon />, path: '/autorises' },
+    { text: 'Ajouter un Nouvel Employé', icon: <PersonAddIcon />, path: '/ajouter-employe' },
+    { text: 'Planifier Audit', icon: <AssignmentIcon />, path: '/planifier-audit' },
+    { text: 'Mettre à jour Audit', icon: <UpdateIcon />, path: '/mettre-a-jour-audit' },
+    { text: 'Voir la Liste des Audits', icon: <ListAltIcon />, path: '/liste-des-audits' },
+    { text: 'Annonce d\'Audit', icon: <AnnouncementIcon />, path: '/annonce-audit' },
+    { text: 'Résultat d\'Audit', icon: <CheckCircleIcon />, path: '/resultat-audit' },
+    { text: 'SWOT', icon: <AssessmentIcon />, path: '/swot' },
+    { text: 'Date des Actions Correctives', icon: <EventIcon />, path: '/date-actions-correctives' },
+    { text: 'VA3011 Encl.1', icon: <FolderIcon />, path: '/va3011-encl1' },
+    { text: 'Efficacité du Programme d\'Audit', icon: <VerifiedIcon />, path: '/services/effectiveness/add' },
+    { text: 'Vérifier un Audit Spécifique', icon: <SearchIcon />, path: '/services/check-specific-audit' },
   ];
-
   return (
     <Box sx={{ display: 'flex'}}>
       <CssBaseline />
@@ -164,6 +166,7 @@ export default function MiniDrawer() {
           {menuItems.map((item, index) => (
             <ListItem key={item.text} disablePadding sx={{ display: 'block' }}>
               <ListItemButton
+                onClick={() => router.push(item.path)} // Navigate on click
                 sx={{
                   minHeight: 48,
                   justifyContent: open ? 'initial' : 'center',
