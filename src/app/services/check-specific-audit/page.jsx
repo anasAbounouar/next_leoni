@@ -80,8 +80,8 @@ export default function AuditSearch() {
       ) : (
         !loading && <p>Chargement des ID d &apos; Audit...</p>
       )}
-
-      {auditData && (
+ 
+      {/* {auditData && (
         <div className="space-y-4">
           <h3 className="text-xl font-semibold text-primary">Résultats pour l &apos; ID d &apos; Audit : {auditData.auditId}</h3>
           <ul className="space-y-2">
@@ -92,7 +92,7 @@ export default function AuditSearch() {
             <li className="border p-2 rounded"><strong>Annonces d &apos; Audit:</strong> {auditData.announcements}</li>
           </ul>
         </div>
-      )}
+      )} */}
     </div>
   );
 }

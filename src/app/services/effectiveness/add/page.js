@@ -72,7 +72,7 @@ export default function AuditForm() {
 
       {/* Audit Team Section */}
       <section>
-        <h2 className="text-2xl font-semibold mb-4 text-primary">Équipe d'Audit</h2>
+        <h2 className="text-2xl font-semibold mb-4 text-primary">Équipe d&apos;Audit</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Input 
             label="Auditeur Principal :" 
@@ -244,7 +244,7 @@ export default function AuditForm() {
 
       {/* Internal WSD Audit follow-up and tracking sheet Section */}
       <section>
-        <h2 className="text-2xl font-semibold mb-4 text-primary">Suivi et feuille de suivi de l'audit interne WSD</h2>
+        <h2 className="text-2xl font-semibold mb-4 text-primary">Suivi et feuille de suivi de l&apos;audit interne WSD</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Input 
             label="Date du Rapport :" 
