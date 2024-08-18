@@ -2,12 +2,31 @@ const express = require('express');
 const cors = require('cors');
 const XLSX = require('xlsx');
 const path = require('path');
-const { processSwotData } = require('../utils/processSwotData'); // Import the utility function
+const fs = require('fs');
 
 const app = express();
 const port = process.env.SERVER_PORT || 3001;
 
 app.use(cors());
+
+// Route to serve a DOC or DOCX file
+app.get('/api/ressources/:auditID/announcement', (req, res) => {
+  const { auditID } = req.params;
+  const filePath = path.join(__dirname, `../../ressources/Audit Announcement VDA6.3 - P21 ${auditID}.doc`);
+
+  console.log('Serving file:', filePath); // Log the file path
+
+  if (fs.existsSync(filePath)) {
+    res.download(filePath, (err) => {
+      if (err) {
+        console.error('Error sending file:', err);
+        res.status(500).send('Error retrieving the document');
+      }
+    });
+  } else {
+    res.status(404).send('File not found');
+  }
+});
 
 // Route to fetch all audit IDs
 app.get('/api/audit-ids', (req, res) => {
@@ -40,8 +59,7 @@ app.get('/api/audit-ids', (req, res) => {
   }
 });
 
-// Route to fetch data for a specific audit ID and sheet
-// Route to fetch raw data for a specific audit ID and sheet
+// General route to fetch data for a specific audit ID and sheet
 app.get('/api/ressources/:auditID/:sheetName', (req, res) => {
   const { auditID, sheetName } = req.params;
 
@@ -57,7 +75,7 @@ app.get('/api/ressources/:auditID/:sheetName', (req, res) => {
       throw new Error(`Sheet named '${sheetName}' not found.`);
     }
 
-    const data = XLSX.utils.sheet_to_json(worksheet, { header: 1 }); // Read data as an array of arrays
+    const data = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
 
     res.json({ content: data });
   } catch (error) {
@@ -65,6 +83,7 @@ app.get('/api/ressources/:auditID/:sheetName', (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);
 });
