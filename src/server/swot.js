@@ -54,7 +54,7 @@ export default function AuditSearch() {
     }
   };
 
-  // Handle button click to set active section and fetch SWOT data
+  // Handle button click to set active section
   const handleButtonClick = async (section) => {
     setActiveSection(section);
     if (section === 'Swot' && selectedOption) {
@@ -66,7 +66,6 @@ export default function AuditSearch() {
           throw new Error('Failed to fetch SWOT data');
         }
         const data = await response.json();
-        console.log('Fetched SWOT data:', data); // Log the data to verify structure
         setSwotData(data.content || []); // Set the raw sheet data
       } catch (error) {
         setError(error.message);
@@ -91,72 +90,35 @@ export default function AuditSearch() {
 
   // Render table for SWOT data
   const renderTable = (data) => {
-    if (!Array.isArray(data) || data.length === 0) return <p>No data available</p>;
-  
-    const swotSections = ['Strengths', 'Weaknesses', 'Opportunities', 'Threats'];
-    const sectionColors = {
-      Strengths: 'text-green-600',
-      Weaknesses: 'text-red-600',
-      Opportunities: 'text-blue-600',
-      Threats: 'text-orange-600',
-    };
-  
-    // Filter out empty cells and update column headers accordingly
-    const filteredData = data.map(row => row.filter(cell => cell !== null && cell.trim() !== ''));
-    
-    // Determine the maximum number of columns
-    const numColumns = Math.max(...filteredData.map(row => row.length));
-  
+    if (!Array.isArray(data) || data.length === 0) {
+      return <p className="text-gray-500">No data available</p>;
+    }
+
     return (
-      <div className="overflow-y-auto  bg-white text-gray-800 rounded-xl shadow-lg my-10 mx-0 ">
-        <table className="min-w-full border-collapse rounded-lg overflow-hidden shadow-lg">
-         
-          <tbody className="bg-white divide-y divide-gray-200">
-            {filteredData.map((row, rowIndex) => {
-              const isSwotSection = row[1] && swotSections.includes(row[1]);
-  
-              return (
-                <tr
-                  key={rowIndex}
-                  className={`${
-                    rowIndex % 2 === 0 ? 'bg-gray-50' : 'bg-white'
-                  } hover:bg-blue-100 transition-colors duration-200`}
-                >
-                  {row.map((cell, cellIndex) => {
-                    let cellStyle = `px-1 py-1 text-sm text-gray-700 whitespace-nowrap border-b border-gray-300`;
-  
-                    // Apply special styling based on the cell content
-                    if (cell === 'SWOT Analyses for: LEONI Wiring Systems WMABE') {
-                      cellStyle += ' font-bold !text-xl text-center'; // Bold, larger, and centered
-                    } else if (cell === 'Internal System Audit: WSD S01-23-75') {
-                      cellStyle += ' font-bold text-md text-center !text-lg'; // Bold, slightly less large, and centered
-                    }
-  
-                    return (
-                      <td
-                        key={cellIndex}
-                        className={`${cellStyle} px-6 ${isSwotSection ? 'font-bold' : ''} ${
-                          sectionColors[cell] || ''
-                        }`}
-                      >
-                        {cell}
-                      </td>
-                    );
-                  })}
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
+      <table className="min-w-full divide-y divide-gray-200 border border-gray-300">
+        <thead className="bg-gray-100">
+          <tr>
+            {data[0].map((_, index) => (
+              <th key={index} className="px-4 py-2 text-left text-sm font-semibold text-gray-700 border-b">{`Column ${index + 1}`}</th>
+            ))}
+          </tr>
+        </thead>
+        <tbody className="bg-white divide-y divide-gray-200">
+          {data.slice(1).map((row, rowIndex) => (
+            <tr key={rowIndex}>
+              {row.map((cell, cellIndex) => (
+                <td key={cellIndex} className="px-4 py-2 text-sm text-gray-600 border-b">{cell !== null ? cell : ''}</td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
     );
   };
-  
-  
 
   return (
-    <div className="p-6 bg-white text-gray-800 rounded-xl shadow-lg my-10 mx-6">
-      {loading && <p className="text-gray-500">Chargement...</p>}
+    <div className="p-6 bg-gray-50 text-gray-800 rounded-lg shadow-md my-10 mx-6">
+      {loading && <p>Chargement...</p>}
       
       {error && <p className="text-red-500">{error}</p>}
 
@@ -208,7 +170,7 @@ export default function AuditSearch() {
                   Audit Announcement
                 </Button>
               </div>
-              {/* Render SWOT table if 'Swot' section is active */}
+              {/* Render table if 'Swot' section is active */}
               {activeSection === 'Swot' && (
                 <div>
                   {renderTable(swotData)}
