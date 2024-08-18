@@ -100,6 +100,7 @@ export default function AuditSearch() {
       Opportunities: 'text-blue-600',
       Threats: 'text-orange-600',
     };
+    
   
     // Filter out empty cells and update column headers accordingly
     const filteredData = data.map(row => row.filter(cell => cell !== null && cell.trim() !== ''));
