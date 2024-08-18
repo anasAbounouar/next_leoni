@@ -7,23 +7,28 @@ import { Button } from '@nextui-org/react';
 export default function AuditSearch() {
   const [selectedOption, setSelectedOption] = useState(null);
   const [auditIds, setAuditIds] = useState([]);
-  const [auditData, setAuditData] = useState(null);
+  const [auditData, setAuditData] = useState([]);
+  const [selectedAuditData, setSelectedAuditData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // Fetch audit IDs from the backend
+  // Fetch audit IDs and data from the backend
   useEffect(() => {
-    const fetchAuditIds = async () => {
+    const fetchAuditData = async () => {
       setLoading(true);
       setError(null); // Clear any previous errors
       try {
         const response = await fetch('http://localhost:3001/api/audit-ids');
         if (!response.ok) {
-          throw new Error('Failed to fetch audit IDs');
+          throw new Error('Failed to fetch audit data');
         }
         const data = await response.json();
-        const options = data.auditIds.map(id => ({ value: id, label: id }));
+        const options = data.tableData
+          .filter(item => item["Audit ID"])
+          .map(item => ({ value: item["Audit ID"], label: item["Audit ID"] }));
+        
         setAuditIds(options);
+        setAuditData(data.tableData); // Store all audit data
       } catch (error) {
         setError(error.message);
       } finally {
@@ -31,31 +36,18 @@ export default function AuditSearch() {
       }
     };
 
-    fetchAuditIds();
+    fetchAuditData();
   }, []);
 
-  // Handle search form submission
-  const handleSearch = async (e) => {
-    e.preventDefault();
-    if (!selectedOption) {
-      alert('Veuillez sélectionner un ID d\'audit valide');
-      return;
-    }
-
-    setLoading(true);
-    setError(null);
-
-    try {
-      const response = await fetch(`http://localhost:3001/api/audit-data/${selectedOption.value}`);
-      if (!response.ok) {
-        throw new Error('Failed to fetch audit data');
-      }
-      const data = await response.json();
-      setAuditData(data);
-    } catch (error) {
-      setError(error.message);
-    } finally {
-      setLoading(false);
+  // Handle selection change
+  const handleSelectionChange = (option) => {
+    setSelectedOption(option);
+    if (option) {
+      // Find and set the data for the selected audit ID
+      const selectedAudit = auditData.find(item => item["Audit ID"] === option.value);
+      setSelectedAuditData(selectedAudit || {});
+    } else {
+      setSelectedAuditData(null);
     }
   };
 
@@ -65,34 +57,32 @@ export default function AuditSearch() {
       {error && <p className="text-red-500">{error}</p>}
 
       {!loading && !error && auditIds.length > 0 ? (
-        <form onSubmit={handleSearch} className="mb-4">
+        <div className="mb-4">
           <Select
             options={auditIds}
             value={selectedOption}
-            onChange={setSelectedOption}
+            onChange={handleSelectionChange}
             placeholder="Sélectionnez un ID d'Audit"
             className="mb-4"
           />
-          <Button type="submit" className="bg-primary text-background hover:bg-primaryDark">
-            Rechercher
-          </Button>
-        </form>
-      ) : (
-        !loading && <p>Chargement des ID d &apos; Audit...</p>
-      )}
- 
-      {/* {auditData && (
-        <div className="space-y-4">
-          <h3 className="text-xl font-semibold text-primary">Résultats pour l &apos; ID d &apos; Audit : {auditData.auditId}</h3>
-          <ul className="space-y-2">
-            <li className="border p-2 rounded"><strong>Résultats de l &apos;audit:</strong> {auditData.results}</li>
-            <li className="border p-2 rounded"><strong>Actions Correctives:</strong> {auditData.correctiveActions}</li>
-            <li className="border p-2 rounded"><strong>SWOR:</strong> {auditData.swor}</li>
-            <li className="border p-2 rounded"><strong>VA3011 ENCL.1:</strong> {auditData.va3011}</li>
-            <li className="border p-2 rounded"><strong>Annonces d &apos; Audit:</strong> {auditData.announcements}</li>
-          </ul>
+          {selectedOption && selectedAuditData && (
+            <div className="space-y-4">
+              <h3 className="text-xl font-semibold text-primary">Résultats pour l&apos;ID d&apos;Audit : {selectedAuditData["Audit ID"]}</h3>
+              <ul className="space-y-2">
+                {Object.entries(selectedAuditData).map(([key, value]) => (
+                  key !== "Audit ID" && value ? (
+                    <li key={key} className="border p-2 rounded">
+                      <strong>{key}:</strong> {value}
+                    </li>
+                  ) : null
+                ))}
+              </ul>
+            </div>
+          )}
         </div>
-      )} */}
+      ) : (
+        !loading && <p>Chargement des ID d&apos;Audit...</p>
+      )}
     </div>
   );
 }
