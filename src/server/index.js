@@ -113,35 +113,26 @@ app.get('/api/ressources/:auditID/:sheetName', (req, res) => {
 app.get('/api/employee/:number', (req, res) => {
     const { number } = req.params;
     const filePath = path.join(__dirname, '../../ressources/Auditors qualifications WMABE 2024-2025.xlsx');
-    
+
     try {
         const workbook = XLSX.readFile(filePath);
-        const sheetName = 'WMABE';
+        const sheetName = 'WMABE'; // Replace with the actual sheet name if different
         const worksheet = workbook.Sheets[sheetName];
         const data = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-        
-        // Assuming row 5 and 6 together represent the complete headers
-        const headers = data[5].map((header, index) => {
-            if (header) return header; // If header is present in row 5
-            return data[6][index]; // Otherwise, use header from row 6
-        });
 
-        // Verify that the data array has enough rows to contain the employee data
-        if (data.length <= 7) {
-            throw new Error('Insufficient data in sheet to retrieve employee information.');
-        }
-        
         // Find the employee data based on the 'No.' column (which is in index 0)
-        const employeeData = data.find(row => row[0] === parseInt(number));
+        const employeeData = data.slice(9).find(row => row[0] === parseInt(number)); // Adjusting for 0-based index
 
         if (employeeData) {
-            const result = headers.reduce((obj, header, index) => {
-                if (header) {  // Only include columns with valid headers
-                    obj[header] = employeeData[index];
-                }
-                return obj;
-            }, {});
-            res.json(result);
+            // Structure the response to only include the data for the specific employee number
+            const structuredData = employeeData.map((value, index) => {
+                return {
+                    index: index + 1, // Starting index from 1 for better readability
+                    value: value || ''
+                };
+            });
+
+            res.json({ data: structuredData });
         } else {
             res.status(404).json({ error: 'Employee not found' });
         }
@@ -150,6 +141,12 @@ app.get('/api/employee/:number', (req, res) => {
         res.status(500).json({ error: error.message });
     }
 });
+
+
+
+
+
+
 
 
 

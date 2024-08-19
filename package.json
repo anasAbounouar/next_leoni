@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "nodemon": "node src/server/index.js"
+    "nodemon": "nodemon src/server/index.js"
   },
   "dependencies": {
     "@ant-design/icons": "^5.4.0",
