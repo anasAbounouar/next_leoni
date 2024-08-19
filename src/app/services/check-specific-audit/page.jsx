@@ -123,7 +123,49 @@ export default function AuditSearch() {
       } finally {
         setLoading(false);
       }
-    }
+    } else if (section === 'VA3011' && selectedOption) {
+      try {
+        const response = await fetch(`http://localhost:3001/api/convert/${selectedOption.value}/Date for corrective actions/pdf`);
+        if (!response.ok) {
+          throw new Error('Failed to fetch PDF');
+        }
+        const pdfBlob = await response.blob();
+
+        setPdfBlob(pdfBlob); // Store the Blob object
+
+        const pdfUrl = window.URL.createObjectURL(pdfBlob);
+
+        const pdf = await pdfjsLib.getDocument(pdfUrl).promise;
+
+        // Ensure the PDF has at least 4 pages
+        if (pdf.numPages >= 3) {
+          const page = await pdf.getPage(3); // Get the 3 page (1-indexed)
+          const viewport = page.getViewport({ scale: 2.0 }); // Adjust scale for higher resolution
+          const canvas = document.createElement('canvas');
+          const context = canvas.getContext('2d');
+          canvas.height = viewport.height;
+          canvas.width = viewport.width;
+
+          const renderContext = {
+            canvasContext: context,
+            viewport: viewport,
+          };
+          await page.render(renderContext).promise;
+
+          // Convert the canvas to an image
+          const imageUrl = canvas.toDataURL('image/png');
+          setPdfImage(imageUrl);
+        } else {
+          setError('The PDF does not have a 3 page.');
+        }
+
+        URL.revokeObjectURL(pdfUrl); // Revoke the temporary URL
+
+      } catch (error) {
+        setError(error.message);
+        console.error('Error converting PDF to image:', error.message);
+      }
+  }
    
   };
 
@@ -282,11 +324,30 @@ export default function AuditSearch() {
                   </Button>
                 </div>
               )}
+              {activeSection === 'VA3011' && pdfImage && (
+                <div>
+                  <Image 
+                    src={pdfImage} 
+                    alt=" page 3 of PDF" 
+                    width={800} 
+                    height={600} 
+                    layout="responsive"
+                  />
+                  <Button
+                    auto
+                    onClick={handleDownloadPdf}
+                    className="mt-4 bg-green-500 text-white"
+                  >
+                    Download PDF
+                  </Button>
+                </div>
+              )}
               {activeSection === 'Date for Corrective Actions' && !pdfImage &&  (
                 <div class='text-center mt-10 '><Button color="secondary" isLoading={true}>Chargement  pour l&lsquo;affichage ...</Button>
                  
                 </div>
               )}
+              
             </div> 
           )}
         </div>
