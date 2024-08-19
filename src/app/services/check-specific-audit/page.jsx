@@ -177,7 +177,7 @@ const handleSelectionChange = async (option) => {
 
   const renderSwotTable = (data) => {
     
-    if (!Array.isArray(data) || data.length === 0) return <p>No data available</p>;
+    if (!Array.isArray(data) || data.length === 0) return <p>No data available</p>
 
     const swotSections = ['Strengths', 'Weaknesses', 'Opportunities', 'Threats'];
     const sectionColors = {

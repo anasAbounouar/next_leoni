@@ -30,6 +30,43 @@ export default function EmployeeData() {
         window.location.href = 'http://localhost:3001/api/download/excel';
     };
 
+    const renderHeaderRow = (level) => {
+        let mergedHeaders = [];
+        let previousHeader = null;
+        let currentColSpan = 0;
+
+        headers.forEach((header, index) => {
+            const currentHeader = header[level];
+
+            if (currentHeader === previousHeader && currentHeader !== null) {
+                currentColSpan += 1;
+                mergedHeaders[mergedHeaders.length - 1].colSpan = currentColSpan;
+            } else {
+                currentColSpan = 1;
+                mergedHeaders.push({
+                    content: currentHeader,
+                    colSpan: 1,
+                    key: `${level}-${index}`
+                });
+            }
+
+            previousHeader = currentHeader;
+        });
+
+        return mergedHeaders.map(header => (
+            <th 
+                key={header.key} 
+                colSpan={header.colSpan} 
+                className={`border border-gray-400 px-4 py-2 ${header.content ? 'bg-yellow-100' : ''}`}
+                style={{
+                    backgroundColor: header.content ? (header.content === 'System' ? '#FFFFE0' : header.content === 'Process' ? '#E0FFFF' : '#F0F8FF') : 'transparent'
+                }}
+            >
+                {header.content || ''}
+            </th>
+        ));
+    };
+
     return (
         <div className="p-4">
             <button onClick={handleDownload} className="mb-4 p-2 bg-blue-500 text-white rounded">
@@ -56,32 +93,16 @@ export default function EmployeeData() {
                     <table className="min-w-full border-collapse border border-gray-400">
                         <thead>
                             <tr>
-                                {headers.map((header, index) => (
-                                    <th key={index} className="border border-gray-400 px-4 py-2">
-                                        {header.level1}
-                                    </th>
-                                ))}
+                                {renderHeaderRow('level1')}
                             </tr>
                             <tr>
-                                {headers.map((header, index) => (
-                                    <th key={index} className="border border-gray-400 px-4 py-2">
-                                        {header.level2}
-                                    </th>
-                                ))}
+                                {renderHeaderRow('level2')}
                             </tr>
                             <tr>
-                                {headers.map((header, index) => (
-                                    <th key={index} className="border border-gray-400 px-4 py-2">
-                                        {header.level3}
-                                    </th>
-                                ))}
+                                {renderHeaderRow('level3')}
                             </tr>
                             <tr>
-                                {headers.map((header, index) => (
-                                    <th key={index} className="border border-gray-400 px-4 py-2">
-                                        {header.level4}
-                                    </th>
-                                ))}
+                                {renderHeaderRow('level4')}
                             </tr>
                         </thead>
                         <tbody>
