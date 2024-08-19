@@ -36,7 +36,24 @@ app.get('/api/ressources/:auditID/announcement', (req, res) => {
         res.status(404).send('File not found');
     }
 });
+// Route to download the Excel file directly
+app.get('/api/ressources/:auditID/download', (req, res) => {
+    const { auditID } = req.params;
+    const filePath = path.join(__dirname, `../../ressources/${auditID} WMABE.xlsx`);
 
+    console.log('Serving file for download:', filePath); // Log the file path
+
+    if (fs.existsSync(filePath)) {
+        res.download(filePath, `${auditID}.xlsx`, (err) => { // Serve the file for download
+            if (err) {
+                console.error('Error sending file:', err);
+                res.status(500).send('Error retrieving the document');
+            }
+        });
+    } else {
+        res.status(404).send('File not found');
+    }
+});
 // Route to fetch all audit IDs
 app.get('/api/audit-ids', (req, res) => {
     try {
@@ -93,6 +110,64 @@ app.get('/api/ressources/:auditID/:sheetName', (req, res) => {
     }
 });
 
+app.get('/api/employee/:number', (req, res) => {
+    const { number } = req.params;
+    const filePath = path.join(__dirname, '../../ressources/Auditors qualifications WMABE 2024-2025.xlsx');
+    
+    try {
+        const workbook = XLSX.readFile(filePath);
+        const sheetName = 'WMABE';
+        const worksheet = workbook.Sheets[sheetName];
+        const data = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+        
+        // Assuming row 5 and 6 together represent the complete headers
+        const headers = data[5].map((header, index) => {
+            if (header) return header; // If header is present in row 5
+            return data[6][index]; // Otherwise, use header from row 6
+        });
+
+        // Verify that the data array has enough rows to contain the employee data
+        if (data.length <= 7) {
+            throw new Error('Insufficient data in sheet to retrieve employee information.');
+        }
+        
+        // Find the employee data based on the 'No.' column (which is in index 0)
+        const employeeData = data.find(row => row[0] === parseInt(number));
+
+        if (employeeData) {
+            const result = headers.reduce((obj, header, index) => {
+                if (header) {  // Only include columns with valid headers
+                    obj[header] = employeeData[index];
+                }
+                return obj;
+            }, {});
+            res.json(result);
+        } else {
+            res.status(404).json({ error: 'Employee not found' });
+        }
+    } catch (error) {
+        console.error('Error fetching employee data:', error.message);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+
+
+app.get('/api/download/excel', (req, res) => {
+   
+    const filePath = path.join(__dirname, '../../ressources/Auditors qualifications WMABE 2024-2025.xlsx');
+  
+    if (fs.existsSync(filePath)) {
+        res.download(filePath, 'Auditors_qualifications_WMABE_2024-2025.xlsx');
+    } else {
+        console.log("File not found");
+        res.status(404).send('File not found');
+    }
+});
+
+
+
+
 // Function to convert Excel to PDF using ILovePDF API (in memory)
 async function convertExcelToPDFInMemory(excelFilePath) {
     try {
@@ -120,8 +195,8 @@ async function convertExcelToPDFInMemory(excelFilePath) {
 }
 
 // Route to convert Excel to PDF and send it directly to the client
-app.get('/api/convert/:auditID/:sheetName/pdf', async (req, res) => {
-    const { auditID, sheetName } = req.params;
+app.get('/api/convert/:auditID/pdf', async (req, res) => {
+    const { auditID } = req.params;
 
     try {
         const excelFilePath = path.join(__dirname, `../../ressources/${auditID} WMABE.xlsx`);
@@ -137,7 +212,7 @@ app.get('/api/convert/:auditID/:sheetName/pdf', async (req, res) => {
         // Set the response headers to indicate a file download
         res.set({
             'Content-Type': 'application/pdf',
-            'Content-Disposition': `attachment; filename="${auditID}-${sheetName}.pdf"`,
+            'Content-Disposition': `attachment; filename="${auditID}.pdf"`,
         });
 
         // Send the PDF buffer directly to the client

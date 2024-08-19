@@ -14,9 +14,9 @@ export default function AuditSearch() {
   const [error, setError] = useState(null);
   const [activeSection, setActiveSection] = useState(null);
   const [swotData, setSwotData] = useState([]);
-  const [pdfBlob, setPdfBlob] = useState(null); // Store the Blob object
+  const [pdfBlob, setPdfBlob] = useState(null);
   const [pdfImage, setPdfImage] = useState(null);
-  
+  const [isFetchingPdf, setIsFetchingPdf] = useState(false);
 
   // Fetch audit IDs and data from the backend
   useEffect(() => {
@@ -45,183 +45,125 @@ export default function AuditSearch() {
     fetchAuditData();
   }, []);
 
-  // Handle selection change
-  const handleSelectionChange = (option) => {
+  // Handle selection change, fetch PDF and SWOT data immediately
+ // Handle selection change, fetch PDF, SWOT data, and download Excel file immediately
+const handleSelectionChange = async (option) => {
     setSelectedOption(option);
+    setPdfImage(null);
+    setPdfBlob(null);
+    setActiveSection(null);
+
     if (option) {
-      const selectedAudit = auditData.find(item => item["Audit ID"] === option.value);
-      setSelectedAuditData(selectedAudit || {});
-      setActiveSection(null);
-      setPdfImage(null); // Reset the PDF image when a new option is selected
-      setPdfBlob(null);   // Reset the Blob object when a new option is selected
+        const selectedAudit = auditData.find(item => item["Audit ID"] === option.value);
+        setSelectedAuditData(selectedAudit || {});
+
+        // Fetch PDF immediately
+        setIsFetchingPdf(true);
+        try {
+            const response = await fetch(`http://localhost:3001/api/convert/${option.value}/pdf`);
+            if (!response.ok) {
+                throw new Error('Failed to fetch PDF');
+            }
+            const pdfBlob = await response.blob();
+            setPdfBlob(pdfBlob);
+
+        } catch (error) {
+            setError(error.message);
+            console.error('Error fetching PDF:', error.message);
+        } finally {
+            setIsFetchingPdf(false);
+        }
+
+        // Fetch SWOT data immediately
+        setLoading(true);
+        setError(null);
+        try {
+            const response = await fetch(`http://localhost:3001/api/ressources/${option.value}/SWOT`);
+            if (!response.ok) {
+                throw new Error('Failed to fetch SWOT data');
+            }
+            const data = await response.json();
+            setSwotData(data.content || []);
+        } catch (error) {
+            setError(error.message);
+        } finally {
+            setLoading(false);
+        }
+
+       
+        
     } else {
-      setSelectedAuditData(null);
-      setActiveSection(null);
-      setPdfImage(null); // Reset the PDF image when no option is selected
-      setPdfBlob(null);   // Reset the Blob object when no option is selected
+        setSelectedAuditData(null);
+        setSwotData([]);
     }
-  };
+};
 
-  // Handle button click to convert the fourth page of the PDF to an image and display it
+
+  // Handle button click to render the selected page from the already fetched PDF
   const handleButtonClick = async (section) => {
-    
     setActiveSection(section);
-    if (section === 'Date for Corrective Actions' && selectedOption) {
-      try {
-        const response = await fetch(`http://localhost:3001/api/convert/${selectedOption.value}/Date for corrective actions/pdf`);
-        if (!response.ok) {
-          throw new Error('Failed to fetch PDF');
-        }
-        const pdfBlob = await response.blob();
+    setError(null);
 
-        setPdfBlob(pdfBlob); // Store the Blob object
+    if (!pdfBlob) {
+      setError('No PDF available. Please select an audit ID.');
+      return;
+    }
 
-        const pdfUrl = window.URL.createObjectURL(pdfBlob);
-
-        const pdf = await pdfjsLib.getDocument(pdfUrl).promise;
-
-        // Ensure the PDF has at least 4 pages
-        if (pdf.numPages >= 4) {
-          const page = await pdf.getPage(4); // Get the fourth page (1-indexed)
-          const viewport = page.getViewport({ scale: 2.0 }); // Adjust scale for higher resolution
-          const canvas = document.createElement('canvas');
-          const context = canvas.getContext('2d');
-          canvas.height = viewport.height;
-          canvas.width = viewport.width;
-
-          const renderContext = {
-            canvasContext: context,
-            viewport: viewport,
-          };
-          await page.render(renderContext).promise;
-
-          // Convert the canvas to an image
-          const imageUrl = canvas.toDataURL('image/png');
-          setPdfImage(imageUrl);
-        } else {
-          setError('The PDF does not have a fourth page.');
-        }
-
-        URL.revokeObjectURL(pdfUrl); // Revoke the temporary URL
-
-      } catch (error) {
-        setError(error.message);
-        console.error('Error converting PDF to image:', error.message);
-      }
-    } else if (section === 'Swot' && selectedOption) {
-      setLoading(true);
-      setError(null);
-      try {
-        const response = await fetch(`http://localhost:3001/api/ressources/${selectedOption.value}/SWOT`);
-        if (!response.ok) {
-          throw new Error('Failed to fetch SWOT data');
-        }
-        const data = await response.json();
-        setSwotData(data.content || []);
-      } catch (error) {
-        setError(error.message);
-      } finally {
-        setLoading(false);
-      }
-    } else if (section === 'VA3011' && selectedOption) {
-      try {
-        const response = await fetch(`http://localhost:3001/api/convert/${selectedOption.value}/Date for corrective actions/pdf`);
-        if (!response.ok) {
-          throw new Error('Failed to fetch PDF');
-        }
-        const pdfBlob = await response.blob();
-
-        setPdfBlob(pdfBlob); // Store the Blob object
-
-        const pdfUrl = window.URL.createObjectURL(pdfBlob);
-
-        const pdf = await pdfjsLib.getDocument(pdfUrl).promise;
-
-        // Ensure the PDF has at least 4 pages
-        if (pdf.numPages >= 3) {
-          const page = await pdf.getPage(3); // Get the 3 page (1-indexed)
-          const viewport = page.getViewport({ scale: 2.0 }); // Adjust scale for higher resolution
-          const canvas = document.createElement('canvas');
-          const context = canvas.getContext('2d');
-          canvas.height = viewport.height;
-          canvas.width = viewport.width;
-
-          const renderContext = {
-            canvasContext: context,
-            viewport: viewport,
-          };
-          await page.render(renderContext).promise;
-
-          // Convert the canvas to an image
-          const imageUrl = canvas.toDataURL('image/png');
-          setPdfImage(imageUrl);
-        } else {
-          setError('The PDF does not have a 3 page.');
-        }
-
-        URL.revokeObjectURL(pdfUrl); // Revoke the temporary URL
-
-      } catch (error) {
-        setError(error.message);
-        console.error('Error converting PDF to image:', error.message);
-      }
-  }else if (section === 'FrontPage' && selectedOption) {
     try {
-      const response = await fetch(`http://localhost:3001/api/convert/${selectedOption.value}/Date for corrective actions/pdf`);
-      if (!response.ok) {
-        throw new Error('Failed to fetch PDF');
-      }
-      const pdfBlob = await response.blob();
-
-      setPdfBlob(pdfBlob); // Store the Blob object
-
       const pdfUrl = window.URL.createObjectURL(pdfBlob);
-
       const pdf = await pdfjsLib.getDocument(pdfUrl).promise;
 
-      // Ensure the PDF has at least 4 pages
-      if (pdf.numPages >= 1) {
-        const page = await pdf.getPage(1); // Get the 3 page (1-indexed)
-        const viewport = page.getViewport({ scale: 2.0 }); // Adjust scale for higher resolution
+      let pageNumber;
+      if (section === 'FrontPage') pageNumber = 1;
+      if (section === 'Date for Corrective Actions') pageNumber = 4;
+      if (section === 'VA3011') pageNumber = 3;
+
+      if (pageNumber && pdf.numPages >= pageNumber) {
+        const page = await pdf.getPage(pageNumber);
+        const viewport = page.getViewport({ scale: 2.0 });
         const canvas = document.createElement('canvas');
         const context = canvas.getContext('2d');
         canvas.height = viewport.height;
         canvas.width = viewport.width;
 
-        const renderContext = {
-          canvasContext: context,
-          viewport: viewport,
-        };
-        await page.render(renderContext).promise;
+        await page.render({ canvasContext: context, viewport }).promise;
 
-        // Convert the canvas to an image
-        const imageUrl = canvas.toDataURL('image/png');
-        setPdfImage(imageUrl);
+        setPdfImage(canvas.toDataURL('image/png'));
       } else {
-        setError('The PDF does not have a 1 page.');
+        setError(`The PDF does not have a page ${pageNumber}.`);
       }
 
       URL.revokeObjectURL(pdfUrl); // Revoke the temporary URL
 
     } catch (error) {
       setError(error.message);
-      console.error('Error converting PDF to image:', error.message);
+      console.error('Error rendering PDF page:', error.message);
     }
-}
-   
   };
 
   const handleDownloadPdf = () => {
-    
     if (pdfBlob) {
-      const pdfUrl = window.URL.createObjectURL(pdfBlob); // Create a new URL from the Blob
+      const pdfUrl = window.URL.createObjectURL(pdfBlob);
       const a = document.createElement('a');
       a.href = pdfUrl;
-      a.download = `${selectedOption.value}-Date-for-corrective-actions.pdf`;
+      a.download = `${selectedOption.value}-Audit.pdf`;
       a.click();
-      URL.revokeObjectURL(pdfUrl); // Revoke the URL after download
+      URL.revokeObjectURL(pdfUrl);
     }
   };
+
+  const handleDownloadExcel = () => {
+    if (selectedOption) {
+      const form = document.createElement('form');
+      form.action = `http://localhost:3001/api/ressources/${selectedOption.value}/download`;
+      form.method = 'GET';
+      form.style.display = 'none';
+      document.body.appendChild(form);
+      form.submit();
+      document.body.removeChild(form);
+    }
+  };
+  
 
   const buttonClasses = (section) => {
     const baseClasses = "mr-2 mb-2 px-4 py-2 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500";
@@ -234,6 +176,7 @@ export default function AuditSearch() {
   };
 
   const renderSwotTable = (data) => {
+    
     if (!Array.isArray(data) || data.length === 0) return <p>No data available</p>;
 
     const swotSections = ['Strengths', 'Weaknesses', 'Opportunities', 'Threats'];
@@ -293,7 +236,7 @@ export default function AuditSearch() {
     <div className="p-6 bg-white text-gray-800 rounded-xl shadow-lg my-10 mx-6">
       {loading && <p className="text-gray-500">Chargement...</p>}
       {error && <p className="text-red-500">{error}</p>}
-      {!loading && !error && auditIds.length > 0 ? (
+      {!loading && auditIds.length > 0 ? (
         <div className="mb-4">
           <Select
             options={auditIds}
@@ -302,6 +245,7 @@ export default function AuditSearch() {
             placeholder="Sélectionnez un ID d'Audit"
             className="mb-4"
           />
+          {isFetchingPdf && <p className="text-gray-500">Téléchargement en cours...</p>}
           {selectedOption && selectedAuditData && (
             <div>
               <div className="mb-4 flex flex-wrap justify-between">
@@ -309,13 +253,17 @@ export default function AuditSearch() {
                   auto
                   onClick={() => handleButtonClick('FrontPage')}
                   className={buttonClasses('FrontPage')}
+                  disabled={isFetchingPdf || loading}
+                  isLoading={isFetchingPdf || loading}
                 >
                   Front Page
                 </Button>
                 <Button
                   auto
-                  onClick={() => handleButtonClick('Swot')}
+                  onClick={() => setActiveSection('Swot')}
                   className={buttonClasses('Swot')}
+                  disabled={isFetchingPdf || loading}
+                  isLoading={isFetchingPdf || loading}
                 >
                   Swot
                 </Button>
@@ -323,6 +271,8 @@ export default function AuditSearch() {
                   auto
                   onClick={() => handleButtonClick('Date for Corrective Actions')}
                   className={buttonClasses('Date for Corrective Actions')}
+                  disabled={isFetchingPdf || loading}
+                  isLoading={isFetchingPdf || loading}
                 >
                   Date for Corrective Actions
                 </Button>
@@ -330,86 +280,63 @@ export default function AuditSearch() {
                   auto
                   onClick={() => handleButtonClick('VA3011')}
                   className={buttonClasses('VA3011')}
+                  disabled={isFetchingPdf || loading}
+                  isLoading={isFetchingPdf || loading}
                 >
                   VA3011 ENCL .1
                 </Button>
                 <Button
                   auto
-                  onClick={() => handleButtonClick('AuditAnnouncement')}
                   className={buttonClasses('AuditAnnouncement')}
+                  disabled={isFetchingPdf || loading}
+                  isLoading={isFetchingPdf || loading}
                 >
                   Audit Announcement
                 </Button>
               </div>
-
+             <div className='flex items-center justify-between'> {pdfBlob && (
+                <Button
+                  auto
+                  onClick={handleDownloadPdf}
+                  className="mt-4 bg-green-500 text-white"
+                >
+                  Download PDF
+                </Button>
+              )}
+              <Button
+                  auto
+                  onClick={handleDownloadExcel}
+                  className="mt-4 bg-blue-500 text-white"
+                  disabled={isFetchingPdf || loading}
+              >
+                  Download Excel
+              </Button></div>
               {activeSection === 'Swot' && (
                 <div>
                   {renderSwotTable(swotData)}
                 </div>
               )}
 
-              {activeSection === 'Date for Corrective Actions' && pdfImage && (
+              {pdfImage && activeSection !== 'Swot' && (
                 <div>
                   <Image 
                     src={pdfImage} 
-                    alt="Fourth page of PDF" 
+                    alt={`Page ${activeSection === 'FrontPage' ? 1 : activeSection === 'VA3011' ? 3 : 4} of PDF`} 
                     width={800} 
                     height={600} 
-                    layout="responsive"
+                    layout="responsive" 
                   />
-                  <Button
-                    auto
-                    onClick={handleDownloadPdf}
-                    className="mt-4 bg-green-500 text-white"
-                  >
-                    Download PDF
-                  </Button>
-                </div>
-              )}
-              {activeSection === 'VA3011' && pdfImage && (
-                <div>
-                  <Image 
-                    src={pdfImage} 
-                    alt=" page 3 of PDF" 
-                    width={800} 
-                    height={600} 
-                    layout="responsive"
-                  />
-                  <Button
-                    auto
-                    onClick={handleDownloadPdf}
-                    className="mt-4 bg-green-500 text-white"
-                  >
-                    Download PDF
-                  </Button>
-                </div>
-              )}
-              {activeSection === 'FrontPage' && pdfImage && (
-                <div>
-                  <Image 
-                    src={pdfImage} 
-                    alt=" page 3 of PDF" 
-                    width={800} 
-                    height={600} 
-                    layout="responsive"
-                  />
-                  <Button
-                    auto
-                    onClick={handleDownloadPdf}
-                    className="mt-4 bg-green-500 text-white"
-                  >
-                    Download PDF
-                  </Button>
                 </div>
               )}
               
-              {activeSection === 'Date for Corrective Actions' && !pdfImage &&  (
-                <div class='text-center mt-10 '><Button color="secondary" isLoading={true}>Chargement  pour l&lsquo;affichage ...</Button>
-                 
+              
+              
+              {activeSection === 'Date for Corrective Actions' && !pdfImage && (
+                <div className="text-center mt-10">
+                  <Button color="secondary" isLoading={true}>Chargement pour l&apos;affichage ...</Button>
                 </div>
               )}
-              
-            </div> 
+            </div>
           )}
         </div>
       ) : (
