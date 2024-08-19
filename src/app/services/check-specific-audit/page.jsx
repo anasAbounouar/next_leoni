@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Select from 'react-select';
 import { Button } from '@nextui-org/react';
+import * as pdfjsLib from 'pdfjs-dist/webpack';
 
 export default function AuditSearch() {
   const [selectedOption, setSelectedOption] = useState(null);
@@ -14,7 +15,7 @@ export default function AuditSearch() {
   const [activeSection, setActiveSection] = useState(null);
   const [swotData, setSwotData] = useState([]);
   const [correctiveActionsData, setCorrectiveActionsData] = useState(null);
-  const [pdfUrl, setPdfUrl] = useState(null);
+  const [pdfImages, setPdfImages] = useState([]);
 
   // Fetch audit IDs and data from the backend
   useEffect(() => {
@@ -50,36 +51,54 @@ export default function AuditSearch() {
       const selectedAudit = auditData.find(item => item["Audit ID"] === option.value);
       setSelectedAuditData(selectedAudit || {});
       setActiveSection(null);
-      setPdfUrl(null); // Reset the PDF URL when a new option is selected
+      setPdfImages([]); // Reset the PDF images when a new option is selected
     } else {
       setSelectedAuditData(null);
       setActiveSection(null);
-      setPdfUrl(null); // Reset the PDF URL when no option is selected
+      setPdfImages([]); // Reset the PDF images when no option is selected
     }
   };
 
-  // Handle button click to download the entire PDF for "Date for Corrective Actions"
+  // Handle button click to convert PDF to images and display them
   const handleButtonClick = async (section) => {
     setActiveSection(section);
     if (section === 'Date for Corrective Actions' && selectedOption) {
       try {
         const response = await fetch(`http://localhost:3001/api/convert/${selectedOption.value}/Date for corrective actions/pdf`);
         if (!response.ok) {
-          throw new Error('Failed to download PDF');
+          throw new Error('Failed to fetch PDF');
         }
-        const blob = await response.blob();
-        const url = window.URL.createObjectURL(blob);
-        setPdfUrl(url); // Set the URL for the iframe
+        const pdfBlob = await response.blob();
+        const pdfUrl = URL.createObjectURL(pdfBlob);
 
-        // Trigger download
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `${selectedOption.value}-Date-for-corrective-actions.pdf`;
-        a.click();
-        window.URL.revokeObjectURL(url);
+        const pdf = await pdfjsLib.getDocument(pdfUrl).promise;
+        const numPages = pdf.numPages;
+        const images = [];
+
+        for (let i = 1; i <= numPages; i++) {
+          const page = await pdf.getPage(i);
+          const viewport = page.getViewport({ scale: 2.0 }); // Adjust scale for higher resolution
+          const canvas = document.createElement('canvas');
+          const context = canvas.getContext('2d');
+          canvas.height = viewport.height;
+          canvas.width = viewport.width;
+
+          const renderContext = {
+            canvasContext: context,
+            viewport: viewport,
+          };
+          await page.render(renderContext).promise;
+
+          // Convert the canvas to an image
+          const imageUrl = canvas.toDataURL('image/png');
+          images.push(imageUrl);
+        }
+
+        setPdfImages(images);
+        URL.revokeObjectURL(pdfUrl);
       } catch (error) {
         setError(error.message);
-        console.error('Error downloading PDF:', error.message);
+        console.error('Error converting PDF to images:', error.message);
       }
     } else if (section === 'Swot' && selectedOption) {
       setLoading(true);
@@ -99,27 +118,6 @@ export default function AuditSearch() {
     }
   };
 
-  const handleDownloadPdf = async () => {
-    if (selectedOption) {
-      const response = await fetch(`http://localhost:3001/api/ressources/${selectedOption.value}/Date for corrective actions/pdf`);
-      if (response.ok) {
-        const blob = await response.blob();
-        const url = window.URL.createObjectURL(blob);
-        setPdfUrl(url); // Set the URL for the iframe
-
-        // Trigger download
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `${selectedOption.value}-Date-for-corrective-actions.pdf`;
-        a.click();
-        window.URL.revokeObjectURL(url);
-      } else {
-        console.error('Failed to download PDF:', response.statusText);
-      }
-    }
-  };
-
-  // Determine button styles
   const buttonClasses = (section) => {
     const baseClasses = "mr-2 mb-2 px-4 py-2 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500";
     const activeClasses = "bg-blue-700";
@@ -130,7 +128,6 @@ export default function AuditSearch() {
       : `${baseClasses} ${defaultClasses}`;
   };
 
-  // Render table for SWOT data
   const renderSwotTable = (data) => {
     if (!Array.isArray(data) || data.length === 0) return <p>No data available</p>;
 
@@ -187,7 +184,6 @@ export default function AuditSearch() {
     );
   };
 
-  // Render table for Corrective Actions data
   const renderQualificationTimeScheduleTable = (data) => {
     if (!data || data.length === 0) return <p>No data available</p>;
 
@@ -303,23 +299,17 @@ export default function AuditSearch() {
                 >
                   Audit Announcement
                 </Button>
-                <Button
-                  auto
-                  onClick={handleDownloadPdf}
-                  className="bg-green-500 text-white"
-                > 
-                  Download PDF for dates for corr..
-                </Button>
               </div>
               {activeSection === 'Swot' && (
                 <div>
                   {renderSwotTable(swotData)}
                 </div>
               )}
-              {activeSection === 'Date for Corrective Actions' && pdfUrl && (
+              {activeSection === 'Date for Corrective Actions' && pdfImages.length > 0 && (
                 <div>
-                  <iframe src={pdfUrl} width="100%" height="600px" />
-                  {pdfUrl}
+                  {pdfImages.map((imgSrc, index) => (
+                    <img key={index} src={imgSrc} alt={`Page ${index + 1}`} style={{ width: '100%', marginBottom: '20px' }} />
+                  ))}
                 </div>
               )}
             </div> 

@@ -93,8 +93,8 @@ app.get('/api/ressources/:auditID/:sheetName', (req, res) => {
     }
 });
 
-// Function to convert Excel to PDF using ILovePDF API
-async function convertExcelToPDFILovePDF(excelFilePath) {
+// Function to convert Excel to PDF using ILovePDF API (in memory)
+async function convertExcelToPDFInMemory(excelFilePath) {
     try {
         // Create a task for conversion
         const task = ilovePDFInstance.newTask('officepdf');
@@ -109,53 +109,46 @@ async function convertExcelToPDFILovePDF(excelFilePath) {
         // Process the task
         await task.process();
 
-        // Download the resulting PDF
+        // Download the resulting PDF as a buffer
         const pdfBuffer = await task.download();
 
-        // Save the PDF to a file
-        const outputFilePath = path.join(__dirname, `../../ressources/${path.basename(excelFilePath, '.xlsx')}.pdf`);
-        fs.writeFileSync(outputFilePath, pdfBuffer);
-
-        return outputFilePath;
+        return pdfBuffer;
     } catch (error) {
         console.error('Error during Excel to PDF conversion:', error.message);
         throw error;
     }
 }
 
-// Route to convert Excel to PDF using ILovePDF API
+// Route to convert Excel to PDF and send it directly to the client
 app.get('/api/convert/:auditID/:sheetName/pdf', async (req, res) => {
     const { auditID, sheetName } = req.params;
 
     try {
         const excelFilePath = path.join(__dirname, `../../ressources/${auditID} WMABE.xlsx`);
 
-        // Check if the file exists
+        // Check if the Excel file exists
         if (!fs.existsSync(excelFilePath)) {
             return res.status(404).send('Excel file not found');
         }
 
-        // Convert Excel to PDF
-        const pdfFilePath = await convertExcelToPDFILovePDF(excelFilePath);
+        // Convert Excel to PDF and get it as a buffer
+        const pdfBuffer = await convertExcelToPDFInMemory(excelFilePath);
 
-        // Serve the PDF file
-        res.download(pdfFilePath, `${auditID}-${sheetName}.pdf`, (err) => {
-            if (err) {
-                console.error('Error sending PDF file:', err);
-                res.status(500).send('Error retrieving the PDF');
-            } else {
-                // Optionally clean up the PDF file after serving
-                fs.unlink(pdfFilePath, (unlinkErr) => {
-                    if (unlinkErr) console.error('Error deleting PDF file:', unlinkErr);
-                });
-            }
+        // Set the response headers to indicate a file download
+        res.set({
+            'Content-Type': 'application/pdf',
+            'Content-Disposition': `attachment; filename="${auditID}-${sheetName}.pdf"`,
         });
+
+        // Send the PDF buffer directly to the client
+        res.send(pdfBuffer);
     } catch (error) {
-        console.error('Error generating PDF:', error.message);
+        console.error('Error generating or retrieving PDF:', error.message);
         res.status(500).json({ error: error.message });
     }
 });
 
+// Serve the application
 app.listen(port, () => {
     console.log(`Server running at http://localhost:${port}`);
 });
