@@ -54,10 +54,7 @@ export default function About() {
           </section>
         </main>
 
-        {/* Footer Section */}
-        <footer className="bg-gray-800 text-white text-center py-8 mt-8">
-          <p>Application de Gestion des Audits Internes &copy; 2023</p>
-        </footer>
+       
       </div>
     </>
   );

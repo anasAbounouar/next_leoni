@@ -1,8 +1,8 @@
 'use client';
+
 import { useState, useEffect } from 'react';
 import Select from 'react-select';
 import { Button } from '@nextui-org/react';
-
 
 export default function AuditSearch() {
   const [selectedOption, setSelectedOption] = useState(null);
@@ -12,23 +12,11 @@ export default function AuditSearch() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [activeSection, setActiveSection] = useState(null);
+  const [swotData, setSwotData] = useState([]);
   const [correctiveActionsData, setCorrectiveActionsData] = useState(null);
-  const handleDownloadPdf = async () => {
-    if (selectedOption) {
-      const response = await fetch(`http://localhost:3001/api/ressources/${selectedOption.value}/Date for corrective actions/pdf`);
-      if (response.ok) {
-        const blob = await response.blob();
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `${selectedOption.value}-Date-for-corrective-actions.pdf`;
-        a.click();
-        window.URL.revokeObjectURL(url);
-      } else {
-        console.error('Failed to download PDF:', response.statusText);
-      }
-    }
-  };
+  const [pdfUrl, setPdfUrl] = useState(null);
+
+  // Fetch audit IDs and data from the backend
   useEffect(() => {
     const fetchAuditData = async () => {
       setLoading(true);
@@ -42,7 +30,7 @@ export default function AuditSearch() {
         const options = data.tableData
           .filter(item => item["Audit ID"])
           .map(item => ({ value: item["Audit ID"], label: item["Audit ID"] }));
-        
+
         setAuditIds(options);
         setAuditData(data.tableData);
       } catch (error) {
@@ -55,30 +43,54 @@ export default function AuditSearch() {
     fetchAuditData();
   }, []);
 
+  // Handle selection change
   const handleSelectionChange = (option) => {
     setSelectedOption(option);
     if (option) {
       const selectedAudit = auditData.find(item => item["Audit ID"] === option.value);
       setSelectedAuditData(selectedAudit || {});
       setActiveSection(null);
+      setPdfUrl(null); // Reset the PDF URL when a new option is selected
     } else {
       setSelectedAuditData(null);
       setActiveSection(null);
+      setPdfUrl(null); // Reset the PDF URL when no option is selected
     }
   };
 
+  // Handle button click to download the entire PDF for "Date for Corrective Actions"
   const handleButtonClick = async (section) => {
     setActiveSection(section);
     if (section === 'Date for Corrective Actions' && selectedOption) {
+      try {
+        const response = await fetch(`http://localhost:3001/api/convert/${selectedOption.value}/Date for corrective actions/pdf`);
+        if (!response.ok) {
+          throw new Error('Failed to download PDF');
+        }
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        setPdfUrl(url); // Set the URL for the iframe
+
+        // Trigger download
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${selectedOption.value}-Date-for-corrective-actions.pdf`;
+        a.click();
+        window.URL.revokeObjectURL(url);
+      } catch (error) {
+        setError(error.message);
+        console.error('Error downloading PDF:', error.message);
+      }
+    } else if (section === 'Swot' && selectedOption) {
       setLoading(true);
       setError(null);
       try {
-        const response = await fetch(`http://localhost:3001/api/ressources/${selectedOption.value}/Date for corrective actions`);
+        const response = await fetch(`http://localhost:3001/api/ressources/${selectedOption.value}/SWOT`);
         if (!response.ok) {
-          throw new Error('Failed to fetch corrective actions data');
+          throw new Error('Failed to fetch SWOT data');
         }
         const data = await response.json();
-        setCorrectiveActionsData(data);
+        setSwotData(data.content || []);
       } catch (error) {
         setError(error.message);
       } finally {
@@ -87,6 +99,27 @@ export default function AuditSearch() {
     }
   };
 
+  const handleDownloadPdf = async () => {
+    if (selectedOption) {
+      const response = await fetch(`http://localhost:3001/api/ressources/${selectedOption.value}/Date for corrective actions/pdf`);
+      if (response.ok) {
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        setPdfUrl(url); // Set the URL for the iframe
+
+        // Trigger download
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${selectedOption.value}-Date-for-corrective-actions.pdf`;
+        a.click();
+        window.URL.revokeObjectURL(url);
+      } else {
+        console.error('Failed to download PDF:', response.statusText);
+      }
+    }
+  };
+
+  // Determine button styles
   const buttonClasses = (section) => {
     const baseClasses = "mr-2 mb-2 px-4 py-2 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500";
     const activeClasses = "bg-blue-700";
@@ -97,6 +130,64 @@ export default function AuditSearch() {
       : `${baseClasses} ${defaultClasses}`;
   };
 
+  // Render table for SWOT data
+  const renderSwotTable = (data) => {
+    if (!Array.isArray(data) || data.length === 0) return <p>No data available</p>;
+
+    const swotSections = ['Strengths', 'Weaknesses', 'Opportunities', 'Threats'];
+    const sectionColors = {
+      Strengths: 'text-green-600',
+      Weaknesses: 'text-red-600',
+      Opportunities: 'text-blue-600',
+      Threats: 'text-orange-600',
+    };
+
+    const filteredData = data.map(row => row.filter(cell => cell !== null && cell.trim() !== ''));
+
+    return (
+      <div className="overflow-y-auto bg-white text-gray-800 rounded-xl shadow-lg my-10 mx-6">
+        <table className="min-w-full border-collapse rounded-lg overflow-hidden shadow-lg">
+          <tbody className="bg-white divide-y divide-gray-200">
+            {filteredData.map((row, rowIndex) => {
+              const isSwotSection = row[1] && swotSections.includes(row[1]);
+
+              return (
+                <tr
+                  key={rowIndex}
+                  className={`${
+                    rowIndex % 2 === 0 ? 'bg-gray-50' : 'bg-white'
+                  } hover:bg-blue-100 transition-colors duration-200`}
+                >
+                  {row.map((cell, cellIndex) => {
+                    let cellStyle = `px-1 py-1 text-sm text-gray-700 whitespace-nowrap border-b border-gray-300`;
+
+                    if (cell === 'SWOT Analyses for: LEONI Wiring Systems WMABE') {
+                      cellStyle += ' font-bold !text-xl text-center';
+                    } else if (cell === 'Internal System Audit: WSD S01-23-75') {
+                      cellStyle += ' font-bold text-md text-center !text-lg';
+                    }
+
+                    return (
+                      <td
+                        key={cellIndex}
+                        className={`${cellStyle} px-6 ${isSwotSection ? 'font-bold' : ''} ${
+                          sectionColors[cell] || ''
+                        }`}
+                      >
+                        {cell}
+                      </td>
+                    );
+                  })}
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    );
+  };
+
+  // Render table for Corrective Actions data
   const renderQualificationTimeScheduleTable = (data) => {
     if (!data || data.length === 0) return <p>No data available</p>;
 
@@ -128,11 +219,10 @@ export default function AuditSearch() {
                 className={`${rowIndex % 2 === 0 ? 'bg-gray-50' : 'bg-white'} hover:bg-blue-100 transition-colors duration-200`}
               >
                 {row
-                  .filter(cell => cell !== null && cell !== '') // Filter out empty cells
+                  .filter(cell => cell !== null && cell !== '') 
                   .map((cell, cellIndex) => {
                     let cellStyle = 'px-6 py-3 text-sm text-gray-700 whitespace-nowrap border-b border-gray-300';
 
-                    // Apply special styling based on the cell content
                     if (cell === 'Qualification Time Schedule') {
                       cellStyle += ' font-bold text-xl';
                     } else if (cell === 'Time schedule (supplier)') {
@@ -211,19 +301,25 @@ export default function AuditSearch() {
                   onClick={() => handleButtonClick('AuditAnnouncement')}
                   className={buttonClasses('AuditAnnouncement')}
                 >
-                  Audit Announcement 
+                  Audit Announcement
                 </Button>
                 <Button
-    auto
-    onClick={handleDownloadPdf}
-    className="bg-green-500 text-white"
-  > 
-    Download PDF for dates for corr..
-  </Button>
+                  auto
+                  onClick={handleDownloadPdf}
+                  className="bg-green-500 text-white"
+                > 
+                  Download PDF for dates for corr..
+                </Button>
               </div>
-              {activeSection === 'Date for Corrective Actions' && (
+              {activeSection === 'Swot' && (
                 <div>
-                  {correctiveActionsData && renderQualificationTimeScheduleTable(correctiveActionsData.content)}
+                  {renderSwotTable(swotData)}
+                </div>
+              )}
+              {activeSection === 'Date for Corrective Actions' && pdfUrl && (
+                <div>
+                  <iframe src={pdfUrl} width="100%" height="600px" />
+                  {pdfUrl}
                 </div>
               )}
             </div> 
