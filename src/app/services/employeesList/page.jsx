@@ -1,4 +1,4 @@
-'use client';
+'use client'
 import React, { useState } from 'react';
 import headers from './headers'; // Import the static headers
 
@@ -30,6 +30,21 @@ export default function EmployeeData() {
         window.location.href = 'http://localhost:3001/api/download/excel';
     };
 
+    const getBackgroundColor = (content) => {
+        switch(content) {
+            case 'System':
+                return '#FFFFE0'; // Light Yellow
+            case 'Process':
+                return '#E0FFFF'; // Light Cyan
+            case 'Product':
+                return '#F0F8FF'; // Light Blue
+            case 'General':
+                return '#FFE4E1'; // Light Pink
+            default:
+                return '#FFF8DC'; // Default Light Color (Cornsilk)
+        }
+    };
+
     const renderHeaderRow = (level) => {
         let mergedHeaders = [];
         let previousHeader = null;
@@ -57,9 +72,9 @@ export default function EmployeeData() {
             <th 
                 key={header.key} 
                 colSpan={header.colSpan} 
-                className={`border border-gray-400 px-4 py-2 ${header.content ? 'bg-yellow-100' : ''}`}
+                className="border border-gray-400 px-4 py-2"
                 style={{
-                    backgroundColor: header.content ? (header.content === 'System' ? '#FFFFE0' : header.content === 'Process' ? '#E0FFFF' : '#F0F8FF') : 'transparent'
+                    backgroundColor: header.content ? getBackgroundColor(header.content) : 'transparent'
                 }}
             >
                 {header.content || ''}

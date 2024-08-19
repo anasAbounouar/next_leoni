@@ -141,8 +141,8 @@ const headers = [
     },
     {
         column: 21,
-        level1: 'SYSTEM AUDIT',
-        level2: null,
+        level1: null,
+        level2: 'SYSTEM AUDIT',
         level3: null,
         level4: 'Is trained to ISO 9001 and IATF 16949/ Audit realisation [ref. IATF 16949:2016_7.2.3 c)]'
     },
@@ -275,22 +275,22 @@ const headers = [
     {
         column: 40,
         level1: null,
-        level2: 'PRODUCT AUDIT',
-        level3: null,
+        level2: null,
+        level3: 'PRODUCT AUDIT',
         level4: 'Has competence in use of relevant measuring and test equipment to verify product conformity [ref. IATF 16949:2016_7.2.3]'
     },
     {
         column: 41,
         level1: null,
-        level2: 'PRODUCT AUDIT',
-        level3: null,
+        level2: null,
+        level3: 'PRODUCT AUDIT',
         level4: 'Has knowledge (competence) of the customer specification (product requirements) [ref. IATF 16949:2016_7.2.3]'
     },
     {
         column: 42,
         level1: null,
-        level2: 'PRODUCT AUDIT',
-        level3: null,
+        level2: null,
+        level3: 'PRODUCT AUDIT',
         level4: 'Has performed on at least 3 Product Audits per year'
     }
 ];
