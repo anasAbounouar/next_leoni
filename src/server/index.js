@@ -60,24 +60,25 @@ app.get('/api/audit-ids', (req, res) => {
     try {
         const filePath = path.join(__dirname, '../../ressources/VA3011en5 Internal audit schedule 2023-2024.xls');
         const workbook = XLSX.readFile(filePath);
-        const sheetName = 'Planning audit 2023';
+        const sheetName = 'Planning audit 2023'; // Ensure this matches your sheet name
         const worksheet = workbook.Sheets[sheetName];
 
         if (!worksheet) {
             throw new Error(`Sheet named '${sheetName}' not found.`);
         }
 
+        // Convert sheet to JSON
         const data = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-        const headerRowIndex = 5;
+        const headerRowIndex = 5; // Adjust based on your sheet
         const headers = data[headerRowIndex];
 
         const tableData = data.slice(headerRowIndex + 1).map(row => {
             const rowObject = {};
             headers.forEach((header, index) => {
-                rowObject[header] = row[index];
+                rowObject[header] = row[index] || ''; // Default to empty string if no value
             });
             return rowObject;
-        });
+        }).filter(row => row['Site / BU / Department'] && row['Site / BU / Department'] !== ''); // Filter out rows without a valid "Site / BU / Department"
 
         res.json({ tableData });
     } catch (error) {
@@ -85,6 +86,7 @@ app.get('/api/audit-ids', (req, res) => {
         res.status(500).json({ error: error.message });
     }
 });
+
 
 // General route to fetch data for a specific audit ID and sheet
 app.get('/api/ressources/:auditID/:sheetName', (req, res) => {
