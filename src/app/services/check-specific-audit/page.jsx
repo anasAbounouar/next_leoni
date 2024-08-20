@@ -1,4 +1,5 @@
-'use client'
+'use client';
+
 import { useState, useEffect } from 'react';
 import Select from 'react-select';
 import { Button } from '@nextui-org/react';
@@ -18,7 +19,6 @@ export default function AuditSearch() {
   const [pdfImage, setPdfImage] = useState(null);
   const [isFetchingPdf, setIsFetchingPdf] = useState(false);
 
-  // Fetch audit IDs and data from the backend
   useEffect(() => {
     const fetchAuditData = async () => {
       setLoading(true);
@@ -45,64 +45,61 @@ export default function AuditSearch() {
     fetchAuditData();
   }, []);
 
-  // Handle selection change, fetch PDF and SWOT data immediately
- // Handle selection change, fetch PDF, SWOT data, and download Excel file immediately
-const handleSelectionChange = async (option) => {
+  const handleSelectionChange = async (option) => {
     setSelectedOption(option);
     setPdfImage(null);
     setPdfBlob(null);
     setActiveSection(null);
 
     if (option) {
-        const selectedAudit = auditData.find(item => item["Audit ID"] === option.value);
-        setSelectedAuditData(selectedAudit || {});
+      const selectedAudit = auditData.find(item => item["Audit ID"] === option.value);
+      setSelectedAuditData(selectedAudit || {});
 
-        // Fetch PDF immediately
-        setIsFetchingPdf(true);
-        try {
-            const response = await fetch(`http://localhost:3001/api/convert/${option.value}/pdf`);
-            if (!response.ok) {
-                throw new Error('Failed to fetch PDF');
-            }
-            const pdfBlob = await response.blob();
-            setPdfBlob(pdfBlob);
-
-        } catch (error) {
-            setError(error.message);
-            console.error('Error fetching PDF:', error.message);
-        } finally {
-            setIsFetchingPdf(false);
+      // Fetch PDF immediately
+      setIsFetchingPdf(true);
+      try {
+        const response = await fetch(`http://localhost:3001/api/convert/${option.value}/pdf`);
+        if (!response.ok) {
+          throw new Error('Failed to fetch PDF');
         }
+        const pdfBlob = await response.blob();
+        setPdfBlob(pdfBlob);
+      } catch (error) {
+        setError(error.message);
+        console.error('Error fetching PDF:', error.message);
+      } finally {
+        setIsFetchingPdf(false);
+      }
 
-        // Fetch SWOT data immediately
-        setLoading(true);
-        setError(null);
-        try {
-            const response = await fetch(`http://localhost:3001/api/ressources/${option.value}/SWOT`);
-            if (!response.ok) {
-                throw new Error('Failed to fetch SWOT data');
-            }
-            const data = await response.json();
-            setSwotData(data.content || []);
-        } catch (error) {
-            setError(error.message);
-        } finally {
-            setLoading(false);
+      // Fetch SWOT data immediately
+      setLoading(true);
+      setError(null);
+      try {
+        const response = await fetch(`http://localhost:3001/api/ressources/${option.value}/SWOT`);
+        if (!response.ok) {
+          throw new Error('Failed to fetch SWOT data');
         }
-
-       
-        
+        const data = await response.json();
+        setSwotData(data.content || []);
+      } catch (error) {
+        setError(error.message);
+      } finally {
+        setLoading(false);
+      }
     } else {
-        setSelectedAuditData(null);
-        setSwotData([]);
+      setSelectedAuditData(null);
+      setSwotData([]);
     }
-};
+  };
 
-
-  // Handle button click to render the selected page from the already fetched PDF
   const handleButtonClick = async (section) => {
     setActiveSection(section);
     setError(null);
+
+    if (section === 'AuditAnnouncement' && selectedOption) {
+      handleDownloadExcel(`/api/ressources/${selectedOption.value}/announcement`);  // Trigger the download of the specific Excel file
+      return;
+    }
 
     if (!pdfBlob) {
       setError('No PDF available. Please select an audit ID.');
@@ -133,8 +130,7 @@ const handleSelectionChange = async (option) => {
         setError(`The PDF does not have a page ${pageNumber}.`);
       }
 
-      URL.revokeObjectURL(pdfUrl); // Revoke the temporary URL
-
+      URL.revokeObjectURL(pdfUrl);
     } catch (error) {
       setError(error.message);
       console.error('Error rendering PDF page:', error.message);
@@ -152,10 +148,11 @@ const handleSelectionChange = async (option) => {
     }
   };
 
-  const handleDownloadExcel = () => {
+  const handleDownloadExcel = (endpoint) => {
     if (selectedOption) {
       const form = document.createElement('form');
-      form.action = `http://localhost:3001/api/ressources/${selectedOption.value}/download`;
+      form.action = `http://localhost:3001${endpoint}`;
+      console.log("trying to get:",`http://localhost:3001${endpoint}`)
       form.method = 'GET';
       form.style.display = 'none';
       document.body.appendChild(form);
@@ -163,7 +160,6 @@ const handleSelectionChange = async (option) => {
       document.body.removeChild(form);
     }
   };
-  
 
   const buttonClasses = (section) => {
     const baseClasses = "mr-2 mb-2 px-4 py-2 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500";
@@ -176,8 +172,7 @@ const handleSelectionChange = async (option) => {
   };
 
   const renderSwotTable = (data) => {
-    
-    if (!Array.isArray(data) || data.length === 0) return <p>No data available</p>
+    if (!Array.isArray(data) || data.length === 0) return <p>No data available</p>;
 
     const swotSections = ['Strengths', 'Weaknesses', 'Opportunities', 'Threats'];
     const sectionColors = {
@@ -287,6 +282,7 @@ const handleSelectionChange = async (option) => {
                 </Button>
                 <Button
                   auto
+                  onClick={() => handleButtonClick('AuditAnnouncement')}
                   className={buttonClasses('AuditAnnouncement')}
                   disabled={isFetchingPdf || loading}
                   isLoading={isFetchingPdf || loading}
@@ -294,23 +290,25 @@ const handleSelectionChange = async (option) => {
                   Audit Announcement
                 </Button>
               </div>
-             <div className='flex items-center justify-between'> {pdfBlob && (
+              <div className='flex items-center justify-between'> 
+                {pdfBlob && (
+                  <Button
+                    auto
+                    onClick={handleDownloadPdf}
+                    className="mt-4 bg-green-500 text-white"
+                  >
+                    Download PDF
+                  </Button>
+                )}
                 <Button
                   auto
-                  onClick={handleDownloadPdf}
-                  className="mt-4 bg-green-500 text-white"
-                >
-                  Download PDF
-                </Button>
-              )}
-              <Button
-                  auto
-                  onClick={handleDownloadExcel}
+                  onClick={() => handleDownloadExcel(`/api/ressources/${selectedOption.value}/announcement`)}
                   className="mt-4 bg-blue-500 text-white"
                   disabled={isFetchingPdf || loading}
-              >
+                >
                   Download Excel
-              </Button></div>
+                </Button>
+              </div>
               {activeSection === 'Swot' && (
                 <div>
                   {renderSwotTable(swotData)}
@@ -328,8 +326,6 @@ const handleSelectionChange = async (option) => {
                   />
                 </div>
               )}
-              
-              
               
               {activeSection === 'Date for Corrective Actions' && !pdfImage && (
                 <div className="text-center mt-10">
