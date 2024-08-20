@@ -15,10 +15,11 @@ import Footer from "@/components/Footer";
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
+      
       <body className={`${inter.className} min-h-screen flex flex-col`}>
         <Providers>
           <Navbar />
-          <main className="flex-grow min-h-dvh">
+          <main className="flex-grow min-h-[87dvh]">
             {children}
           </main>
           <Footer />

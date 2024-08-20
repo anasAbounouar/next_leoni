@@ -99,8 +99,8 @@ export default function EmployeeData() {
     };
 
     return (
-        <div className="p-4 mx-10">
-            <h2 className="text-xl mb-4">Add New Employee</h2>
+        <div className="p-4 m-10">
+           
             <form onSubmit={handleFormSubmit} className="mb-6">
                 <div className='overflow-y-auto'>
                     <table className="min-w-full border-collapse border-2 !rounded-xl border-gray-900">
@@ -144,7 +144,7 @@ export default function EmployeeData() {
                     type="submit"
                     className="mt-4 bg-green-500 text-white p-2 rounded"
                 >
-                    Add Employee and Update Excel yes
+                    Add Employee and Update Excel 
                 </button>
             </form>
         </div>

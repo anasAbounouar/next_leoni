@@ -40,6 +40,7 @@
     "react-select": "^5.8.0",
     "sweetalert": "^2.1.2",
     "sweetalert2": "^11.12.4",
+    "swiper": "^11.1.9",
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
