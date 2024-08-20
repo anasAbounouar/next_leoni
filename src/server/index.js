@@ -6,6 +6,7 @@ const path = require('path');
 const fs = require('fs');
 const ILovePDFApi = require('@ilovepdf/ilovepdf-nodejs');
 const ILovePDFFile = require('@ilovepdf/ilovepdf-nodejs/ILovePDFFile');
+const { CloseFullscreen } = require('@mui/icons-material');
 
 // Load environment variables for the API keys
 const { ILOVE_PDF_PUBLIC_KEY, ILOVE_PDF_SECRET_KEY } = process.env;
@@ -167,6 +168,61 @@ app.get('/api/employees', (req, res) => {
         res.status(500).json({ error: error.message });
     }
 });
+app.post('/api/add-employee', (req, res) => {
+    const filePath = path.join(__dirname, '../../ressources/Auditors qualifications WMABE 2024-2025.xlsx');
+    const newEmployee = req.body;
+
+    try {
+        // Read the existing Excel file
+        if (!fs.existsSync(filePath)) {
+            throw new Error(`Excel file not found at ${filePath}`);
+        }
+
+        const workbook = XLSX.readFile(filePath);
+        const worksheet = workbook.Sheets['WMABE']; // Adjust the sheet name if needed
+
+        if (!worksheet) {
+            throw new Error(`Sheet 'WMABE' not found in the Excel file.`);
+        }
+
+        // Convert the worksheet to JSON to get current data
+        const sheetData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+        const headers = require('../app/services/employeesList/headers');
+
+        // Log the headers and new employee data
+        console.log("Headers from headers.js:", headers);
+        console.log("New Employee Data:", newEmployee);
+
+        // Prepare the new employee data row
+        const newRow = headers.map(header => newEmployee[header.column] || '');
+
+        console.log("New Row to be added:", newRow);
+
+        // Validate newRow before adding to ensure no issues in data structure
+        if (!Array.isArray(newRow) || newRow.length !== headers.length) {
+            throw new Error("New row data structure is invalid.");
+        }
+
+        // Append the new row to the existing data
+        sheetData.push(newRow);
+
+        // Convert the updated JSON back to the worksheet
+        const newWorksheet = XLSX.utils.aoa_to_sheet(sheetData);
+        workbook.Sheets['WMABE'] = newWorksheet;
+
+        // Write the updated workbook back to the file
+        XLSX.writeFile(workbook, filePath);
+
+        res.status(200).json({ message: 'Employee added successfully!' });
+    } catch (error) {
+        console.error('Error updating Excel file:', error.message);
+        res.status(500).json({ error: `There was an error updating the Excel file: ${error.message}` });
+    }
+});
+
+
+
+
 
 
 
