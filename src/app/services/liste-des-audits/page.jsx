@@ -6,7 +6,6 @@ export default function ListeDesAudits() {
   const [auditData, setAuditData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [metadata, setMetadata] = useState({});
 
   useEffect(() => {
     const fetchAuditData = async () => {
@@ -23,25 +22,6 @@ export default function ListeDesAudits() {
           row["Result"]
         );
 
-        // Extracting metadata with more robust checks
-        const issuedByRow = result.tableData.find(row => typeof row["Site / BU / Department"] === 'string' && row["Site / BU / Department"].includes("Issued by"));
-        const historyRows = result.tableData.filter(row => row["Site / BU / Department"] === "History" || row["Site / BU / Department"] === "Index");
-        const issuedByDetails = result.tableData.find(row => typeof row["Site / BU / Department"] === 'string' && row["Site / BU / Department"].includes("Imane BENSALAH"));
-        const specialInstructionsRow = result.tableData.find(row => typeof row["Site / BU / Department"] === 'string' && row["Site / BU / Department"].includes("Released by"));
-
-        const metadataInfo = {
-          title: "Internal Audits` Schedule / Programme \"WMABE\"",
-          issuedDate: issuedByRow ? issuedByRow["Site / BU / Department"] : "Issued date not found",
-          auditPeriod: "Audit period: 2023/2024",
-          history: historyRows.map(row => ({
-            date: row["Site / BU / Department"],
-            change: row["Processes"]
-          })),
-          issuedBy: issuedByDetails ? issuedByDetails["Site / BU / Department"] : "Issued by information not found",
-          specialInstructions: specialInstructionsRow ? specialInstructionsRow["Processes"] : "Special instructions not found"
-        };
-
-        setMetadata(metadataInfo);
         setAuditData(filteredData);
       } catch (error) {
         setError('Failed to fetch audit data');
@@ -65,7 +45,7 @@ export default function ListeDesAudits() {
     const months = ["Feb", "March", "Apr", "May", "June", "July", "Aug", "Sept", "Oct", "Nov", "Dec", "Jan"];
     for (const month of months) {
       if (row[month]) {
-        return month;
+        return `${month}: ${row[month]}`;
       }
     }
     return "-";
@@ -97,62 +77,42 @@ export default function ListeDesAudits() {
   }));
 
   return (
-    <div>
-      <div style={{ marginBottom: "20px" }}>
-        <h1>{metadata.title}</h1>
-        <p>{metadata.issuedDate}</p>
-        <p>{metadata.auditPeriod}</p>
-        {metadata.history && (
-          <div>
-            <h3>History</h3>
-            <ul>
-              {metadata.history.map((entry, index) => (
-                <li key={index}>{entry.date}: {entry.change}</li>
-              ))}
-            </ul>
-          </div>
+    <Table
+      isStriped
+      aria-label="Liste des Audits"
+      css={{
+        borderCollapse: "collapse",
+      }}
+    >
+      <TableHeader columns={columns}>
+        {(column) => (
+          <TableColumn
+            key={column.key}
+            css={{
+              border: "1px solid #ddd",
+              padding: "8px",
+            }}
+          >
+            {column.label}
+          </TableColumn>
         )}
-        <p>{metadata.issuedBy}</p>
-        <p>{metadata.specialInstructions}</p>
-      </div>
-
-      <Table
-        isStriped
-        aria-label="Liste des Audits"
-        css={{
-          borderCollapse: "collapse",
-        }}
-      >
-        <TableHeader columns={columns}>
-          {(column) => (
-            <TableColumn
-              key={column.key}
-              css={{
-                border: "1px solid #ddd",
-                padding: "8px",
-              }}
-            >
-              {column.label}
-            </TableColumn>
-          )}
-        </TableHeader>
-        <TableBody items={rows}>
-          {(item) => (
-            <TableRow key={item.key}>
-              {(columnKey) => (
-                <TableCell
-                  css={{
-                    border: "1px solid #ddd",
-                    padding: "8px",
-                  }}
-                >
-                  {getKeyValue(item, columnKey)}
-                </TableCell>
-              )}
-            </TableRow>
-          )}
-        </TableBody>
-      </Table>
-    </div>
+      </TableHeader>
+      <TableBody items={rows}>
+        {(item) => (
+          <TableRow key={item.key}>
+            {(columnKey) => (
+              <TableCell
+                css={{
+                  border: "1px solid #ddd",
+                  padding: "8px",
+                }}
+              >
+                {getKeyValue(item, columnKey)}
+              </TableCell>
+            )}
+          </TableRow>
+        )}
+      </TableBody>
+    </Table>
   );
 }
