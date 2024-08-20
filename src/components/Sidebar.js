@@ -120,7 +120,7 @@ export default function MiniDrawer() {
     { text: 'Ajouter un Nouvel Employé', icon: <PersonAddIcon />, path: '/services/addEmployee' },
     { text: 'Planifier Audit', icon: <AssignmentIcon />, path: '/planifier-audit' },
     { text: 'Mettre à jour Audit', icon: <UpdateIcon />, path: '/mettre-a-jour-audit' },
-    { text: 'Voir la Liste des Audits', icon: <ListAltIcon />, path: '/liste-des-audits' },
+    { text: 'Voir la Liste des Audits', icon: <ListAltIcon />, path: '/services/liste-des-audits' },
     { text: 'Annonce d\'Audit', icon: <AnnouncementIcon />, path: '/annonce-audit' },
     { text: 'Résultat d\'Audit', icon: <CheckCircleIcon />, path: '/resultat-audit' },
     { text: 'SWOT', icon: <AssessmentIcon />, path: '/swot' },
