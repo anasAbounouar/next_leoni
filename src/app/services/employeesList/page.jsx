@@ -1,16 +1,45 @@
 'use client'
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import Select from 'react-select'; // Import the Select component from react-select
 import headers from './headers'; // Import the static headers
 
 export default function EmployeeData() {
-    const [employeeNumber, setEmployeeNumber] = useState('');
+    const [employees, setEmployees] = useState([]); // State to store employee list
+    const [selectedEmployee, setSelectedEmployee] = useState(null); // State to store selected employee
     const [employeeData, setEmployeeData] = useState([]); // Initialize as an array
     const [error, setError] = useState(null);
 
-    const handleFetchData = async () => {
-        if (employeeNumber) {
+    useEffect(() => {
+        // Fetch the list of employees when the component loads
+        const fetchEmployees = async () => {
             try {
-                const response = await fetch(`http://localhost:3001/api/employee/${employeeNumber}`);
+                const response = await fetch('http://localhost:3001/api/employees'); // Fetching the employee list from your API
+                if (!response.ok) {
+                    throw new Error('Failed to fetch employee list');
+                }
+                const data = await response.json();
+
+                // Map the data to match the format needed by react-select
+                const formattedEmployees = data.map(employee => ({
+                    value: employee.id,
+                    label: `${employee.lastName.trim()} ${employee.firstName.trim()} (${employee.jobTitle.trim()})`,
+                }));
+
+                setEmployees(formattedEmployees);
+            } catch (err) {
+                setError(err.message);
+            }
+        };
+
+        fetchEmployees();
+    }, []);
+
+    const handleEmployeeChange = async (selectedOption) => {
+        setSelectedEmployee(selectedOption);
+
+        if (selectedOption) {
+            try {
+                const response = await fetch(`http://localhost:3001/api/employee/${selectedOption.value}`);
                 if (!response.ok) {
                     throw new Error('Employee not found');
                 }
@@ -23,6 +52,8 @@ export default function EmployeeData() {
                 setError(err.message);
                 setEmployeeData([]);
             }
+        } else {
+            setEmployeeData([]);
         }
     };
 
@@ -83,29 +114,31 @@ export default function EmployeeData() {
     };
 
     return (
-        <div className="p-4">
+        <div className="p-4 mx-10">
             <button onClick={handleDownload} className="mb-4 p-2 bg-blue-500 text-white rounded">
                 Download Excel File
             </button>
 
-            <div className="mb-4">
-                <input
-                    type="number"
-                    placeholder="Enter Employee Number"
-                    value={employeeNumber}
-                    onChange={(e) => setEmployeeNumber(e.target.value)}
-                    className="p-2 border rounded"
+            <div className="mb-4" classNames={'flex justify-content-center'}>
+                <Select
+                    value={selectedEmployee}
+                    onChange={handleEmployeeChange}
+                    options={employees}
+                    className="basic-single"
+                    classNamePrefix="select"
+                    placeholder="Select an Employee"
+                    isClearable
+                    isSearchable
+                    
+                   
                 />
-                <button onClick={handleFetchData} className="ml-2 p-2 bg-green-500 text-white rounded">
-                    Fetch Data
-                </button>
             </div>
 
             {error && <p className="text-red-500">{error}</p>}
 
             {employeeData.length > 0 && (
-                <div className='overflow-y-auto mx-10'>
-                    <table className="min-w-full border-collapse border border-gray-400">
+                <div className='overflow-y-auto  '>
+                    <table className="min-w-full border-collapse border-2 !rounded-xl  border-gray-900">
                         <thead>
                             <tr>
                                 {renderHeaderRow('level1')}
@@ -123,7 +156,7 @@ export default function EmployeeData() {
                         <tbody>
                             <tr>
                                 {headers.map((header) => {
-                                    const dataForColumn = employeeData.find((data) => data.index === header.column);
+                                    const dataForColumn = employeeData.find((data) => data?.index === header.column);
                                     const cellValue = dataForColumn ? dataForColumn.value : null;
                                     return (
                                         <td 

@@ -143,13 +143,13 @@ export default function MiniDrawer() {
             color="inherit"
             aria-label="open drawer"
             onClick={handleDrawerOpen}
+
             edge="start"
             sx={{
               marginRight: 5,
               ...(open && { display: 'none' }),
             }}
-          >
-            <MenuIcon />
+          > <MenuIcon />
           </IconButton>
           
             <NavbarComponent/>
@@ -162,10 +162,13 @@ export default function MiniDrawer() {
           </IconButton>
         </DrawerHeader>
         <Divider />
-        <List>
+        <List >
           {menuItems.map((item, index) => (
             <ListItem key={item.text} disablePadding sx={{ display: 'block' }}>
               <ListItemButton
+               
+                onMouseEnter={() => setOpen(true)}
+                onMouseLeave={() => setOpen(false)}
                 onClick={() => router.push(item.path)} // Navigate on click
                 sx={{
                   minHeight: 48,
@@ -190,12 +193,12 @@ export default function MiniDrawer() {
         <Divider />
         {/* Additional sections or items can be added here */}
       </Drawer>
-      <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
+      {/* <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
         <DrawerHeader />
         <Typography paragraph>
           Le contenu principal se trouve ici.
         </Typography>
-      </Box>
+      </Box> */}
     </Box>
   );
 }

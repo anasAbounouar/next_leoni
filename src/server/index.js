@@ -141,6 +141,33 @@ app.get('/api/employee/:number', (req, res) => {
         res.status(500).json({ error: error.message });
     }
 });
+app.get('/api/employees', (req, res) => {
+    const filePath = path.join(__dirname, '../../ressources/Auditors qualifications WMABE 2024-2025.xlsx');
+
+    try {
+        const workbook = XLSX.readFile(filePath);
+        const sheetName = 'WMABE'; // Replace with the actual sheet name if different
+        const worksheet = workbook.Sheets[sheetName];
+        const data = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+
+        // Assuming row[3] corresponds to 'Actual job title / position / function'
+        // Also assuming that row[0] = 'No.', row[1] = 'First Name', row[2] = 'Last Name', and row[3] = 'Job Title'
+        const employeeList = data.slice(9).map(row => {
+            return {
+                id: row[0], // Assuming 'No.' is in the first column
+                firstName: row[1] && row[1].trim(), // Assuming 'First Name' is in the second column
+                lastName: row[2] && row[2].trim(), // Assuming 'Last Name' is in the third column
+                jobTitle: row[3] && row[3].trim() // Assuming 'Actual job title / position / function' is in the fourth column
+            };
+        }).filter(employee => employee.id && employee.firstName && employee.lastName && employee.jobTitle); // Filtering out rows without complete data
+
+        res.json(employeeList);
+    } catch (error) {
+        console.error('Error fetching employee list:', error.message);
+        res.status(500).json({ error: error.message });
+    }
+});
+
 
 
 
