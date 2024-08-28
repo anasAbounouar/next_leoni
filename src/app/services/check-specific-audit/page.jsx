@@ -18,6 +18,8 @@ export default function AuditSearch() {
   const [pdfBlob, setPdfBlob] = useState(null);
   const [pdfImage, setPdfImage] = useState(null);
   const [isFetchingPdf, setIsFetchingPdf] = useState(false);
+  const [pdfUrl, setPdfUrl] = useState(null);
+  const [pdfPageNumber, setPdfPageNumber] = useState(1);  // New state to store the page number
 
   useEffect(() => {
     const fetchAuditData = async () => {
@@ -50,6 +52,8 @@ export default function AuditSearch() {
     setPdfImage(null);
     setPdfBlob(null);
     setActiveSection(null);
+    setPdfUrl(null);
+    setPdfPageNumber(1);  // Reset to page 1 by default
 
     if (option) {
       const selectedAudit = auditData.find(item => item["Audit ID"] === option.value);
@@ -64,6 +68,10 @@ export default function AuditSearch() {
         }
         const pdfBlob = await response.blob();
         setPdfBlob(pdfBlob);
+
+        // Create a Blob URL for the PDF to display in the iframe
+        const pdfUrl = URL.createObjectURL(pdfBlob);
+        setPdfUrl(pdfUrl);
       } catch (error) {
         setError(error.message);
         console.error('Error fetching PDF:', error.message);
@@ -97,7 +105,7 @@ export default function AuditSearch() {
     setError(null);
 
     if (section === 'AuditAnnouncement' && selectedOption) {
-      handleDownloadExcel(`/api/ressources/${selectedOption.value}/announcement`);  // Trigger the download of the specific Excel file
+      handleDownloadExcel(`/api/ressources/${selectedOption.value}/announcement`);
       return;
     }
 
@@ -106,14 +114,17 @@ export default function AuditSearch() {
       return;
     }
 
+    // Determine the page number based on the section
+    let pageNumber;
+    if (section === 'FrontPage') pageNumber = 1;
+    if (section === 'Date for Corrective Actions') pageNumber = 4;
+    if (section === 'VA3011') pageNumber = 3;
+
+    setPdfPageNumber(pageNumber);  // Set the page number for the iframe
+
     try {
       const pdfUrl = window.URL.createObjectURL(pdfBlob);
       const pdf = await pdfjsLib.getDocument(pdfUrl).promise;
-
-      let pageNumber;
-      if (section === 'FrontPage') pageNumber = 1;
-      if (section === 'Date for Corrective Actions') pageNumber = 4;
-      if (section === 'VA3011') pageNumber = 3;
 
       if (pageNumber && pdf.numPages >= pageNumber) {
         const page = await pdf.getPage(pageNumber);
@@ -139,7 +150,6 @@ export default function AuditSearch() {
 
   const handleDownloadPdf = () => {
     if (pdfBlob) {
-      const pdfUrl = window.URL.createObjectURL(pdfBlob);
       const a = document.createElement('a');
       a.href = pdfUrl;
       a.download = `${selectedOption.value}-Audit.pdf`;
@@ -152,7 +162,6 @@ export default function AuditSearch() {
     if (selectedOption) {
       const form = document.createElement('form');
       form.action = `http://localhost:3001${endpoint}`;
-      console.log("trying to get:",`http://localhost:3001${endpoint}`)
       form.method = 'GET';
       form.style.display = 'none';
       document.body.appendChild(form);
@@ -333,6 +342,17 @@ export default function AuditSearch() {
                   <Button color="secondary" isLoading={true}>Chargement pour l&apos;affichage ...</Button>
                 </div>
               )}
+            </div>
+          )}
+          {pdfUrl && (
+            <div className="mt-10">
+              <iframe 
+                src={`${pdfUrl}#page=2`}  // Append the page number to the URL
+                width="100%" 
+                height="600px" 
+                className="rounded-lg border-2 border-gray-300"
+                title="PDF Viewer"
+              />
             </div>
           )}
         </div>
