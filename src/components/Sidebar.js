@@ -118,7 +118,7 @@ export default function MiniDrawer() {
   const menuItems = [
     { text: 'Liste des Autorisés', icon: <PeopleIcon />, path: '/services/employeesList' },
     { text: 'Ajouter un Nouvel Employé', icon: <PersonAddIcon />, path: '/services/addEmployee' },
-    { text: 'Planifier Audit', icon: <AssignmentIcon />, path: '/planifier-audit' },
+    { text: 'Planifier Audit', icon: <AssignmentIcon />, path: '/services/planifier-audit' },
     { text: 'Mettre à jour Audit', icon: <UpdateIcon />, path: '/mettre-a-jour-audit' },
     { text: 'Voir la Liste des Audits', icon: <ListAltIcon />, path: '/services/liste-des-audits' },
     { text: 'Annonce d\'Audit', icon: <AnnouncementIcon />, path: '/annonce-audit' },
