@@ -291,6 +291,14 @@ export default function AuditSearch() {
                 </Button>
               </div>
               <div className='flex items-center justify-between'> 
+              <Button
+                  auto
+                  onClick={() => handleDownloadExcel(`/api/ressources/${selectedOption.value}/announcement`)}
+                  className="mt-4 bg-blue-500 text-white"
+                  disabled={isFetchingPdf || loading}
+                >
+                  Download Excel
+                </Button>
                 {pdfBlob && (
                   <Button
                     auto
@@ -300,14 +308,7 @@ export default function AuditSearch() {
                     Download PDF
                   </Button>
                 )}
-                <Button
-                  auto
-                  onClick={() => handleDownloadExcel(`/api/ressources/${selectedOption.value}/announcement`)}
-                  className="mt-4 bg-blue-500 text-white"
-                  disabled={isFetchingPdf || loading}
-                >
-                  Download Excel
-                </Button>
+                
               </div>
               {activeSection === 'Swot' && (
                 <div>
