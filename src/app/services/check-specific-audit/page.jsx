@@ -66,11 +66,11 @@ export default function AuditSearch() {
         if (!response.ok) {
           throw new Error('Failed to fetch PDF');
         }
-        const pdfBlob = await response.blob();
-        setPdfBlob(pdfBlob);
-
+        const tempPdfBlob = await response.blob();
+        setPdfBlob(tempPdfBlob);
+        
+        const pdfUrl = URL.createObjectURL(tempPdfBlob);
         // Create a Blob URL for the PDF to display in the iframe
-        const pdfUrl = URL.createObjectURL(pdfBlob);
         setPdfUrl(pdfUrl);
       } catch (error) {
         setError(error.message);
@@ -264,7 +264,10 @@ export default function AuditSearch() {
                 </Button>
                 <Button
                   auto
-                  onClick={() => setActiveSection('Swot')}
+                  onClick={() => {
+                    setActiveSection('Swot');
+                    setPdfPageNumber(2); // Update this page number to where SWOT starts
+                  }}
                   className={buttonClasses('Swot')}
                   disabled={isFetchingPdf || loading}
                   isLoading={isFetchingPdf || loading}
@@ -347,7 +350,7 @@ export default function AuditSearch() {
           {pdfUrl && (
             <div className="mt-10">
               <iframe 
-                src={`${pdfUrl}#page=2`}  // Append the page number to the URL
+                src={`${pdfUrl}#page=${pdfPageNumber}&view=FitH`}  // Appending the page number and view mode
                 width="100%" 
                 height="600px" 
                 className="rounded-lg border-2 border-gray-300"
