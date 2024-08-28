@@ -1,12 +1,13 @@
-'use client'
+'use client';
 import React, { useState, useEffect } from 'react';
-import Select from 'react-select'; // Import the Select component from react-select
+import Select from 'react-select';
 import headers from './headers'; // Import the static headers
 
 export default function EmployeeData() {
     const [employees, setEmployees] = useState([]); // State to store employee list
     const [selectedEmployee, setSelectedEmployee] = useState(null); // State to store selected employee
-    const [employeeData, setEmployeeData] = useState([]); // Initialize as an array
+    const [allEmployeeData, setAllEmployeeData] = useState([]); // State to store all employee data
+    const [filteredEmployeeData, setFilteredEmployeeData] = useState([]); // State to store filtered employee data
     const [error, setError] = useState(null);
 
     useEffect(() => {
@@ -25,7 +26,22 @@ export default function EmployeeData() {
                     label: `${employee.lastName.trim()} ${employee.firstName.trim()} (${employee.jobTitle.trim()})`,
                 }));
 
-                setEmployees(formattedEmployees);
+                // Add the "All Employees" option at the beginning of the options list
+                const allOption = { value: null, label: 'Tous les employées' };
+                setEmployees([allOption, ...formattedEmployees]);
+
+                // Fetch data for all employees
+                const allData = await Promise.all(
+                    data.map(employee => fetch(`http://localhost:3001/api/employee/${employee.id}`).then(res => res.json()))
+                );
+
+                const combinedData = allData.map((result, index) => ({
+                    employeeInfo: formattedEmployees[index],
+                    data: result.data || []
+                }));
+
+                setAllEmployeeData(combinedData);
+                setFilteredEmployeeData(combinedData); // Initially show all data
             } catch (err) {
                 setError(err.message);
             }
@@ -34,26 +50,16 @@ export default function EmployeeData() {
         fetchEmployees();
     }, []);
 
-    const handleEmployeeChange = async (selectedOption) => {
+    const handleEmployeeChange = (selectedOption) => {
         setSelectedEmployee(selectedOption);
 
-        if (selectedOption) {
-            try {
-                const response = await fetch(`http://localhost:3001/api/employee/${selectedOption.value}`);
-                if (!response.ok) {
-                    throw new Error('Employee not found');
-                }
-                const data = await response.json();
-
-                // Set the fetched data to the state
-                setEmployeeData(data.data || []); 
-                setError(null);
-            } catch (err) {
-                setError(err.message);
-                setEmployeeData([]);
-            }
+        if (!selectedOption || selectedOption.value === null) {
+            setFilteredEmployeeData(allEmployeeData); // Show all data if "All Employees" is selected
         } else {
-            setEmployeeData([]);
+            const filteredData = allEmployeeData.filter(
+                employeeData => employeeData.employeeInfo.value === selectedOption.value
+            );
+            setFilteredEmployeeData(filteredData);
         }
     };
 
@@ -116,29 +122,27 @@ export default function EmployeeData() {
     return (
         <div className="p-4 mx-10">
             <button onClick={handleDownload} className="mb-4 p-2 bg-blue-500 text-white rounded">
-                Download Excel File
+                Télécharger  fichier Excel 
             </button>
 
-            <div className="mb-4" classNames={'flex justify-content-center'}>
+            <div className="mb-4 flex ">
                 <Select
                     value={selectedEmployee}
                     onChange={handleEmployeeChange}
                     options={employees}
-                    className="basic-single"
+                    className="basic-single w-full max-w-md"
                     classNamePrefix="select"
-                    placeholder="Select an Employee"
+                    placeholder="Filtrer par employé"
                     isClearable
                     isSearchable
-                    
-                   
                 />
             </div>
 
             {error && <p className="text-red-500">{error}</p>}
 
-            {employeeData.length > 0 && (
-                <div className='overflow-y-auto  '>
-                    <table className="min-w-full border-collapse border-2 !rounded-xl  border-gray-900">
+            {filteredEmployeeData.length > 0 && (
+                <div className='overflow-y-auto'>
+                    <table className="min-w-full border-collapse border-2 rounded-xl border-gray-900">
                         <thead>
                             <tr>
                                 {renderHeaderRow('level1')}
@@ -154,21 +158,23 @@ export default function EmployeeData() {
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                {headers.map((header) => {
-                                    const dataForColumn = employeeData.find((data) => data?.index === header.column);
-                                    const cellValue = dataForColumn ? dataForColumn.value : null;
-                                    return (
-                                        <td 
-                                            key={header.column} 
-                                            className={cellValue ? "border border-gray-400 px-4 py-2" : "bg-gray-200 text-gray-500 px-4 py-2"} 
-                                            style={!cellValue ? { border: "none" } : {}}
-                                        >
-                                            {cellValue || ''}
-                                        </td>
-                                    );
-                                })}
-                            </tr>
+                            {filteredEmployeeData.map((employee, index) => (
+                                <tr key={index}>
+                                    {headers.map((header) => {
+                                        const dataForColumn = employee.data.find((data) => data?.index === header.column);
+                                        const cellValue = dataForColumn ? dataForColumn.value : null;
+                                        return (
+                                            <td 
+                                                key={header.column} 
+                                                className={cellValue ? "border border-gray-400 px-4 py-2" : "bg-gray-200 text-gray-500 px-4 py-2"} 
+                                                style={!cellValue ? { border: "none" } : {}}
+                                            >
+                                                {cellValue || ''}
+                                            </td>
+                                        );
+                                    })}
+                                </tr>
+                            ))}
                         </tbody>
                     </table>
                 </div>
