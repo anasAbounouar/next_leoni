@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Select from 'react-select';
 import { Button } from '@nextui-org/react';
 import * as pdfjsLib from 'pdfjs-dist/webpack';
@@ -20,17 +20,18 @@ export default function AuditSearch() {
   const [pdfImage, setPdfImage] = useState(null);
   const [isFetchingPdf, setIsFetchingPdf] = useState(false);
   const [pdfUrl, setPdfUrl] = useState(null);
-  const [pdfPageNumber, setPdfPageNumber] = useState(1);  // New state to store the page number
+  const [pdfPageNumber, setPdfPageNumber] = useState(1);
 
+  // Fetch Audit Data
   useEffect(() => {
     const fetchAuditData = async () => {
       setLoading(true);
       setError(null);
+
       try {
         const response = await fetch('http://localhost:3001/api/audit-ids');
-        if (!response.ok) {
-          throw new Error('Failed to fetch audit data');
-        }
+        if (!response.ok) throw new Error('Failed to fetch audit data');
+
         const data = await response.json();
         const options = data.tableData
           .filter(item => item["Audit ID"])
@@ -48,122 +49,103 @@ export default function AuditSearch() {
     fetchAuditData();
   }, []);
 
-  const handleSelectionChange = async (option) => {
+  // Handle Audit ID Selection
+  const handleSelectionChange = useCallback(async (option) => {
     setSelectedOption(option);
     setActiveSection(null);
     setPdfUrl(null);
     setPdfImage(null);
-    setPdfPageNumber(1);  // Reset to page 1 by default
+    setPdfPageNumber(1);
 
-    if (option) {
-      const selectedAudit = auditData.find(item => item["Audit ID"] === option.value);
-      setSelectedAuditData(selectedAudit || {});
-
-      // Fetch PDF immediately
-      setIsFetchingPdf(true);
-      try {
-        const response = await fetch(`http://localhost:3001/api/convert/${option.value}/pdf`);
-        if (!response.ok) {
-          throw new Error('Failed to fetch PDF');
-        }
-        const tempPdfBlob = await response.blob();
-        setPdfBlob(tempPdfBlob);
-
-        const pdfUrl = URL.createObjectURL(tempPdfBlob);
-        setPdfUrl(pdfUrl);  // Set the full PDF URL (in case you want to display it later)
-      } catch (error) {
-        setError(error.message);
-        console.error('Error fetching PDF:', error.message);
-      } finally {
-        setIsFetchingPdf(false);
-      }
-
-      // Fetch SWOT data immediately
-      setLoading(true);
-      setError(null);
-      try {
-        const response = await fetch(`http://localhost:3001/api/ressources/${option.value}/SWOT`);
-        if (!response.ok) {
-          throw new Error('Failed to fetch SWOT data');
-        }
-        const data = await response.json();
-        setSwotData(data.content || []);
-      } catch (error) {
-        setError(error.message);
-      } finally {
-        setLoading(false);
-      }
-    } else {
+    if (!option) {
       setSelectedAuditData(null);
       setSwotData([]);
-    }
-  };
-
-  const handleButtonClick = async (section) => {
-    setActiveSection(section);
-    setError(null);
-
-    if (section === 'AuditAnnouncement' && selectedOption) {
-      handleDownloadExcel(`/api/ressources/${selectedOption.value}/announcement`);
       return;
     }
+
+    const selectedAudit = auditData.find(item => item["Audit ID"] === option.value);
+    setSelectedAuditData(selectedAudit || {});
+
+    setIsFetchingPdf(true);
+    try {
+      const response = await fetch(`http://localhost:3001/api/convert/${option.value}/pdf`);
+      if (!response.ok) throw new Error('Failed to fetch PDF');
+
+      const tempPdfBlob = await response.blob();
+      setPdfBlob(tempPdfBlob);
+
+      const pdfUrl = URL.createObjectURL(tempPdfBlob);
+      setPdfUrl(pdfUrl);
+    } catch (error) {
+      setError(error.message);
+    } finally {
+      setIsFetchingPdf(false);
+    }
+
+    try {
+      const response = await fetch(`http://localhost:3001/api/ressources/${option.value}/SWOT`);
+      if (!response.ok) throw new Error('Failed to fetch SWOT data');
+
+      const data = await response.json();
+      setSwotData(data.content || []);
+    } catch (error) {
+      setError(error.message);
+    }
+  }, [auditData]);
+
+  // Handle Section Button Click
+  const handleButtonClick = useCallback(async (section) => {
+    setActiveSection(section);
+    setError(null);
 
     if (!pdfBlob) {
       setError('No PDF available. Please select an audit ID.');
       return;
     }
 
-    // Determine the page number based on the section
-    let pageNumber;
-    if (section === 'FrontPage') pageNumber = 1;
-    if (section === 'Swot') pageNumber = 2;
-    if (section === 'Date for Corrective Actions') pageNumber = 4;
-    if (section === 'VA3011') pageNumber = 3;
-
-    setPdfPageNumber(pageNumber);  // Set the page number for the iframe
+    const pageMap = {
+      FrontPage: 1,
+      Swot: 2,
+      DateForCorrectiveActions: 4,
+      VA3011: 3,
+    };
+    const pageNumber = pageMap[section] || 1;
+    setPdfPageNumber(pageNumber);
 
     try {
-      const extractedPdfUrl = await extractPageFromPdf(pdfBlob, pageNumber - 1); // Adjust for zero-based index
-      setPdfUrl(extractedPdfUrl); // Update the iframe URL with the extracted page
+      const extractedPdfUrl = await extractPageFromPdf(pdfBlob, pageNumber - 1);
+      setPdfUrl(extractedPdfUrl);
 
-      // Render the image for the selected page
       const pdf = await pdfjsLib.getDocument(extractedPdfUrl).promise;
-
       const page = await pdf.getPage(1);
       const viewport = page.getViewport({ scale: 2.0 });
+
       const canvas = document.createElement('canvas');
       const context = canvas.getContext('2d');
       canvas.height = viewport.height;
       canvas.width = viewport.width;
 
       await page.render({ canvasContext: context, viewport }).promise;
-
       setPdfImage(canvas.toDataURL('image/png'));
     } catch (error) {
       setError('Error extracting or rendering PDF page');
       console.error('Error rendering PDF page:', error.message);
     }
-  };
+  }, [pdfBlob]);
 
-  useEffect(() => {
-    return () => {
-      if (pdfUrl) {
-        URL.revokeObjectURL(pdfUrl);
-      }
-    };
-  }, [pdfUrl]);
-
+  // Handle PDF Download
   const handleDownloadPdf = () => {
     if (pdfBlob) {
+      const fullPdfUrl = URL.createObjectURL(pdfBlob);
       const a = document.createElement('a');
-      const fullPdfUrl = URL.createObjectURL(pdfBlob); // Create a URL for the entire PDF
       a.href = fullPdfUrl;
       a.download = `${selectedOption.value}-Audit.pdf`;
       a.click();
-      URL.revokeObjectURL(fullPdfUrl); // Revoke the URL after downloading to free up memory
+      URL.revokeObjectURL(fullPdfUrl);
     }
   };
 
+  // Handle Excel Download
   const handleDownloadExcel = (endpoint) => {
     if (selectedOption) {
       const form = document.createElement('form');
@@ -176,16 +158,14 @@ export default function AuditSearch() {
     }
   };
 
+  // Button Classes
   const buttonClasses = (section) => {
-    const baseClasses = "mr-2 mb-2 px-4 py-2 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500";
-    const activeClasses = "bg-blue-700";
-    const defaultClasses = "bg-gray-200 text-gray-800 hover:bg-blue-700 hover:text-white";
-
-    return activeSection === section
-      ? `${baseClasses} ${activeClasses}`
-      : `${baseClasses} ${defaultClasses}`;
+    return `mr-2 mb-2 px-4 py-2 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+      activeSection === section ? 'bg-blue-700' : 'bg-gray-200 text-gray-800 hover:bg-blue-700 hover:text-white'
+    }`;
   };
 
+  // Render SWOT Table
   const renderSwotTable = (data) => {
     if (!Array.isArray(data) || data.length === 0) return <p>No data available</p>;
 
@@ -197,45 +177,37 @@ export default function AuditSearch() {
       Threats: 'text-orange-600',
     };
 
-    const filteredData = data.map(row => row.filter(cell => cell !== null && cell.trim() !== ''));
+    const filteredData = data.map(row => row.filter(cell => cell && cell.trim()));
 
     return (
       <div className="overflow-y-auto bg-white text-gray-800 rounded-xl shadow-lg my-10 mx-6">
         <table className="min-w-full border-collapse rounded-lg overflow-hidden shadow-lg">
           <tbody className="bg-white divide-y divide-gray-200">
-            {filteredData.map((row, rowIndex) => {
-              const isSwotSection = row[1] && swotSections.includes(row[1]);
-
-              return (
-                <tr
-                  key={rowIndex}
-                  className={`${
-                    rowIndex % 2 === 0 ? 'bg-gray-50' : 'bg-white'
-                  } hover:bg-blue-100 transition-colors duration-200`}
-                >
-                  {row.map((cell, cellIndex) => {
-                    let cellStyle = `px-1 py-1 text-sm text-gray-700 whitespace-nowrap border-b border-gray-300`;
-
-                    if (cell === 'SWOT Analyses for: LEONI Wiring Systems WMABE') {
-                      cellStyle += ' font-bold !text-xl text-center';
-                    } else if (cell === 'Internal System Audit: WSD S01-23-75') {
-                      cellStyle += ' font-bold text-md text-center !text-lg';
-                    }
-
-                    return (
-                      <td
-                        key={cellIndex}
-                        className={`${cellStyle} px-6 ${isSwotSection ? 'font-bold' : ''} ${
-                          sectionColors[cell] || ''
-                        }`}
-                      >
-                        {cell}
-                      </td>
-                    );
-                  })}
-                </tr>
-              );
-            })}
+            {filteredData.map((row, rowIndex) => (
+              <tr
+                key={rowIndex}
+                className={`${rowIndex % 2 === 0 ? 'bg-gray-50' : 'bg-white'} hover:bg-blue-100 transition-colors duration-200`}
+              >
+                {row.map((cell, cellIndex) => {
+                  let cellStyle = `px-1 py-1 text-sm text-gray-700 whitespace-nowrap border-b border-gray-300`;
+                  if (cell === 'SWOT Analyses for: LEONI Wiring Systems WMABE') {
+                    cellStyle += ' font-bold text-xl text-center';
+                  } else if (cell === 'Internal System Audit: WSD S01-23-75') {
+                    cellStyle += ' font-bold text-md text-center text-lg';
+                  }
+                  return (
+                    <td
+                      key={cellIndex}
+                      className={`${cellStyle} px-6 ${swotSections.includes(cell) ? 'font-bold' : ''} ${
+                        sectionColors[cell] || ''
+                      }`}
+                    >
+                      {cell}
+                    </td>
+                  );
+                })}
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>
@@ -244,7 +216,7 @@ export default function AuditSearch() {
 
   return (
     <div className="p-6 bg-white text-gray-800 rounded-xl shadow-lg my-10 mx-6">
-      {loading && <p className="text-gray-500">Chargement...</p>}
+      {loading && <p className="text-gray-500">Loading...</p>}
       {error && <p className="text-red-500">{error}</p>}
       {!loading && auditIds.length > 0 ? (
         <div className="mb-4">
@@ -252,10 +224,10 @@ export default function AuditSearch() {
             options={auditIds}
             value={selectedOption}
             onChange={handleSelectionChange}
-            placeholder="Sélectionnez un ID d'Audit"
+            placeholder="Select an Audit ID"
             className="mb-4"
           />
-          {isFetchingPdf && <p className="text-gray-500">Téléchargement en cours...</p>}
+          {isFetchingPdf && <p className="text-gray-500">Downloading...</p>}
           {selectedOption && selectedAuditData && (
             <div>
               <div className="mb-4 flex flex-wrap justify-between">
@@ -270,9 +242,7 @@ export default function AuditSearch() {
                 </Button>
                 <Button
                   auto
-                  onClick={() => {
-                    handleButtonClick('Swot');
-                  }}
+                  onClick={() => handleButtonClick('Swot')}
                   className={buttonClasses('Swot')}
                   disabled={isFetchingPdf || loading}
                   isLoading={isFetchingPdf || loading}
@@ -281,8 +251,8 @@ export default function AuditSearch() {
                 </Button>
                 <Button
                   auto
-                  onClick={() => handleButtonClick('Date for Corrective Actions')}
-                  className={buttonClasses('Date for Corrective Actions')}
+                  onClick={() => handleButtonClick('DateForCorrectiveActions')}
+                  className={buttonClasses('DateForCorrectiveActions')}
                   disabled={isFetchingPdf || loading}
                   isLoading={isFetchingPdf || loading}
                 >
@@ -307,12 +277,12 @@ export default function AuditSearch() {
                   Audit Announcement
                 </Button>
               </div>
-              <div className='flex items-center justify-between'> 
+              <div className="flex items-center justify-between">
                 <Button
-                    auto
-                    onClick={() => handleDownloadExcel(`/api/ressources/${selectedOption.value}/announcement`)}
-                    className="mt-4 bg-blue-500 text-white"
-                    disabled={isFetchingPdf || loading}
+                  auto
+                  onClick={() => handleDownloadExcel(`/api/ressources/${selectedOption.value}/announcement`)}
+                  className="mt-4 bg-blue-500 text-white"
+                  disabled={isFetchingPdf || loading}
                 >
                   Download Excel
                 </Button>
@@ -327,11 +297,7 @@ export default function AuditSearch() {
                 )}
               </div>
 
-              {activeSection === 'Swot' && (
-                <div>
-                  {renderSwotTable(swotData)}
-                </div>
-              )}
+              {activeSection === 'Swot' && renderSwotTable(swotData)}
 
               {pdfImage && activeSection !== 'Swot' && (
                 <div>
@@ -348,25 +314,23 @@ export default function AuditSearch() {
 
               {pdfUrl && activeSection && (
                 <div className="mt-10">
-                <iframe 
-                  src={`${pdfUrl}#page=${pdfPageNumber}&zoom=75&toolbar=0&navpanes=0&scrollbar=0`}  // Adjust the zoom level
-                  width="100%" 
-                  height="600px"  // Keep the height for optimal viewing
-                  loading="lazy"
-                  className="rounded-lg border-4 border-black shadow-lg"  // Add a border, shadow, and rounded corners
-                  
-                  title="PDF Viewer"
-                >
-                  Telecharger le pdf <a href={`${pdfUrl}`}>ici</a>
-                </iframe>
-              </div>
-              
+                  <iframe 
+                    src={`${pdfUrl}#page=${pdfPageNumber}&zoom=75&toolbar=0&navpanes=0&scrollbar=0`}
+                    width="100%" 
+                    height="600px"
+                    loading="lazy"
+                    className="rounded-lg border-2 border-gray-300 shadow-md"
+                    title="PDF Viewer"
+                  >
+                    Your browser does not support iframes.
+                  </iframe>
+                </div>
               )}
             </div>
           )}
         </div>
       ) : (
-        !loading && <Button color="primary" isLoading>Chargement des ID d&apos;Audit...</Button>
+        !loading && <Button color="primary" isLoading>Loading Audit IDs...</Button>
       )}
     </div>
   );
