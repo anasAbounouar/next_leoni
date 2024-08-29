@@ -5,6 +5,7 @@ import Select from 'react-select';
 import { Button } from '@nextui-org/react';
 import * as pdfjsLib from 'pdfjs-dist/webpack';
 import Image from 'next/image';
+import { extractPageFromPdf } from '@/utils/extractPdfPage';
 
 export default function AuditSearch() {
   const [selectedOption, setSelectedOption] = useState(null);
@@ -49,10 +50,9 @@ export default function AuditSearch() {
 
   const handleSelectionChange = async (option) => {
     setSelectedOption(option);
-    setPdfImage(null);
-    setPdfBlob(null);
     setActiveSection(null);
     setPdfUrl(null);
+    setPdfImage(null);
     setPdfPageNumber(1);  // Reset to page 1 by default
 
     if (option) {
@@ -68,10 +68,9 @@ export default function AuditSearch() {
         }
         const tempPdfBlob = await response.blob();
         setPdfBlob(tempPdfBlob);
-        
+
         const pdfUrl = URL.createObjectURL(tempPdfBlob);
-        // Create a Blob URL for the PDF to display in the iframe
-        setPdfUrl(pdfUrl);
+        setPdfUrl(pdfUrl);  // Set the full PDF URL (in case you want to display it later)
       } catch (error) {
         setError(error.message);
         console.error('Error fetching PDF:', error.message);
@@ -117,44 +116,51 @@ export default function AuditSearch() {
     // Determine the page number based on the section
     let pageNumber;
     if (section === 'FrontPage') pageNumber = 1;
+    if (section === 'Swot') pageNumber = 2;
     if (section === 'Date for Corrective Actions') pageNumber = 4;
     if (section === 'VA3011') pageNumber = 3;
 
     setPdfPageNumber(pageNumber);  // Set the page number for the iframe
 
     try {
-      const pdfUrl = window.URL.createObjectURL(pdfBlob);
-      const pdf = await pdfjsLib.getDocument(pdfUrl).promise;
+      const extractedPdfUrl = await extractPageFromPdf(pdfBlob, pageNumber - 1); // Adjust for zero-based index
+      setPdfUrl(extractedPdfUrl); // Update the iframe URL with the extracted page
 
-      if (pageNumber && pdf.numPages >= pageNumber) {
-        const page = await pdf.getPage(pageNumber);
-        const viewport = page.getViewport({ scale: 2.0 });
-        const canvas = document.createElement('canvas');
-        const context = canvas.getContext('2d');
-        canvas.height = viewport.height;
-        canvas.width = viewport.width;
+      // Render the image for the selected page
+      const pdf = await pdfjsLib.getDocument(extractedPdfUrl).promise;
 
-        await page.render({ canvasContext: context, viewport }).promise;
+      const page = await pdf.getPage(1);
+      const viewport = page.getViewport({ scale: 2.0 });
+      const canvas = document.createElement('canvas');
+      const context = canvas.getContext('2d');
+      canvas.height = viewport.height;
+      canvas.width = viewport.width;
 
-        setPdfImage(canvas.toDataURL('image/png'));
-      } else {
-        setError(`The PDF does not have a page ${pageNumber}.`);
-      }
+      await page.render({ canvasContext: context, viewport }).promise;
 
-      URL.revokeObjectURL(pdfUrl);
+      setPdfImage(canvas.toDataURL('image/png'));
     } catch (error) {
-      setError(error.message);
+      setError('Error extracting or rendering PDF page');
       console.error('Error rendering PDF page:', error.message);
     }
   };
 
+  useEffect(() => {
+    return () => {
+      if (pdfUrl) {
+        URL.revokeObjectURL(pdfUrl);
+      }
+    };
+  }, [pdfUrl]);
+
   const handleDownloadPdf = () => {
     if (pdfBlob) {
       const a = document.createElement('a');
-      a.href = pdfUrl;
+      const fullPdfUrl = URL.createObjectURL(pdfBlob); // Create a URL for the entire PDF
+      a.href = fullPdfUrl;
       a.download = `${selectedOption.value}-Audit.pdf`;
       a.click();
-      URL.revokeObjectURL(pdfUrl);
+      URL.revokeObjectURL(fullPdfUrl); // Revoke the URL after downloading to free up memory
     }
   };
 
@@ -265,8 +271,7 @@ export default function AuditSearch() {
                 <Button
                   auto
                   onClick={() => {
-                    setActiveSection('Swot');
-                    setPdfPageNumber(2); // Update this page number to where SWOT starts
+                    handleButtonClick('Swot');
                   }}
                   className={buttonClasses('Swot')}
                   disabled={isFetchingPdf || loading}
@@ -303,11 +308,11 @@ export default function AuditSearch() {
                 </Button>
               </div>
               <div className='flex items-center justify-between'> 
-              <Button
-                  auto
-                  onClick={() => handleDownloadExcel(`/api/ressources/${selectedOption.value}/announcement`)}
-                  className="mt-4 bg-blue-500 text-white"
-                  disabled={isFetchingPdf || loading}
+                <Button
+                    auto
+                    onClick={() => handleDownloadExcel(`/api/ressources/${selectedOption.value}/announcement`)}
+                    className="mt-4 bg-blue-500 text-white"
+                    disabled={isFetchingPdf || loading}
                 >
                   Download Excel
                 </Button>
@@ -320,8 +325,8 @@ export default function AuditSearch() {
                     Download PDF
                   </Button>
                 )}
-                
               </div>
+
               {activeSection === 'Swot' && (
                 <div>
                   {renderSwotTable(swotData)}
@@ -336,27 +341,27 @@ export default function AuditSearch() {
                     width={800} 
                     height={600} 
                     layout="responsive" 
-                                      style={{ maxHeight: '90vh', objectFit: 'contain' }} 
+                    style={{ maxHeight: '90vh', objectFit: 'contain' }} 
                   />
                 </div>
               )}
+
+              {pdfUrl && activeSection && (
+                <div className="mt-10">
+                <iframe 
+                  src={`${pdfUrl}#page=${pdfPageNumber}&zoom=75&toolbar=0&navpanes=0&scrollbar=0`}  // Adjust the zoom level
+                  width="100%" 
+                  height="600px"  // Keep the height for optimal viewing
+                  loading="lazy"
+                  className="rounded-lg border-4 border-black shadow-lg"  // Add a border, shadow, and rounded corners
+                  
+                  title="PDF Viewer"
+                >
+                  Telecharger le pdf <a href={`${pdfUrl}`}>ici</a>
+                </iframe>
+              </div>
               
-              {activeSection === 'Date for Corrective Actions' && !pdfImage && (
-                <div className="text-center mt-10">
-                  <Button color="secondary" isLoading={true}>Chargement pour l&apos;affichage ...</Button>
-                </div>
               )}
-            </div>
-          )}
-          {pdfUrl && (
-            <div className="mt-10">
-              <iframe 
-                src={`${pdfUrl}#page=${pdfPageNumber}&view=FitH`}  // Appending the page number and view mode
-                width="100%" 
-                height="600px" 
-                className="rounded-lg border-2 border-gray-300"
-                title="PDF Viewer"
-              />
             </div>
           )}
         </div>
