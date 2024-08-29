@@ -3,58 +3,31 @@ name: CI/CD Pipeline
 on:
   push:
     branches:
-      - main # Trigger on push to the main branch; adjust as needed
+      - main
 
 jobs:
   lint:
-    runs-on: ubuntu-latest
+    uses: ./.github/workflows/common-setup.yml
+    with:
+      node-version: '18'
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18'
-
-      - name: Install dependencies
-        run: npm install
-
       - name: Run linting
         run: npm run lint
 
   build:
     needs: lint
-    runs-on: ubuntu-latest
+    uses: ./.github/workflows/common-setup.yml
+    with:
+      node-version: '18'
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18'
-
-      - name: Install dependencies
-        run: npm install
-
       - name: Build project
         run: npm run build
 
   deploy:
     needs: build
-    runs-on: ubuntu-latest
+    uses: ./.github/workflows/common-setup.yml
+    with:
+      node-version: '18'
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18'
-
-      - name: Install dependencies
-        run: npm install
-
       - name: Deploy
         run: npm run deploy
