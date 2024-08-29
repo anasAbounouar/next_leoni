@@ -1,4 +1,5 @@
 'use client'
+
 import { useState, useEffect, useCallback } from 'react';
 import Select from 'react-select';
 import { Button } from '@nextui-org/react';
@@ -38,6 +39,17 @@ export default function AuditSearch() {
 
         setAuditIds(options);
         setAuditData(data.tableData);
+
+        // Handle the query parameter if available
+        const url = new URL(window.location.href);
+        const id = url.searchParams.get('id');
+        if (id) {
+          const option = options.find(audit => audit.value === id);
+          if (option) {
+            setSelectedOption(option);
+            handleSelectionChange(option);
+          }
+        }
       } catch (error) {
         setError(error.message);
       } finally {
@@ -46,7 +58,7 @@ export default function AuditSearch() {
     };
 
     fetchAuditData();
-  }, []);
+  }, []); // Only run once when the component mounts
 
   // Handle Audit ID Selection
   const handleSelectionChange = useCallback(async (option) => {
@@ -61,6 +73,7 @@ export default function AuditSearch() {
       setSwotData([]);
       return;
     }
+
     // Update the URL with the selected option as a query parameter
     const url = new URL(window.location.href);
     url.searchParams.set('id', option.value);
@@ -94,9 +107,6 @@ export default function AuditSearch() {
     } catch (error) {
       setError(error.message);
     }
-
-    
-
   }, [auditData]);
 
   // Handle Section Button Click
@@ -145,7 +155,7 @@ export default function AuditSearch() {
       const fullPdfUrl = URL.createObjectURL(pdfBlob);
       const a = document.createElement('a');
       a.href = fullPdfUrl;
-      a.download = `${selectedOption.value}-Audit.pdf`;
+      a.download = `${selectedOption?.value || 'audit'}-Audit.pdf`;
       a.click();
       URL.revokeObjectURL(fullPdfUrl);
     }
@@ -182,7 +192,7 @@ export default function AuditSearch() {
       Opportunities: 'text-blue-600',
       Threats: 'text-orange-600',
     };
-
+    
     const filteredData = data.map(row => row.filter(cell => cell && cell.trim()));
 
     return (
