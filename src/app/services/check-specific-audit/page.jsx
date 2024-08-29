@@ -336,6 +336,7 @@ export default function AuditSearch() {
                     width={800} 
                     height={600} 
                     layout="responsive" 
+                                      style={{ maxHeight: '90vh', objectFit: 'contain' }} 
                   />
                 </div>
               )}
