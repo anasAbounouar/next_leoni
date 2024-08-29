@@ -1,0 +1,43 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    
+jobs:
+  lint:
+    runs-on: ubuntu-latest # Specifies the runner environment
+    uses: ./.github/workflows/common-setup.yml
+    with:
+      node-version: '18'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run linting
+        run: npm run lint
+
+  build:
+    needs: lint
+    runs-on: ubuntu-latest # Specifies the runner environment
+    uses: ./.github/workflows/common-setup.yml
+    with:
+      node-version: '18'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build project
+        run: npm run build
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest # Specifies the runner environment
+    uses: ./.github/workflows/common-setup.yml
+    with:
+      node-version: '18'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy
+        run: npm run deploy
