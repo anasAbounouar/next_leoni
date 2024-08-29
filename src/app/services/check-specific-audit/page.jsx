@@ -22,51 +22,18 @@ export default function AuditSearch() {
   const [pdfUrl, setPdfUrl] = useState(null);
   const [pdfPageNumber, setPdfPageNumber] = useState(1);
 
-  // Fetch Audit Data
-  useEffect(() => {
-    const fetchAuditData = async () => {
-      setLoading(true);
-      setError(null);
 
-      try {
-        const response = await fetch('http://localhost:3001/api/audit-ids');
-        if (!response.ok) throw new Error('Failed to fetch audit data');
-
-        const data = await response.json();
-        const options = data.tableData
-          .filter(item => item["Audit ID"])
-          .map(item => ({ value: item["Audit ID"], label: item["Audit ID"] }));
-
-        setAuditIds(options);
-        setAuditData(data.tableData);
-
-        // Handle the query parameter if available
-        const url = new URL(window.location.href);
-        const id = url.searchParams.get('id');
-        if (id) {
-          const option = options.find(audit => audit.value === id);
-          if (option) {
-            setSelectedOption(option);
-            handleSelectionChange(option);
-          }
-        }
-      } catch (error) {
-        setError(error.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchAuditData();
-  }, []); // Only run once when the component mounts
 
   // Handle Audit ID Selection
   const handleSelectionChange = useCallback(async (option) => {
-    setSelectedOption(option);
+   
+    setSelectedOption(()=>option);
+    console.log('handleselectioncha,ge',selectedOption)
     setActiveSection(null);
     setPdfUrl(null);
     setPdfImage(null);
     setPdfPageNumber(1);
+    setPdfBlob(null);
 
     if (!option) {
       setSelectedAuditData(null);
@@ -108,12 +75,53 @@ export default function AuditSearch() {
       setError(error.message);
     }
   }, [auditData]);
+    // Fetch Audit Data
+  useEffect(() => {
+    const fetchAuditData = async () => {
+      setLoading(true);
+      setError(null);
+
+      try {
+        const response = await fetch('http://localhost:3001/api/audit-ids');
+        if (!response.ok) throw new Error('Failed to fetch audit data');
+
+        const data = await response.json();
+        const options = data.tableData
+          .filter(item => item["Audit ID"])
+          .map(item => ({ value: item["Audit ID"], label: item["Audit ID"] }));
+
+        setAuditIds(options);
+        setAuditData(data.tableData);
+
+        // Handle the query parameter if available
+        const url = new URL(window.location.href);
+        const id = url.searchParams.get('id');
+        if (id) {
+          const option = options.find(audit => audit.value === id);
+          if (option) {
+            setSelectedOption(option);
+            
+            handleSelectionChange(option);
+          }
+          
+        }
+      } catch (error) {
+        setError(error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAuditData();
+  }, []); // Only run once when the component mounts
 
   // Handle Section Button Click
   const handleButtonClick = useCallback(async (section) => {
     setActiveSection(section);
     setError(null);
-
+console.log(selectedOption,"ssselectedoption")
+    
+   
     if (!pdfBlob) {
       setError('No PDF available. Please select an audit ID.');
       return;
@@ -127,7 +135,7 @@ export default function AuditSearch() {
     };
     const pageNumber = pageMap[section] || 1;
     setPdfPageNumber(pageNumber);
-
+    
     try {
       const extractedPdfUrl = await extractPageFromPdf(pdfBlob, pageNumber - 1);
       setPdfUrl(extractedPdfUrl);
@@ -147,6 +155,7 @@ export default function AuditSearch() {
       setError('Error extracting or rendering PDF page');
       console.error('Error rendering PDF page:', error.message);
     }
+    
   }, [pdfBlob]);
 
   // Handle PDF Download
@@ -163,6 +172,7 @@ export default function AuditSearch() {
 
   // Handle Excel Download
   const handleDownloadExcel = (endpoint) => {
+    
     if (selectedOption) {
       const form = document.createElement('form');
       form.action = `http://localhost:3001${endpoint}`;
@@ -254,7 +264,7 @@ export default function AuditSearch() {
                   disabled={isFetchingPdf || loading}
                   isLoading={isFetchingPdf || loading}
                 >
-                  Front Page
+                  Front Page 
                 </Button>
                 <Button
                   auto
@@ -285,7 +295,11 @@ export default function AuditSearch() {
                 </Button>
                 <Button
                   auto
-                  onClick={() => handleButtonClick('AuditAnnouncement')}
+                  onClick={() => 
+                  
+                    handleDownloadExcel(`/api/ressources/${selectedOption.value}/announcement`)
+                  
+                  }
                   className={buttonClasses('AuditAnnouncement')}
                   disabled={isFetchingPdf || loading}
                   isLoading={isFetchingPdf || loading}
