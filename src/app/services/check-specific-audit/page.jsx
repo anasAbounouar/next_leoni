@@ -1,5 +1,4 @@
-'use client';
-
+'use client'
 import { useState, useEffect, useCallback } from 'react';
 import Select from 'react-select';
 import { Button } from '@nextui-org/react';
@@ -62,6 +61,10 @@ export default function AuditSearch() {
       setSwotData([]);
       return;
     }
+    // Update the URL with the selected option as a query parameter
+    const url = new URL(window.location.href);
+    url.searchParams.set('id', option.value);
+    window.history.pushState({}, '', url.toString());
 
     const selectedAudit = auditData.find(item => item["Audit ID"] === option.value);
     setSelectedAuditData(selectedAudit || {});
@@ -91,6 +94,9 @@ export default function AuditSearch() {
     } catch (error) {
       setError(error.message);
     }
+
+    
+
   }, [auditData]);
 
   // Handle Section Button Click
