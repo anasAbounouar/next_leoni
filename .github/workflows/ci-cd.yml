@@ -9,7 +9,6 @@ jobs:
     uses: "./.github/workflows/reusable-main.yml"
     with:
       node_version: '22'
-      run_tests: true
 
   print-version:
     runs-on: ubuntu-latest
