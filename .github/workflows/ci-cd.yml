@@ -1,31 +1,19 @@
-name: CI Pipeline
+name: Multi-Repo CI Workflow
 
 on:
   push:
+  workflow_dispatch:
+
 jobs:
-  build:
+  call-reusable-workflow:
+    uses: "./.github/workflows/reusable-main.yml"
+    with:
+      node_version: '22'
+      run_tests: true
+
+  print-version:
     runs-on: ubuntu-latest
+    needs: call-reusable-workflow
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
-
-    - name: Set up Node.js
-      uses: actions/setup-node@v2
-      with:
-        node-version: '22.x'
-    - name: Cache node_modules
-      uses: actions/cache@v3
-      with:
-        key: node-deps-${{hashFiles('package-lock.json')}}
-        path: node_modules
-      
-# While it's necessary to run npm install to ensure everything is correctly set up, you can still benefit from caching to make this process faster:
-
-# Reduced Network Usage: If the majority of dependencies are already cached, npm install will simply verify the installation and may not need to download anything, thus speeding up the process significantly.
-# Minimal Rebuild: For build tools that recompile or rebuild assets, caching can prevent these from needing to be rebuilt, further speeding up the workflow.
-    - name: Install dependencies
-      run: npm ci
-
-
-    - name: Build project
-      run: npm run build
+      - name: Print Node.js version
+        run: echo "Node.js version is ${{ needs.call-reusable-workflow.outputs.node_version }}"
