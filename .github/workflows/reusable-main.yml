@@ -45,7 +45,7 @@ jobs:
 
       - name: Get Node.js version
         id: node_version
-        run: echo "node_version=$(node -v)" >> $GITHUB_ENV
+        run: echo "node_version=$(node -v)" >> $GITHUB_OUTPUT
 
     outputs:
       node_version: ${{ steps.node_version.outputs.node_version }}

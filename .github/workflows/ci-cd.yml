@@ -15,4 +15,4 @@ jobs:
     needs: call-reusable-workflow
     steps:
       - name: Print Node.js version
-        run: echo "Node.js version is ${{ needs.call-reusable-workflow.outputs.node_version }}"
+        run: echo "Node.js version is ${{ needs.call-reusable-workflow.outputs.node_version}}"
