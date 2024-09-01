@@ -2,12 +2,9 @@ name: CI Pipeline
 
 on:
   push:
-
-
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
@@ -16,9 +13,18 @@ jobs:
       uses: actions/setup-node@v2
       with:
         node-version: '22.x'
+    - name: Cache node_modules
+      uses: actions/cache@v3
+      with:
+        key: node-deps-${{hashFiles('package-lock.json')}}
+        path: node_modules
+      
+# While it's necessary to run npm install to ensure everything is correctly set up, you can still benefit from caching to make this process faster:
 
+# Reduced Network Usage: If the majority of dependencies are already cached, npm install will simply verify the installation and may not need to download anything, thus speeding up the process significantly.
+# Minimal Rebuild: For build tools that recompile or rebuild assets, caching can prevent these from needing to be rebuilt, further speeding up the workflow.
     - name: Install dependencies
-      run: npm install
+      run: npm ci
 
 
     - name: Build project

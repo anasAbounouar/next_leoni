@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@ant-design/icons": "^5.4.0",
+    "@clerk/nextjs": "^5.3.7",
     "@emotion/react": "^11.13.0",
     "@emotion/styled": "^11.13.0",
     "@ilovepdf/ilovepdf-nodejs": "^0.3.0",
@@ -28,7 +29,7 @@
     "formidable": "^3.5.1",
     "fs": "^0.0.1-security",
     "ilovepdf-sdk": "^0.0.5",
-    "next": "14.2.5",
+    "next": "^14.2.5",
     "path": "^0.12.7",
     "pdf-lib": "^1.17.1",
     "pdfjs-dist": "^4.5.136",
@@ -52,7 +53,6 @@
     "tailwindcss": "^3.4.10"
   },
   "engines": {
-  "node": ">=22.0.0"
-}
-
+    "node": ">=22.0.0"
+  }
 }
