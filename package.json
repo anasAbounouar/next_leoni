@@ -29,6 +29,7 @@
     "formidable": "^3.5.1",
     "fs": "^0.0.1-security",
     "ilovepdf-sdk": "^0.0.5",
+    "multer": "^1.4.5-lts.1",
     "next": "^14.2.5",
     "path": "^0.12.7",
     "pdf-lib": "^1.17.1",

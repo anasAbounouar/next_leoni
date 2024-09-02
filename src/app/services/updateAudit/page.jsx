@@ -9,14 +9,14 @@ export default function AuditUpdatePage() {
   const [auditIds, setAuditIds] = useState([]);
   const [auditData, setAuditData] = useState([]);
   const [selectedAuditData, setSelectedAuditData] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false); // Loading state for data fetching
+  const [error, setError] = useState(null); // Error state for handling fetch errors
 
   // Fetch Audit Data
   useEffect(() => {
     const fetchAuditData = async () => {
-      setLoading(true);
-      setError(null);
+      setLoading(true); // Set loading to true when the request starts
+      setError(null); // Clear any previous errors
 
       try {
         const response = await fetch('http://localhost:3001/api/audit-ids');
@@ -27,7 +27,7 @@ export default function AuditUpdatePage() {
           .filter(item => item["Audit ID"])
           .map(item => ({ value: item["Audit ID"], label: item["Audit ID"] }));
 
-        setAuditIds(options);
+        setAuditIds(options); // Populate the audit IDs dropdown options
         setAuditData(data.tableData);
 
         // Handle the query parameter if available
@@ -41,9 +41,9 @@ export default function AuditUpdatePage() {
           }
         }
       } catch (error) {
-        setError(error.message);
+        setError(error.message); // Set error if fetch fails
       } finally {
-        setLoading(false);
+        setLoading(false); // Stop loading when the request finishes
       }
     };
 
@@ -51,9 +51,8 @@ export default function AuditUpdatePage() {
   }, []);
 
   // Handle Audit ID Selection
-    const handleSelectionChange = useCallback((option) => {
-      
-    setSelectedOption(()=> option);
+  const handleSelectionChange = useCallback((option) => {
+    setSelectedOption(option);
     if (!option) {
       setSelectedAuditData(null);
       return;
@@ -100,15 +99,15 @@ export default function AuditUpdatePage() {
     >
       {loading && (
         <Box sx={{ textAlign: 'center', my: 4 }}>
-          <CircularProgress />
+          <CircularProgress /> {/* Display loading spinner while data is being fetched */}
         </Box>
       )}
       {error && (
         <Typography color="error" align="center">
-          {error}
+          {error} {/* Display error message if there's an error */}
         </Typography>
       )}
-      {!loading && auditIds.length > 0 && (
+      {!loading && auditIds.length > 0 && ( /* Display form only after data is loaded */
         <>
           <Typography variant="h5" component="h1" gutterBottom>
             Select an Audit ID

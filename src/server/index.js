@@ -7,6 +7,8 @@ const fs = require('fs');
 const ILovePDFApi = require('@ilovepdf/ilovepdf-nodejs');
 const ILovePDFFile = require('@ilovepdf/ilovepdf-nodejs/ILovePDFFile');
 const { CloseFullscreen } = require('@mui/icons-material');
+const multer = require('multer')
+
 
 // Load environment variables for the API keys
 const { ILOVE_PDF_PUBLIC_KEY, ILOVE_PDF_SECRET_KEY } = process.env;
@@ -303,6 +305,42 @@ app.get('/api/convert/:auditID/pdf', async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 });
+
+
+// Configurer multer pour stocker les fichiers
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        const dirPath = path.join(__dirname, '../../ressources/Audit Annoucements');
+        cb(null, dirPath); // Définit l'emplacement de stockage des fichiers
+    },
+    filename: (req, file, cb) => {
+        cb(null, `${Date.now()}-${file.originalname}`); // Renommer le fichier pour éviter les conflits
+    }
+});
+const upload = multer({ storage });
+// Route pour gérer le téléchargement de fichiers
+app.post('/api/AuditAnnouncements/upload', upload.single('file'), (req, res) => {
+    const file = req.file;
+    const fileName = req.body.fileName || file.originalname;
+
+    if (!file) {
+        return res.status(400).json({ error: 'Aucun fichier téléchargé' });
+    }
+
+    const targetPath = path.join(file.destination, fileName);
+
+    // Renommer le fichier si nécessaire
+    fs.rename(file.path, targetPath, (err) => {
+        if (err) {
+            console.error('Erreur lors du renommage du fichier:', err);
+            return res.status(500).json({ error: 'Erreur lors du téléchargement du fichier' });
+        }
+
+        res.status(200).json({ message: `Fichier "${fileName}" téléchargé avec succès!`, filePath: targetPath });
+    });
+});
+
+
 
 // Serve the application
 app.listen(port, () => {

@@ -27,7 +27,8 @@ export default function ServicesPage() {
     <div className="flex">
       <Sidebar />
       <div className="flex-1 p-8 bg-gray-100">
-        <h2 className="text-4xl font-extrabold text-gray-800 mb-8 text-center">Key Features</h2>
+        <h2 className="text-4xl font-extrabold text-gray-800 mb-8 text-center">
+        main functionalities</h2>
         <p className="text-lg mb-12 text-center text-gray-600">
           Here are the main features of our internal audit management application to optimize your audit processes.
         </p>
