@@ -6,7 +6,7 @@ import Grid from '@mui/material/Grid';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Tooltip from '@mui/material/Tooltip';
-import headers from '../employeesList/headers'; // Import headers for table and Excel file
+import headers from '../auditorsList/headers'; // Import headers for table and Excel file
 
 export default function EmployeeData() {
     // Initialize state with empty values for each header column
@@ -35,7 +35,7 @@ export default function EmployeeData() {
     return (
         <Box className="mx-10" sx={{ p: 4, mx: 'auto', bgcolor: 'background.paper', borderRadius: 2, boxShadow: 3 }}>
             <Typography variant="h4" component="h1" gutterBottom align="center">
-                Add New Employee
+                Ajouter un Auditeur
             </Typography>
             <form onSubmit={handleFormSubmit}>
                 <Grid container spacing={3}>
@@ -76,7 +76,7 @@ export default function EmployeeData() {
                         color="primary"
                         sx={{ px: 4, py: 2, fontSize: '16px' }}
                     >
-                        Add Employee and Update Excel
+                       Ajouter l'auditeur 
                     </Button>
                 </Box>
             </form>

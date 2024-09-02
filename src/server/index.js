@@ -189,7 +189,7 @@ app.post('/api/add-employee', (req, res) => {
 
         // Convert the worksheet to JSON to get current data
         const sheetData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-        const headers = require('../app/services/employeesList/headers');
+        const headers = require('../app/services/auditorsList/headers');
 
         // Log the headers and new employee data
         console.log("Headers from headers.js:", headers);

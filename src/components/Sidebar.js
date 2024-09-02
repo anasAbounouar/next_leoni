@@ -116,8 +116,8 @@ export default function MiniDrawer() {
 
   // List of menu items in French with appropriate icons
   const menuItems = [
-    { text: 'Liste des Autorisés', icon: <PeopleIcon />, path: '/services/employeesList' },
-    { text: 'Ajouter un Nouvel Employé', icon: <PersonAddIcon />, path: '/services/addEmployee' },
+    { text: 'Liste des Autorisés', icon: <PeopleIcon />, path: '/services/auditorsList' },
+    { text: 'Ajouter un Nouveau Auditeur', icon: <PersonAddIcon />, path: '/services/addAuditor' },
     { text: 'Planifier Audit', icon: <AssignmentIcon />, path: '/services/planifier-audit' },
     { text: 'Mettre à jour Audit', icon: <UpdateIcon />, path: '/mettre-a-jour-audit' },
     { text: 'Voir la Liste des Audits', icon: <ListAltIcon />, path: '/services/liste-des-audits' },
