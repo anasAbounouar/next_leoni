@@ -83,7 +83,7 @@ export default function AnnonceAudit() {
               fullWidth
               sx={{ textTransform: 'none', mt: 2 }}
             >
-              Joindre Fichier
+              Upload file
               <input type="file" hidden onChange={handleFileChange} />
             </Button>
           </Grid>
