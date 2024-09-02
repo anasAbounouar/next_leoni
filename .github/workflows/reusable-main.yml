@@ -32,6 +32,7 @@ jobs:
         with:
           key: node-deps-${{ hashFiles('package-lock.json') }}
           path: node_modules
+          enableCrossOsArchive: true
 
       - name: Install dependencies
         run: npm ci
