@@ -318,6 +318,20 @@ const storage = multer.diskStorage({
     }
 });
 const upload = multer({ storage });
+// Set up multer storage configuration for System Audit Reports
+const systemAuditStorage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        const dirPath = path.join(__dirname, '../../ressources/System Audit Reports');
+        cb(null, dirPath); // Save the file in the System Audit Reports directory
+    },
+    filename: (req, file, cb) => {
+        cb(null, `${Date.now()}-${file.originalname}`); // Rename the file to avoid conflicts
+    }
+});
+
+// Define multer upload for System Audit Reports
+const systemAuditUpload = multer({ storage: systemAuditStorage });
+
 // Route pour gérer le téléchargement de fichiers
 app.post('/api/AuditAnnouncements/upload', upload.single('file'), (req, res) => {
     const file = req.file;
@@ -340,6 +354,27 @@ app.post('/api/AuditAnnouncements/upload', upload.single('file'), (req, res) => 
     });
 });
 
+// Route to handle System Audit Report file upload
+app.post('/api/SystemAuditReport/upload', systemAuditUpload.single('file'), (req, res) => {
+    const file = req.file;
+    const fileName = req.body.fileName || file.originalname;
+
+    if (!file) {
+        return res.status(400).json({ error: 'No file uploaded' });
+    }
+
+    const targetPath = path.join(file.destination, fileName);
+
+    // Rename the file if necessary
+    fs.rename(file.path, targetPath, (err) => {
+        if (err) {
+            console.error('Error renaming the file:', err);
+            return res.status(500).json({ error: 'File upload error' });
+        }
+
+        res.status(200).json({ message: `File "${fileName}" uploaded successfully!`, filePath: targetPath });
+    });
+});
 
 
 // Serve the application

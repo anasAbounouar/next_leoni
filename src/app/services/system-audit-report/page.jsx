@@ -15,29 +15,49 @@ export default function SystemAuditReport() {
     setFileName(file.name);
   };
 
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
     if (selectedFile) {
-      Swal.fire({
-        title: 'Confirmation',
-        text: `Voulez-vous confirmer le fichier "${fileName}" ?`,
-        icon: 'question',
-        showCancelButton: true,
-        confirmButtonText: 'Oui, confirmer!',
-        cancelButtonText: 'Annuler',
-      }).then((result) => {
-        if (result.isConfirmed) {
-          Swal.fire(
-            'Confirmé!',
-            `Fichier "${fileName}" a été soumis avec succès!`,
-            'success'
-          );
-            setFileName("");
+      const formData = new FormData();
+      formData.append('file', selectedFile);
+      formData.append('fileName', fileName);
+
+      try {
+        const response = await fetch('http://localhost:3001/api/SystemAuditReport/upload', {
+          method: 'POST',
+          body: formData,
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+          Swal.fire({
+            title: 'Success!',
+            text: `File "${fileName}" has been uploaded successfully!`,
+            icon: 'success',
+            confirmButtonText: 'OK',
+          });
+          setFileName('');
+          setSelectedFile(null);
+        } else {
+          Swal.fire({
+            title: 'Error',
+            text: result.error || 'An error occurred during file upload.',
+            icon: 'error',
+            confirmButtonText: 'OK',
+          });
         }
-      });
+      } catch (error) {
+        Swal.fire({
+          title: 'Error',
+          text: 'An unexpected error occurred.',
+          icon: 'error',
+          confirmButtonText: 'OK',
+        });
+      }
     } else {
       Swal.fire({
-        title: 'Erreur',
-        text: 'Veuillez joindre un fichier avant de confirmer.',
+        title: 'Error',
+        text: 'Please attach a file before confirming.',
         icon: 'error',
         confirmButtonText: 'OK',
       });
