@@ -21,17 +21,6 @@ export default function ServicesPage() {
       imageUrl: 'https://images.unsplash.com/photo-1521791136064-7986c2920216?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwzNjUyOXwwfDF8c2VhcmNofDJ8fG1hbmFnZW1lbnR8ZW58MHx8fHwxNjA3NTg1NjI4&ixlib=rb-1.2.1&q=80&w=400', // Replace with an appropriate image URL
       link: '/features/suivi-automatique',
     },
-    {
-      title: "Modèles d'Audit Personnalisables",
-      description: "Les utilisateurs peuvent créer et personnaliser des modèles d'audit pour répondre aux besoins spécifiques de leur organisation. Cela garantit que chaque audit est aligné sur les standards internes et les exigences réglementaires.",
-      imageUrl: "https://images.pexels.com/photos/845451/pexels-photo-845451.jpeg"
-    },
-    {
-      title: "Contrôle d'Accès Basé sur les Rôles",
-      description: "Cette fonctionnalité permet de définir des niveaux d'accès en fonction des rôles des utilisateurs, garantissant que seules les personnes autorisées peuvent accéder ou modifier certaines informations. Cela renforce la sécurité et la confidentialité des données critiques.",
-      imageUrl: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwzNjUyOXwwfDF8c2VhcmNofDF8fGN1c3RvbWVyJTIwc2VydmljZXxlbnwwfHx8fDE2MDc1ODU2MzQ&ixlib=rb-1.2.1&q=80&w=400', // Replace with an appropriate image URL
-      link: '/features/controle-acces',
-    },
   ];
 
   return (

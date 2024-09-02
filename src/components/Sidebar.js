@@ -121,12 +121,14 @@ export default function MiniDrawer() {
     { text: 'Planifier Audit', icon: <AssignmentIcon />, path: '/services/planifier-audit' },
     { text: 'Mettre à jour Audit', icon: <UpdateIcon />, path: '/mettre-a-jour-audit' },
     { text: 'Voir la Liste des Audits', icon: <ListAltIcon />, path: '/services/liste-des-audits' },
-    { text: 'Annonce d\'Audit', icon: <AnnouncementIcon />, path: '/annonce-audit' },
+    { text: 'Annonce d\'Audit', icon: <AnnouncementIcon />, path: '/services/annonce-audit' },
     { text: 'Résultat d\'Audit', icon: <CheckCircleIcon />, path: '/resultat-audit' },
     { text: 'SWOT', icon: <AssessmentIcon />, path: '/swot' },
     { text: 'Date des Actions Correctives', icon: <EventIcon />, path: '/date-actions-correctives' },
     { text: 'VA3011 Encl.1', icon: <FolderIcon />, path: '/va3011-encl1' },
     { text: 'Efficacité du Programme d\'Audit', icon: <VerifiedIcon />, path: '/services/effectiveness/add' },
+    { text: 'Rapport Audit Process', icon: <AssessmentIcon />, path: '/services/rapport-audit-process' },
+    { text: 'Rapport Audit System', icon: <ListAltIcon />, path: '/services/rapport-audit-system' },
     { text: 'Vérifier un Audit Spécifique', icon: <SearchIcon />, path: '/services/check-specific-audit' },
   ];
   return (

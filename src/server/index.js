@@ -22,7 +22,7 @@ app.use(cors());
 // Route to serve a DOC or DOCX file
 app.get('/api/ressources/:auditID/announcement', (req, res) => {
     const { auditID } = req.params;
-    const filePath = path.join(__dirname, `../../ressources/Audit Announcement VDA6.3 - P21 ${auditID}.doc`);
+    const filePath = path.join(__dirname, `../../ressources/Audit Annoucements/Audit Announcement VDA6.3 - P21 ${auditID}.doc`);
 
     console.log('Serving file:', filePath); // Log the file path
 
