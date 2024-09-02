@@ -40,7 +40,7 @@ app.get('/api/ressources/:auditID/announcement', (req, res) => {
 // Route to download the Excel file directly
 app.get('/api/ressources/:auditID/download', (req, res) => {
     const { auditID } = req.params;
-    const filePath = path.join(__dirname, `../../ressources/${auditID} WMABE.xlsx`);
+    const filePath = path.join(__dirname, `../../ressources/audit-finalise/${auditID} WMABE.xlsx`);
 
     console.log('Serving file for download:', filePath); // Log the file path
 
@@ -96,7 +96,7 @@ app.get('/api/ressources/:auditID/:sheetName', (req, res) => {
     console.log('Requested Sheet Name:', sheetName);
 
     try {
-        const filePath = path.join(__dirname, `../../ressources/${auditID} WMABE.xlsx`);
+        const filePath = path.join(__dirname, `../../ressources/audit-finalise/${auditID} WMABE.xlsx`);
         const workbook = XLSX.readFile(filePath);
         const worksheet = workbook.Sheets[sheetName];
 
