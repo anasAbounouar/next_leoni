@@ -279,8 +279,6 @@ async function convertExcelToPDFInMemory(excelFilePath) {
 // Route to convert Excel to PDF and send it directly to the client
 app.get('/api/convert/:auditID/pdf', async (req, res) => {
     const { auditID } = req.params;
-
-    console.log('entering to pdf', auditID)
     try {
         const excelFilePath = path.join(__dirname, `../../ressources/audit-finalise/${auditID} WMABE.xlsx`);
 

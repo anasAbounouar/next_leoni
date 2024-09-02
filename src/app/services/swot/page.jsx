@@ -29,32 +29,7 @@ export default function SWOTPage() {
     event.preventDefault();
     setSubmitted(true);
 
-    // Create an Excel file
-    const swotData = [
-      ['SWOT Analysis for:', formValues.title],
-      ['Internal System Audit:', formValues.auditId],
-      ['Auditor:', formValues.auditor],
-      [],
-      ['Strengths', formValues.strengths],
-      ['Weaknesses', formValues.weaknesses],
-      ['Opportunities', formValues.opportunities],
-      ['Threats', formValues.threats]
-    ];
-
-    const worksheet = XLSX.utils.aoa_to_sheet(swotData);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'SWOT Analysis');
-
-    // Generate Excel file and trigger download
-    const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
-    const blob = new Blob([excelBuffer], { type: 'application/octet-stream' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'SWOT_Analysis.xlsx';
-    a.click();
-    URL.revokeObjectURL(url);
-
+    
     // Show success alert
     Swal.fire({
       title: 'SWOT Submitted!',
