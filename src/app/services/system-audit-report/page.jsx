@@ -1,11 +1,11 @@
-'use client'
+'use client';
 import { useState } from 'react';
 import { Button, TextField, Typography, Box, Paper, Grid } from '@mui/material';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import Swal from 'sweetalert2';
 
-export default function AnnonceAudit() {
+export default function SystemAuditReport() {
   const [selectedFile, setSelectedFile] = useState(null);
   const [fileName, setFileName] = useState('');
 
@@ -31,7 +31,7 @@ export default function AnnonceAudit() {
             `Fichier "${fileName}" a été soumis avec succès!`,
             'success'
           );
-          setFileName("");
+            setFileName("");
         }
       });
     } else {
@@ -48,10 +48,10 @@ export default function AnnonceAudit() {
     <Box sx={{ minHeight: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center', bgcolor: 'background.default' }}>
       <Paper elevation={3} sx={{ p: 4, width: '100%', maxWidth: 500 }}>
         <Typography variant="h4" component="h1" gutterBottom align="center">
-          Annonce d'Audit
+          System Audit Report
         </Typography>
         <Typography variant="body1" component="p" gutterBottom align="center">
-          Veuillez joindre le fichier d'audit, renommer si nécessaire, et confirmer votre action.
+          Please attach the audit file, rename it if necessary, and confirm your action.
         </Typography>
         <Grid container spacing={2} alignItems="center">
           <Grid item xs={12}>
@@ -62,7 +62,7 @@ export default function AnnonceAudit() {
               fullWidth
               sx={{ textTransform: 'none', mt: 2 }}
             >
-              Joindre Fichier
+              Attach File
               <input
                 type="file"
                 hidden
@@ -72,13 +72,13 @@ export default function AnnonceAudit() {
           </Grid>
           <Grid item xs={12}>
             <TextField
-              label="Nom du Fichier"
+              label="File Name"
               variant="outlined"
               fullWidth
               value={fileName}
               onChange={(e) => setFileName(e.target.value)}
               sx={{ mt: 2 }}
-              placeholder="Renommez le fichier ici..."
+              placeholder="Rename the file here..."
             />
           </Grid>
           <Grid item xs={12}>
@@ -90,7 +90,7 @@ export default function AnnonceAudit() {
               sx={{ textTransform: 'none', mt: 2 }}
               onClick={handleConfirm}
             >
-              Confirmer
+              Confirm
             </Button>
           </Grid>
         </Grid>
