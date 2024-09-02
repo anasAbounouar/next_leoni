@@ -280,8 +280,9 @@ async function convertExcelToPDFInMemory(excelFilePath) {
 app.get('/api/convert/:auditID/pdf', async (req, res) => {
     const { auditID } = req.params;
 
+    console.log('entering to pdf', auditID)
     try {
-        const excelFilePath = path.join(__dirname, `../../ressources/${auditID} WMABE.xlsx`);
+        const excelFilePath = path.join(__dirname, `../../ressources/audit-finalise/${auditID} WMABE.xlsx`);
 
         // Check if the Excel file exists
         if (!fs.existsSync(excelFilePath)) {
