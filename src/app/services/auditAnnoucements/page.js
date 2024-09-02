@@ -5,7 +5,7 @@ import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import Swal from 'sweetalert2';
 
-export default function AnnonceAudit() {
+export default function AuditAnnouncement() {
   const [selectedFile, setSelectedFile] = useState(null);
   const [fileName, setFileName] = useState('');
 
@@ -28,8 +28,8 @@ export default function AnnonceAudit() {
         .then((response) => {
           if (response.ok) {
             Swal.fire(
-              'Confirm\u00e9!',
-              `Fichier \"${fileName}\" a \u00e9t\u00e9 soumis avec succ\u00e8s!`,
+              'Confirmed!',
+              `File "${fileName}" has been successfully submitted!`,
               'success'
             );
             setFileName('');
@@ -41,16 +41,16 @@ export default function AnnonceAudit() {
         .catch((error) => {
           console.error('Upload error:', error);
           Swal.fire({
-            title: 'Erreur',
-            text: 'Une erreur est survenue lors du t\u00e9l\u00e9chargement du fichier.',
+            title: 'Error',
+            text: 'An error occurred while uploading the file.',
             icon: 'error',
             confirmButtonText: 'OK',
           });
         });
     } else {
       Swal.fire({
-        title: 'Erreur',
-        text: 'Veuillez joindre un fichier avant de confirmer.',
+        title: 'Error',
+        text: 'Please attach a file before confirming.',
         icon: 'error',
         confirmButtonText: 'OK',
       });
@@ -69,10 +69,10 @@ export default function AnnonceAudit() {
     >
       <Paper elevation={3} sx={{ p: 4, width: '100%', maxWidth: 500 }}>
         <Typography variant="h4" component="h1" gutterBottom align="center">
-          Annonce d\u0027Audit
+          Audit Announcement
         </Typography>
         <Typography variant="body1" component="p" gutterBottom align="center">
-          Veuillez joindre le fichier d\u0027audit, renommer si n\u00e9cessaire, et confirmer votre action.
+          Please attach the audit file, rename if necessary, and confirm your action.
         </Typography>
         <Grid container spacing={2} alignItems="center">
           <Grid item xs={12}>
@@ -89,13 +89,13 @@ export default function AnnonceAudit() {
           </Grid>
           <Grid item xs={12}>
             <TextField
-              label="Nom du Fichier"
+              label="File Name"
               variant="outlined"
               fullWidth
               value={fileName}
               onChange={(e) => setFileName(e.target.value)}
               sx={{ mt: 2 }}
-              placeholder="Renommez le fichier ici..."
+              placeholder="Rename the file here..."
             />
           </Grid>
           <Grid item xs={12}>
@@ -107,7 +107,7 @@ export default function AnnonceAudit() {
               sx={{ textTransform: 'none', mt: 2 }}
               onClick={handleConfirm}
             >
-              Confirmer
+              Confirm
             </Button>
           </Grid>
         </Grid>
