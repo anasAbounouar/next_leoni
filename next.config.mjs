@@ -1,11 +1,24 @@
 /** @type {import('next').NextConfig} */
+import TerserPlugin from 'terser-webpack-plugin';
+
 const nextConfig = {
-    eslint: {
-      // Warning: This allows production builds to successfully complete even if
-      // your project has ESLint errors.
-      ignoreDuringBuilds: true,
-    },
-  };
-  
-  export default nextConfig;
-  
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+  webpack(config, { isServer }) {
+    if (!isServer) {
+      config.optimization.minimizer = [
+        new TerserPlugin({
+          terserOptions: {
+            compress: {
+              drop_console: true,
+            },
+          },
+        }),
+      ];
+    }
+    return config;
+  },
+};
+
+export default nextConfig;
