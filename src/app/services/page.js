@@ -4,22 +4,22 @@ import Sidebar from "@/components/Sidebar";
 export default function ServicesPage() {
   const features = [
     {
-      title: 'Planification et Programmation des Audits',
-      description: "Cette fonctionnalité permet aux utilisateurs de planifier et de programmer facilement des audits en fonction des besoins de l'organisation. Grâce à un calendrier intégré, les équipes peuvent gérer les priorités et optimiser la répartition des ressources.",
+      title: 'Audit Planning and Scheduling',
+      description: "This feature allows users to easily plan and schedule audits based on the organization's needs. With an integrated calendar, teams can manage priorities and optimize resource allocation.",
       imageUrl: 'https://images.unsplash.com/photo-1521747116042-5a810fda9664?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwzNjUyOXwwfDF8c2VhcmNofDF8fHRlY2hub2xvZ3l8ZW58MHx8fHwxNjA3NTg1NTYx&ixlib=rb-1.2.1&q=80&w=400', // Replace with an appropriate image URL
-      link: '/features/planification-audit',
+      link: '/features/audit-planning',
     },
     {
-      title: 'Exécution en Temps Réel et Collecte de Données',
-      description: "Les auditeurs peuvent effectuer des audits sur le terrain ou à distance, tout en collectant des données en temps réel via l'application. Cette capacité assure une documentation précise et instantanée des constatations d'audit.",
+      title: 'Real-Time Execution and Data Collection',
+      description: "Auditors can conduct audits in the field or remotely while collecting real-time data through the application. This capability ensures accurate and instant documentation of audit findings.",
       imageUrl: 'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwzNjUyOXwwfDF8c2VhcmNofDJ8fGlubm92YXRpb258ZW58MHx8fHwxNjA3NTg1NTYx&ixlib=rb-1.2.1&q=80&w=400', // Replace with an appropriate image URL
-      link: '/features/execution-temps-reel',
+      link: '/features/real-time-execution',
     },
     {
-      title: 'Suivi Automatisé des Audits et Gestion des Actions',
-      description: "L'application automatise le suivi des audits, permettant de gérer les actions correctives et de s'assurer que les problèmes identifiés sont résolus en temps voulu. Les utilisateurs peuvent facilement suivre l'état des actions et rester informés grâce aux notifications.",
+      title: 'Automated Audit Follow-up and Action Management',
+      description: "The application automates audit follow-up, allowing for the management of corrective actions and ensuring that identified issues are resolved in a timely manner. Users can easily track the status of actions and stay informed through notifications.",
       imageUrl: 'https://images.unsplash.com/photo-1521791136064-7986c2920216?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwzNjUyOXwwfDF8c2VhcmNofDJ8fG1hbmFnZW1lbnR8ZW58MHx8fHwxNjA3NTg1NjI4&ixlib=rb-1.2.1&q=80&w=400', // Replace with an appropriate image URL
-      link: '/features/suivi-automatique',
+      link: '/features/automated-follow-up',
     },
   ];
 
@@ -27,9 +27,9 @@ export default function ServicesPage() {
     <div className="flex">
       <Sidebar />
       <div className="flex-1 p-8 bg-gray-100">
-        <h2 className="text-4xl font-extrabold text-gray-800 mb-8 text-center">Fonctionnalités Principales</h2>
+        <h2 className="text-4xl font-extrabold text-gray-800 mb-8 text-center">Key Features</h2>
         <p className="text-lg mb-12 text-center text-gray-600">
-          Voici les principales fonctionnalités de notre application de gestion des audits internes pour optimiser vos processus d'audit.
+          Here are the main features of our internal audit management application to optimize your audit processes.
         </p>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
           {features.map((feature, index) => (
