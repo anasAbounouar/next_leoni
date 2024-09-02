@@ -28,8 +28,8 @@ export default function AnnonceAudit() {
         .then((response) => {
           if (response.ok) {
             Swal.fire(
-              'Confirmé!',
-              `Fichier "${fileName}" a été soumis avec succès!`,
+              'Confirm\u00e9!',
+              `Fichier \"${fileName}\" a \u00e9t\u00e9 soumis avec succ\u00e8s!`,
               'success'
             );
             setFileName('');
@@ -42,7 +42,7 @@ export default function AnnonceAudit() {
           console.error('Upload error:', error);
           Swal.fire({
             title: 'Erreur',
-            text: 'Une erreur est survenue lors du téléchargement du fichier.',
+            text: 'Une erreur est survenue lors du t\u00e9l\u00e9chargement du fichier.',
             icon: 'error',
             confirmButtonText: 'OK',
           });
@@ -69,10 +69,10 @@ export default function AnnonceAudit() {
     >
       <Paper elevation={3} sx={{ p: 4, width: '100%', maxWidth: 500 }}>
         <Typography variant="h4" component="h1" gutterBottom align="center">
-          Annonce d'Audit
+          Annonce d\u0027Audit
         </Typography>
         <Typography variant="body1" component="p" gutterBottom align="center">
-          Veuillez joindre le fichier d'audit, renommer si nécessaire, et confirmer votre action.
+          Veuillez joindre le fichier d\u0027audit, renommer si n\u00e9cessaire, et confirmer votre action.
         </Typography>
         <Grid container spacing={2} alignItems="center">
           <Grid item xs={12}>
