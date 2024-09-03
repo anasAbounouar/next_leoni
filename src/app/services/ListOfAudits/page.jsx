@@ -10,7 +10,7 @@ export default function ListeDesAudits() {
   useEffect(() => {
     const fetchAuditData = async () => {
       try {
-        const response = await fetch(`http://localhost:${process.env.SERVER_PORT}/api/audit-ids`);
+        const response = await fetch(`http://localhost:${process.env.NEXT_PUBLIC_SERVER_PORT}/api/audit-ids`);
         const result = await response.json();
 
         const filteredData = result.tableData.filter(row =>

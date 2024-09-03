@@ -17,7 +17,7 @@ const { ILOVE_PDF_PUBLIC_KEY, ILOVE_PDF_SECRET_KEY } = process.env;
 const ilovePDFInstance = new ILovePDFApi(ILOVE_PDF_PUBLIC_KEY, ILOVE_PDF_SECRET_KEY);
 
 const app = express();
-const port = process.env.SERVER_PORT || 3001;
+const port = process.env.NEXT_PUBLIC_SERVER_PORT || 3001;
 
 app.use(cors());
 
