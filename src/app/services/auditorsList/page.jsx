@@ -14,7 +14,7 @@ export default function EmployeeData() {
         // Fetch the list of employees when the component loads
         const fetchEmployees = async () => {
             try {
-                const response = await fetch('http://localhost:3001/api/employees'); // Fetching the employee list from your API
+                const response = await fetch(`http://localhost:${process.env.SERVER_PORT}/api/employees`); // Fetching the employee list from your API
                 if (!response.ok) {
                     throw new Error('Failed to fetch employee list');
                 }
@@ -32,7 +32,7 @@ export default function EmployeeData() {
 
                 // Fetch data for all employees
                 const allData = await Promise.all(
-                    data.map(employee => fetch(`http://localhost:3001/api/employee/${employee.id}`).then(res => res.json()))
+                    data.map(employee => fetch(`http://localhost:${process.env.SERVER_PORT}/api/employee/${employee.id}`).then(res => res.json()))
                 );
 
                 const combinedData = allData.map((result, index) => ({
@@ -64,7 +64,7 @@ export default function EmployeeData() {
     };
 
     const handleDownload = () => {
-        window.location.href = 'http://localhost:3001/api/download/excel';
+        window.location.href = `http://localhost:${process.env.SERVER_PORT}/api/download/excel`;
     };
 
     const getBackgroundColor = (content) => {

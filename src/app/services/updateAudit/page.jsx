@@ -19,7 +19,7 @@ export default function AuditUpdatePage() {
       setError(null); // Clear any previous errors
 
       try {
-        const response = await fetch('http://localhost:3001/api/audit-ids');
+        const response = await fetch(`http://localhost:${process.env.SERVER_PORT}/api/audit-ids`);
         if (!response.ok) throw new Error('Failed to fetch audit data');
 
         const data = await response.json();

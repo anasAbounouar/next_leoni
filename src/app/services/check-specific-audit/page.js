@@ -50,7 +50,7 @@ export default function AuditSearch() {
 
     setIsFetchingPdf(true);
     try {
-      const response = await fetch(`http://localhost:3001/api/convert/${option.value}/pdf`);
+      const response = await fetch(`http://localhost:${process.env.SERVER_PORT}/api/convert/${option.value}/pdf`);
       if (!response.ok) throw new Error('Failed to fetch PDF');
 
       const tempPdfBlob = await response.blob();
@@ -65,7 +65,7 @@ export default function AuditSearch() {
     }
 
     try {
-      const response = await fetch(`http://localhost:3001/api/ressources/${option.value}/SWOT`);
+      const response = await fetch(`http://localhost:${process.env.SERVER_PORT}/api/ressources/${option.value}/SWOT`);
       if (!response.ok) throw new Error('Failed to fetch SWOT data');
 
       const data = await response.json();
@@ -81,7 +81,7 @@ export default function AuditSearch() {
       setError(null);
 
       try {
-        const response = await fetch('http://localhost:3001/api/audit-ids');
+        const response = await fetch(`http://localhost:${process.env.SERVER_PORT}/api/audit-ids`);
         if (!response.ok) throw new Error('Failed to fetch audit data');
 
         const data = await response.json();
