@@ -22,7 +22,7 @@ export default function SystemAuditReport() {
       formData.append('fileName', fileName);
 
       try {
-        const response = await fetch(`http://localhost:${process.env.NEXT_PUBLIC_SERVER_PORT}/api/SystemAuditReport/upload`, {
+        const response = await fetch(`/api/SystemAuditReport/upload`, {
           method: 'POST',
           body: formData,
         });

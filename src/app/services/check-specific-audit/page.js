@@ -50,7 +50,7 @@ export default function AuditSearch() {
 
     setIsFetchingPdf(true);
     try {
-      const response = await fetch(`http://localhost:${process.env.NEXT_PUBLIC_SERVER_PORT}/api/convert/${option.value}/pdf`);
+      const response = await fetch(`/api/convert/${option.value}/pdf`);
       if (!response.ok) throw new Error('Failed to fetch PDF');
 
       const tempPdfBlob = await response.blob();
@@ -65,7 +65,7 @@ export default function AuditSearch() {
     }
 
     try {
-      const response = await fetch(`http://localhost:${process.env.NEXT_PUBLIC_SERVER_PORT}/api/ressources/${option.value}/SWOT`);
+      const response = await fetch(`/api/ressources/${option.value}/SWOT`);
       if (!response.ok) throw new Error('Failed to fetch SWOT data');
 
       const data = await response.json();
@@ -81,7 +81,7 @@ export default function AuditSearch() {
       setError(null);
 
       try {
-        const response = await fetch(`http://localhost:${process.env.NEXT_PUBLIC_SERVER_PORT}/api/audit-ids`);
+        const response = await fetch(`/api/audit-ids`);
         if (!response.ok) throw new Error('Failed to fetch audit data');
 
         const data = await response.json();
@@ -173,7 +173,7 @@ console.log(selectedOption,"ssselectedoption")
     
     if (selectedOption) {
       const form = document.createElement('form');
-      form.action = `http://localhost:3001${endpoint}`;
+      form.action = `${endpoint}`;
       form.method = 'GET';
       form.style.display = 'none';
       document.body.appendChild(form);
@@ -226,7 +226,7 @@ console.log(selectedOption,"ssselectedoption")
                         sectionColors[cell] || ''
                       }`}
                     >
-                      {cell}
+                      {cell} 
                     </td>
                   );
                 })}
@@ -308,7 +308,7 @@ console.log(selectedOption,"ssselectedoption")
               <div className="flex items-center justify-between">
                 <Button
                   auto
-                  onClick={() => handleDownloadExcel(`/api/ressources/${selectedOption.value}/announcement`)}
+                  onClick={() => handleDownloadExcel(`/api/ressources/${selectedOption.value}/download`)}
                   className="mt-4 bg-blue-500 text-white"
                   disabled={isFetchingPdf || loading}
                 >
