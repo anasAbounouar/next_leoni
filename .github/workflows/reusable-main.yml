@@ -28,6 +28,7 @@ jobs:
           node-version: ${{ inputs.node_version }}
 
       - name: Cache node_modules
+        id: caching
         uses: actions/cache@v3
         with:
           key: node-deps-${{ hashFiles('package-lock.json') }}
@@ -35,6 +36,7 @@ jobs:
           enableCrossOsArchive: true
 
       - name: Install dependencies
+        if: steps.caching.outputs.cache-hit!='true'
         run: npm ci
 
       - name: Run tests
