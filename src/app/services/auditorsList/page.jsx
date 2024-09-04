@@ -18,7 +18,7 @@ export default function EmployeeData() {
            
             try {
                
-                const response = await fetch(`http://localhost:${process.env.NEXT_PUBLIC_SERVER_PORT}/api/employees`); // Fetching the employee list from your API
+                const response = await fetch(`/api/employees`); // Fetching the employee list from your API
                 if (!response.ok) {
                     throw new Error('Failed to fetch employee list');
                 }
@@ -36,7 +36,7 @@ export default function EmployeeData() {
 
                 // Fetch data for all employees
                 const allData = await Promise.all(
-                    data.map(employee => fetch(`http://localhost:${process.env.NEXT_PUBLIC_SERVER_PORT}/api/employee/${employee.id}`).then(res => res.json()))
+                    data.map(employee => fetch(`/api/employee/${employee.id}`).then(res => res.json()))
                 );
 
                 const combinedData = allData.map((result, index) => ({
@@ -68,7 +68,7 @@ export default function EmployeeData() {
     };
 
     const handleDownload = () => {
-        window.location.href = `http://localhost:${process.env.NEXT_PUBLIC_SERVER_PORT}/api/download/excel`;
+        window.location.href = `/api/download/excel`;
     };
 
     const getBackgroundColor = (content) => {
@@ -126,7 +126,7 @@ export default function EmployeeData() {
     return (
         <div className="p-4 mx-10">
             <button onClick={handleDownload} className="mb-4 p-2 bg-blue-500 text-white rounded">
-                Télécharger  fichier Excel 
+                Download Excel file 
             </button>
 
             <div className="mb-4 flex ">
