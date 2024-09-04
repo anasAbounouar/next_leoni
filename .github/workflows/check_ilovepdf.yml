@@ -1,4 +1,4 @@
-name: Check ILovePDF API Status with PDF Conversion
+name: Check iLovePDF API Status with PDF Conversion
 
 on:
   workflow_dispatch:
@@ -14,21 +14,27 @@ jobs:
     - name: Checkout Repository
       uses: actions/checkout@v3
 
-    - name: Install Node.js 
+    - name: Install Node.js
       uses: actions/setup-node@v3
       with:
-        node-version: '22' 
+        node-version: '22'
 
     - name: Install iLovePDF Node.js library
       run: |
-        npm install @ilovepdf/ilovepdf-nodejs
+        npm install @ilovepdf/ilovepdf-nodejs minimist
 
     - name: Check API Status with Conversion
+      id: check_api
       run: |
-          node ./src/utils/ilovepdf_check.js --publicKey ${{ secrets.ILOVE_PDF_PUBLIC_KEY }} --secretKey ${{ secrets.ILOVE_PDF_SECRET_KEY }} --check-api
-      continue-on-error: false  # Fail the job if API check fails
-  
+        node ./src/utils/ilovepdf_check.js --publicKey ${{ secrets.ILOVE_PDF_PUBLIC_KEY }} --secretKey ${{ secrets.ILOVE_PDF_SECRET_KEY }} --check-api
+
     - name: Handle Failure
       if: failure()
       run: |
-          echo "API is down or out of points. Exiting."
+        echo "API is down or out of points. Exiting."
+        exit 1  # Ensure the job fails with exit code 1
+
+    - name: Notify on Success
+      if: success()
+      run: |
+        echo "iLovePDF API is operational and conversion successful."
