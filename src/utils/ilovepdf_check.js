@@ -1,36 +1,42 @@
-// utils/ilovepdf_ckeck.js
 const { ILovePDFApi } = require('@ilovepdf/ilovepdf-nodejs');
+const args = require('minimist')(process.argv.slice(2));
 
-const ilovePDFInstance = new ILovePDFApi(process.env.ILOVE_PDF_PUBLIC_KEY, process.env.ILOVE_PDF_SECRET_KEY);
+const publicKey = args['publicKey'];
+const secretKey = args['secretKey'];
 
-async function checkAPIStatus() {
-  try {
-    const response = await ilovePDFInstance.auth();
-    if (response.status === 200) {
-      console.log('iLovePDF API is operational.');
-    } else {
-      console.error('API is down or invalid credentials. Status code:', response.status);
-    }
-  } catch (error) {
-    console.error('Error checking API status:', error.message);
-  }
+if (!publicKey || !secretKey) {
+  console.error('Missing API keys. Please provide both publicKey and secretKey.');
+  process.exit(1);
 }
 
-async function convertImageToPDF(imageFilePath) {
+const ilovePDFInstance = new ILovePDFApi(publicKey, secretKey);
+
+async function checkAPIStatusWithConversion(imageFilePath) {
   try {
     const task = ilovePDFInstance.newTask('imagepdf');
-    await task.start();
-    const file = await task.addFile(imageFilePath);
-    await task.process();
-    const pdfBuffer = await task.download();
-    return true; // Conversion successful
+    await task.start(); // Start the task
+
+    await task.addFile(imageFilePath); // Add an image file (to check API points)
+    await task.process(); // Try to process the file
+
+    const pdfBuffer = await task.download(); // Attempt to download the resulting PDF
+
+    console.log('API is working. Conversion successful.');
+    process.stdout.write('::set-output name=apiStatus::true\n');
+    process.exit(0); // Exit with code 0 to indicate success
   } catch (error) {
-    console.error('Error converting image to PDF:', error.message);
-    return false; // Conversion failed
+    console.error('Error during API conversion or no points left:', error.message);
+    process.stdout.write('::set-output name=apiStatus::false\n');
+    process.exit(1); // Exit with code 1 to indicate failure
   }
 }
 
-module.exports = {
-  checkAPIStatus,
-  convertImageToPDF,
-};
+(async () => {
+  if (args['check-api']) {
+    const imagePath = 'public/next.svg'; // Default image path for testing conversion
+    await checkAPIStatusWithConversion(imagePath);
+  } else {
+    console.error('No valid arguments provided.');
+    process.exit(1);
+  }
+})();

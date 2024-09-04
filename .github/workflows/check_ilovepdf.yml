@@ -23,45 +23,12 @@ jobs:
       run: |
         npm install @ilovepdf/ilovepdf-nodejs
 
-    - name: Check ILovePDF API Status
+    - name: Check API Status with Conversion
       run: |
-        # Access API keys securely (replace with your method)
-        API_KEY=${{ secrets.ILOVE_PDF_PUBLIC_KEY }}
-        API_SECRET=${{ secrets.ILOVE_PDF_SECRET_KEY }}
-
-        response=$(curl -s -o /dev/null -w "%{http_code}" \
-          -X POST "https://api.ilovepdf.com/v1/auth" \
-          -H "Content-Type: application/json" \
-          -d "{\"public_key\":\"$API_KEY\"}")
-
-        if [ "$response" -ne 200 ]; then
-          echo "API is down or invalid credentials. Status code: $response"
-          exit 1
-        fi
-        
-    - name: Convert SVG to PDF
+          node ./src/utils/ilovepdf_check.js --publicKey ${{ secrets.ILOVE_PDF_PUBLIC_KEY }} --secretKey ${{ secrets.ILOVE_PDF_SECRET_KEY }} --check-api
+      continue-on-error: false  # Fail the job if API check fails
+  
+    - name: Handle Failure
+      if: failure()
       run: |
-        # Use the iLovePDF Node.js library for conversion
-        node -e "
-          const { ILovePDFApi } = require('@ilovepdf/ilovepdf-nodejs');
-
-          const ilovePDFInstance = new ILovePDFApi('$API_KEY', '$API_SECRET');
-
-          async function convertSVGtoPDF(svgFilePath) {
-            try {
-              const task = ilovePDFInstance.newTask('svg2pdf');
-              await task.start();
-              const file = await task.addFile(svgFilePath);
-              await task.process();
-              const pdfBuffer = await task.download();
-              console.log('SVG conversion successful!');
-              return 0; // Indicate success
-            } catch (error) {
-              console.error('Error converting SVG to PDF:', error.message);
-              return 1; // Indicate failure
-            }
-          }
-
-          const exitCode = convertSVGtoPDF('/public/next.svg');
-          process.exit(exitCode);
-        "
+          echo "API is down or out of points. Exiting."
