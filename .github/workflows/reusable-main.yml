@@ -45,8 +45,9 @@ jobs:
         run: npm run build
 
       - name: Get Node.js version
-        id: node_version
-        run: echo "node_version=${{inputs.node_version}}" >> $GITHUB_OUTPUT
+        id: get_node_version
+        run: |
+          echo "node_version=${{ inputs.node_version }}" >> $GITHUB_OUTPUT
 
     outputs:
-      node_version: ${{ steps.node_version.outputs.node_version }}
+      node_version: ${{ steps.get_node_version.outputs.node_version }}
