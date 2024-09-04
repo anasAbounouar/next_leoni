@@ -22,7 +22,7 @@ jobs:
 
   print-version:
     runs-on: ubuntu-latest
-    needs: call-reusable-workflow
+    needs: call-reusable-workflow  # Corrected job name
     steps:
       - name: Print Node.js version
         run: echo "Node.js version is ${{ needs.call-reusable-workflow.outputs.node_version }}"
