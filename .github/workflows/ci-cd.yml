@@ -23,10 +23,10 @@ jobs:
     uses: "./.github/workflows/reusable-main.yml"
     with:
       node_version: ${{inputs.node_version || '22'}} 
-
-  print-version:
+  print-use_node_version:
     runs-on: ubuntu-latest
-    needs: call-reusable-workflow  # Corrected job name
+    needs: call-reusable-workflow
     steps:
-      - name: Print Node.js version
-        run: echo "Node.js version is ${{ needs.call-reusable-workflow.outputs.node_version }}"
+      - name: Version used
+        run: version used is ${{needs.call-reusable-workflow.outputs.used_node_version}}
+  
