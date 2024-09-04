@@ -1,8 +1,7 @@
-name: Check ILovePDF API Status
+name: Check ILovePDF API Status with PDF Conversion
 
 on:
   workflow_dispatch:
-  push:
   schedule:
     - cron: '0 0 * * *'  # Runs every day at midnight UTC
 
@@ -11,6 +10,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v3
+
     - name: Check ILovePDF API Status
       run: |
         # Access API keys securely (replace with your method)
@@ -22,9 +24,35 @@ jobs:
           -H "Content-Type: application/json" \
           -d "{\"public_key\":\"$API_KEY\"}")
 
-        if [ "$response" -eq 200 ]; then
-          echo "ILovePDF API is operational."
-        else
-          echo "API might be down or invalid credentials. Status code: $response"
+        if [ "$response" -ne 200 ]; then
+          echo "API is down or invalid credentials. Status code: $response"
           exit 1
         fi
+
+    - name: Convert SVG to PDF
+      run: |
+        # Use the iLovePDF Node.js library for conversion
+        # Install the library using npm: `npm install @ilovepdf/ilovepdf-nodejs`
+        node -e "
+          const { ILovePDFApi } = require('@ilovepdf/ilovepdf-nodejs');
+
+          const ilovePDFInstance = new ILovePDFApi('$API_KEY', '$API_SECRET');
+
+          async function convertSVGtoPDF(svgFilePath) {
+            try {
+              const task = ilovePDFInstance.newTask('svg2pdf');
+              await task.start();
+              const file = await task.addFile(svgFilePath);
+              await task.process();
+              const pdfBuffer = await task.download();
+              console.log('SVG conversion successful!');
+              return 0; // Indicate success
+            } catch (error) {
+              console.error('Error converting SVG to PDF:', error.message);
+              return 1; // Indicate failure
+            }
+          }
+
+          const exitCode = convertSVGtoPDF('/public/next.svg');
+          process.exit(exitCode);
+        "
