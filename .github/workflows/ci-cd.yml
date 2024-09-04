@@ -2,8 +2,10 @@ name: Multi-Repo CI Workflow
 
 on:
   push:
+    
     branches:
       secondary
+    
   workflow_dispatch:
     inputs:
       node_version: 
@@ -20,7 +22,7 @@ jobs:
   call-reusable-workflow:
     uses: "./.github/workflows/reusable-main.yml"
     with:
-      node_version: ${{inputs.node_version}}
+      node_version: ${{inputs.node_version || '22'}} 
 
   print-version:
     runs-on: ubuntu-latest
