@@ -1,6 +1,8 @@
-const { ILovePDFApi } = require('@ilovepdf/ilovepdf-nodejs');
-const args = require('minimist')(process.argv.slice(2));
 
+import ILovePDFApi from '@ilovepdf/ilovepdf-nodejs';
+import minimist from 'minimist'; // Use import for minimist
+
+const args = minimist(process.argv.slice(2));
 const publicKey = args['publicKey'];
 const secretKey = args['secretKey'];
 
@@ -13,7 +15,7 @@ const ilovePDFInstance = new ILovePDFApi(publicKey, secretKey);
 
 async function checkAPIStatusWithConversion(imageFilePath) {
   try {
-    const task = ilovePDFInstance.newTask('imagepdf');
+    const task = ilovePDFInstance.newTask('imagepdf');  
     await task.start(); // Start the task
 
     await task.addFile(imageFilePath); // Add an image file (to check API points)
