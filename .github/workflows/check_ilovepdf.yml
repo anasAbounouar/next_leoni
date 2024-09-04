@@ -38,7 +38,7 @@ jobs:
           echo "API is down or invalid credentials. Status code: $response"
           exit 1
         fi
-
+        
     - name: Convert SVG to PDF
       run: |
         # Use the iLovePDF Node.js library for conversion
