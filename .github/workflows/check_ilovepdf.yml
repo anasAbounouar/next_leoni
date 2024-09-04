@@ -5,7 +5,6 @@ on:
     - cron: '0 0 * * *'  # Runs every day at midnight UTC
   workflow_dispatch:
 
-
 jobs:
   check-ilovepdf-api:
     runs-on: ubuntu-latest
@@ -20,6 +19,8 @@ jobs:
             -X POST "https://api.ilovepdf.com/v1/start" \
             -H "Content-Type: application/json" \
             -d "{\"public_key\":\"$API_KEY\"}")
+
+          echo "Response code: $response"  # This will print the response code in the logs
 
           if [ "$response" -ne 200 ]; then
             echo "API is down or invalid credentials. Status code: $response"
