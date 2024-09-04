@@ -1,0 +1,29 @@
+name: Check ILovePDF API Status
+
+on:
+  schedule:
+    - cron: '0 0 * * *'  # Runs every day at midnight UTC
+  workflow_dispatch:
+
+
+jobs:
+  check-ilovepdf-api:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check ILovePDF API Status
+        run: |
+          API_KEY=${{ secrets.ILOVE_PDF_PUBLIC_KEY }}
+          API_SECRET=${{ secrets.ILOVE_PDF_SECRET_KEY }}
+
+          response=$(curl -s -o /dev/null -w "%{http_code}" \
+            -X POST "https://api.ilovepdf.com/v1/start" \
+            -H "Content-Type: application/json" \
+            -d "{\"public_key\":\"$API_KEY\"}")
+
+          if [ "$response" -ne 200 ]; then
+            echo "API is down or invalid credentials. Status code: $response"
+            exit 1
+          else
+            echo "ILovePDF API is up and credentials are working."
+          fi
