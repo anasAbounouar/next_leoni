@@ -2,6 +2,7 @@ name: Check ILovePDF API Status with PDF Conversion
 
 on:
   workflow_dispatch:
+  push:
   schedule:
     - cron: '0 0 * * *'  # Runs every day at midnight UTC
 
