@@ -5,12 +5,12 @@ on:
   workflow_dispatch:
     inputs:
       node_version: 
-        default: '20'
+        default: '22'
         type: choice
         options:
-          - 18
-          - 19
           - 20
+          - 21
+          - 22
 
 
 

@@ -6,7 +6,7 @@ on:
       node_version:
         description: 'Node.js version to use'
         required: true
-        default: '20'
+        default: '22'
         type: string
       run_tests:
         description: 'Whether to run tests'
