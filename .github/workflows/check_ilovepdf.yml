@@ -19,9 +19,9 @@ jobs:
       with:
         node-version: '22'
 
-    - name: Install iLovePDF Node.js library
+    - name: Install  dependencies
       run: |
-        npm install @ilovepdf/ilovepdf-nodejs minimist
+        npm ci
 
     - name: Check API Status with Conversion
       id: check_api
