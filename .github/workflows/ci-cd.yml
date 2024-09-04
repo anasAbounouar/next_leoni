@@ -28,5 +28,5 @@ jobs:
     needs: call-reusable-workflow
     steps:
       - name: Version used
-        run: version used is ${{needs.call-reusable-workflow.outputs.used_node_version}}
+        run: echo "version used is ${{needs.call-reusable-workflow.outputs.used_node_version}}""
   
