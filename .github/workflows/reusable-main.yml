@@ -56,6 +56,7 @@ jobs:
           key: nextjs-build-${{ inputs.node_version }}-${{ hashFiles('**/*') }}
           path: .next
           enableCrossOsArchive: true
+          fail-on-cache-miss: false
 
       # Run tests if the run_tests input is true
       - name: Run tests
