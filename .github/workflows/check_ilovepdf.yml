@@ -14,6 +14,15 @@ jobs:
     - name: Checkout Repository
       uses: actions/checkout@v3
 
+    - name: Install Node.js 
+      uses: actions/setup-node@v3
+      with:
+        node-version: '22' 
+
+    - name: Install iLovePDF Node.js library
+      run: |
+        npm install @ilovepdf/ilovepdf-nodejs
+
     - name: Check ILovePDF API Status
       run: |
         # Access API keys securely (replace with your method)
@@ -33,7 +42,6 @@ jobs:
     - name: Convert SVG to PDF
       run: |
         # Use the iLovePDF Node.js library for conversion
-        # Install the library using npm: `npm install @ilovepdf/ilovepdf-nodejs`
         node -e "
           const { ILovePDFApi } = require('@ilovepdf/ilovepdf-nodejs');
 
