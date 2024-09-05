@@ -14,21 +14,29 @@ jobs:
     - name: Checkout Repository
       uses: actions/checkout@v3
 
-    - name: Install Node.js
+    - name: Set up Node.js
       uses: actions/setup-node@v3
       with:
         node-version: '22'
 
-    - name: Install  dependencies
-      run: |
-        npm i @ilovepdf/ilovepdf-nodejs minimist
-    - name: List directory (for debugging)
-      run: ls -R /home/runner/work/next_leoni/next_leoni/public
+    - name: Cache Node.js modules
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.npm
+          ~/.cache
+        key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-node-
+
+    - name: Install dependencies
+      run: npm ci
+
 
     - name: Check API Status with Conversion
       id: check_api
       run: |
-        node ./src/utils/ilovepdf_check.js --publicKey ${{secrets.ILOVE_PDF_PUBLIC_KEY}} --secretKey ${{secrets.ILOVE_PDF_SECRET_KEY}} --check-api
+        node ./src/utils/ilovepdf_check.js --publicKey ${{ secrets.ILOVE_PDF_PUBLIC_KEY }} --secretKey ${{ secrets.ILOVE_PDF_SECRET_KEY }} --check-api
 
     - name: Handle Failure
       if: failure()
