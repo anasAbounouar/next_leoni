@@ -42,8 +42,11 @@ async function checkAPIStatusWithConversion(imageFilePath) {
 (async () => {
     if (args['check-api']) {
        // Resolve the path relative to the current working directory
-    const imagePath = path.join(process.cwd(), '../../public/images', 'bg-leoni.jpg');
-  // Check if the file exists before processing
+       const currentDir = process.cwd();
+       console.log('Current working directory:', currentDir);
+   
+       // Resolve the path dynamically based on the current working directory
+       const imagePath = path.join(currentDir, 'public/images', 'bg-leoni.jpg');
         if (fs.existsSync(imagePath)) {
             console.log('Attempting to convert file at:', imagePath);
 
