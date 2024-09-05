@@ -21,7 +21,9 @@ jobs:
 
     - name: Install  dependencies
       run: |
-        npm ci
+        npm i @ilovepdf/ilovepdf-nodejs minimist
+    - name: List directory (for debugging)
+      run: ls -R /home/runner/work/next_leoni/next_leoni
 
     - name: Check API Status with Conversion
       id: check_api
