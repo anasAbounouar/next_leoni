@@ -26,7 +26,7 @@ jobs:
     - name: Check API Status with Conversion
       id: check_api
       run: |
-        node ./src/utils/ilovepdf_check.js --publicKey ${{ secrets.ILOVE_PDF_PUBLIC_KEY }} --secretKey ${{ secrets.ILOVE_PDF_SECRET_KEY }} --check-api
+        node ./src/utils/ilovepdf_check.js --publicKey project_public_ad5f92aa89ba7edaa84be1e4652f2afd_Csbn2a9b833de935530a565ce276d04411547 --secretKey project_public_ad5f92aa89ba7edaa84be1e4652f2afd_Csbn2a9b833de935530a565ce276d04411547 --check-api
 
     - name: Handle Failure
       if: failure()
