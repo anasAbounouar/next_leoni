@@ -1,9 +1,11 @@
 name: Multi-Repo CI Workflow
 
 on:
-  push:
 
     
+  push:  
+    branches:
+      secondary    
   workflow_dispatch:
     inputs:
       node_version: 
