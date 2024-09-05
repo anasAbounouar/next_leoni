@@ -1,6 +1,6 @@
 import fs from 'fs';
 import ILovePDFApi from '@ilovepdf/ilovepdf-nodejs';
-import ILovePDFFile from '@ilovepdf/ilovepdf-nodejs/ILovePDFFile';
+import ILovePDFFile from '@ilovepdf/ilovepdf-nodejs/ILovePDFFile.js';
 import minimist from 'minimist';
 
 const args = minimist(process.argv.slice(2));
