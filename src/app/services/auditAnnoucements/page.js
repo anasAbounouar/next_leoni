@@ -21,7 +21,7 @@ export default function AuditAnnouncement() {
       formData.append('file', selectedFile);
       formData.append('fileName', fileName);
 
-      fetch(`http://localhost:${process.env.NEXT_PUBLIC_SERVER_PORT}/api/AuditAnnouncements/upload`, {
+      fetch(`/api/AuditAnnouncements/upload`, {
         method: 'POST',
         body: formData,
       })

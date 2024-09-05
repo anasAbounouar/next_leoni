@@ -6,47 +6,68 @@ on:
       node_version:
         description: 'Node.js version to use'
         required: true
-        default: '20'
         type: string
       run_tests:
         description: 'Whether to run tests'
         required: false
         type: boolean
         default: false
+    outputs:
+      used_node_version:
+        description: 'The Node.js version used'
+        value: ${{ jobs.build.outputs.node_version }}
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    outputs:
+      node_version: ${{ steps.get_node_version.outputs.node_version }}
 
     steps:
+      # Checkout the latest code from the repository
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
+      # Set up Node.js environment
       - name: Set up Node.js
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version: ${{ inputs.node_version }}
 
+      # Cache node_modules to speed up installation
       - name: Cache node_modules
-        uses: actions/cache@v3
+        id: cache-node-modules
+        uses: actions/cache@v4
         with:
-          key: node-deps-${{ hashFiles('../../package-lock.json') }}
+          key: node-deps-${{ inputs.node_version }}-${{ hashFiles('package-lock.json') }}
           path: node_modules
           enableCrossOsArchive: true
 
+      # Install dependencies only if not cached
       - name: Install dependencies
+        if: steps.cache-node-modules.outputs.cache-hit != 'true'
         run: npm ci
 
+      # Cache the .next directory to speed up Next.js builds
+      - name: Cache Next.js build output
+        id: cache-next
+        uses: actions/cache@v4
+        with:
+          key: nextjs-build-${{ inputs.node_version }}-${{ hashFiles('package.json', 'package-lock.json', 'next.config.js') }}
+          path: .next
+          enableCrossOsArchive: true
+          fail-on-cache-miss: false
+
+      # Run tests if the run_tests input is true
       - name: Run tests
         if: ${{ inputs.run_tests }}
         run: npm test
 
+      # Build the project
       - name: Build project
         run: npm run build
 
+      # Output the Node.js version used
       - name: Get Node.js version
-        id: node_version
-        run: echo "node_version=${{inputs.node_version}}" >> $GITHUB_OUTPUT
-
-    outputs:
-      node_version: ${{ steps.node_version.outputs.node_version }}
+        id: get_node_version
+        run: echo "node_version=${{ inputs.node_version }}" >> $GITHUB_OUTPUT
