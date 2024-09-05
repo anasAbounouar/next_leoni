@@ -6,8 +6,8 @@ import path from 'path';
 
 const args = minimist(process.argv.slice(2));
 
-const publicKey = "project_public_ad5f92aa89ba7edaa84be1e4652f2afd_Csbn2a9b833de935530a565ce276d04411547";
-const secretKey = "secret_key_f0bbddb93f13fd5cbf5c94ddded59592_F3oAqe22b73cee70dc1c7c59f87ce63dc3d28";
+const publicKey = args["publicKey"]
+const secretKey = args["secretKey"]
 // const publicKey = args['publicKey'];
 // const secretKey = args['secretKey'];
 
