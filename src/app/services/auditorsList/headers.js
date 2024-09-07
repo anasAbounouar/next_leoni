@@ -295,4 +295,4 @@ const headers = [
         level4: 'Has performed on at least 3 Product Audits per year'
     }
 ];
-module.exports = headers;
+export default headers;

@@ -3,7 +3,7 @@ import * as React from 'react';
 import { styled, useTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import MuiDrawer from '@mui/material/Drawer';
-import MuiAppBar from '@mui/material/AppBar';
+import MuiAppBar from '@mui/material/AppBar'; // Only from @mui/material
 import Toolbar from '@mui/material/Toolbar';
 import List from '@mui/material/List';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -27,8 +27,6 @@ import ListAltIcon from '@mui/icons-material/ListAlt';
 import AnnouncementIcon from '@mui/icons-material/Announcement';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import AssessmentIcon from '@mui/icons-material/Assessment';
-import EventIcon from '@mui/icons-material/Event';
-import FolderIcon from '@mui/icons-material/Folder';
 import VerifiedIcon from '@mui/icons-material/Verified';
 import SearchIcon from '@mui/icons-material/Search';
 import NavbarComponent from './Navbar';
@@ -83,22 +81,22 @@ const AppBar = styled(MuiAppBar, {
   }),
 }));
 
-const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' })(
-  ({ theme, open }) => ({
-    width: drawerWidth,
-    flexShrink: 0,
-    whiteSpace: 'nowrap',
-    boxSizing: 'border-box',
-    ...(open && {
-      ...openedMixin(theme),
-      '& .MuiDrawer-paper': openedMixin(theme),
-    }),
-    ...(!open && {
-      ...closedMixin(theme),
-      '& .MuiDrawer-paper': closedMixin(theme),
-    }),
+const Drawer = styled(MuiDrawer, {
+  shouldForwardProp: (prop) => prop !== 'open',
+})(({ theme, open }) => ({
+  width: drawerWidth,
+  flexShrink: 0,
+  whiteSpace: 'nowrap',
+  boxSizing: 'border-box',
+  ...(open && {
+    ...openedMixin(theme),
+    '& .MuiDrawer-paper': openedMixin(theme),
   }),
-);
+  ...(!open && {
+    ...closedMixin(theme),
+    '& .MuiDrawer-paper': closedMixin(theme),
+  }),
+}));
 
 export default function MiniDrawer() {
   const theme = useTheme();
@@ -111,8 +109,8 @@ export default function MiniDrawer() {
   const handleDrawerClose = () => {
     setOpen(false);
   };
-  const router=useRouter()
 
+  const router = useRouter();
 
   // List of menu items in French with appropriate icons
   const menuItems = [
@@ -120,41 +118,33 @@ export default function MiniDrawer() {
     { text: 'Add new Auditor', icon: <PersonAddIcon />, path: '/services/addAuditor' },
     { text: 'Plan Audit', icon: <AssignmentIcon />, path: '/services/plan-audit' },
     { text: 'Update Audit', icon: <UpdateIcon />, path: '/services/updateAudit' },
-    { text: 'List of Audits ', icon: <ListAltIcon />, path: '/services/ListOfAudits' },
-    { text: 'Audit Annoucements', icon: <AnnouncementIcon />, path: '/services/auditAnnoucements'},
+    { text: 'List of Audits', icon: <ListAltIcon />, path: '/services/ListOfAudits' },
+    { text: 'Audit Annoucements', icon: <AnnouncementIcon />, path: '/services/auditAnnoucements' },
     { text: 'Audit Result', icon: <CheckCircleIcon />, path: '/auditResult' },
     { text: 'SWOT', icon: <AssessmentIcon />, path: '/services/swot' },
-    { text: 'Audit Programm effectiveness', icon: <VerifiedIcon />, path: '/services/effectiveness/add' },
-    { text: 'System Audit Report', icon: <ListAltIcon />, path: '/services/system-audit-report'},
+    { text: 'Audit Program effectiveness', icon: <VerifiedIcon />, path: '/services/effectiveness/add' },
+    { text: 'System Audit Report', icon: <ListAltIcon />, path: '/services/system-audit-report' },
     { text: 'Check Specific Audit', icon: <SearchIcon />, path: '/services/check-specific-audit' },
-    // { text: 'Date des Actions Correctives', icon: <EventIcon />, path: '/date-actions-correctives' },
-    // { text: 'VA3011 Encl.1', icon: <FolderIcon />, path: '/va3011-encl1' },
-    // { text: 'Rapport Audit Process', icon: <AssessmentIcon />, path: '/services/rapport-audit-process' },
   ];
+
   return (
-    <Box sx={{ display: 'flex'}}>
+    <Box sx={{ display: 'flex' }}>
       <CssBaseline />
-      <AppBar position="fixed" open={open}
-       
-      >
-        <Toolbar 
-        
-      >
-          
+      <AppBar position="fixed" open={open}>
+        <Toolbar>
           <IconButton
             color="inherit"
             aria-label="open drawer"
             onClick={handleDrawerOpen}
-
             edge="start"
             sx={{
               marginRight: 5,
               ...(open && { display: 'none' }),
             }}
-          > <MenuIcon />
+          >
+            <MenuIcon />
           </IconButton>
-          
-            <NavbarComponent/>
+          <NavbarComponent />
         </Toolbar>
       </AppBar>
       <Drawer variant="permanent" open={open}>
@@ -164,14 +154,13 @@ export default function MiniDrawer() {
           </IconButton>
         </DrawerHeader>
         <Divider />
-        <List >
+        <List>
           {menuItems.map((item, index) => (
             <ListItem key={item.text} disablePadding sx={{ display: 'block' }}>
               <ListItemButton
-               
                 onMouseEnter={() => setOpen(true)}
                 onMouseLeave={() => setOpen(false)}
-                onClick={() => router.push(item.path)} // Navigate on click
+                onClick={() => router.push(item.path)}
                 sx={{
                   minHeight: 48,
                   justifyContent: open ? 'initial' : 'center',
@@ -193,14 +182,7 @@ export default function MiniDrawer() {
           ))}
         </List>
         <Divider />
-        {/* Additional sections or items can be added here */}
       </Drawer>
-      {/* <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
-        <DrawerHeader />
-        <Typography paragraph>
-          Le contenu principal se trouve ici.
-        </Typography>
-      </Box> */}
     </Box>
   );
 }
