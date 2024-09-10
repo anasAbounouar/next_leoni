@@ -155,8 +155,8 @@ export default function EmployeeData() {
 
             {error && <p className="text-red-500">{error}</p>}
 
-            {filteredEmployeeData.length > 0 && !loading && (
-                <div className='overflow-y-auto'>
+            {!loading && filteredEmployeeData.length > 0 && (
+                <div className="table-container">
                     <table className="min-w-full border-collapse border-2 rounded-xl border-gray-900">
                         <thead>
                             <tr>
