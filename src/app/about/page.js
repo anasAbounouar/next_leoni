@@ -1,5 +1,8 @@
 import Head from 'next/head';
-
+ 
+export const metadata= {
+  title: 'About',
+};
 export default function About() {
   return (
     <>
