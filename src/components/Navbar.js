@@ -9,14 +9,14 @@ export default function NavbarComponent({ ...props }) {
   const pathname = usePathname();
 
   return (
-    <Navbar shouldHideOnScroll {...props}>
+    <Navbar shouldHideOnScroll {...props} className='bg-leoniPrimary'>
       <NavbarBrand>
         <AcmeLogo />
       </NavbarBrand>
       <NavbarContent className="hidden sm:flex gap-4" justify="center">
         <NavbarItem isActive={pathname === '/'}>
           <Link
-            color={pathname === '/' ? 'primary' : 'foreground'}
+            color={pathname === '/' ? 'primary' : 'white'}
             href="/"
             aria-current={pathname === '/' ? 'page' : undefined}
           >
