@@ -26,8 +26,8 @@ export default function ServicesPage() {
   ];
 
   return (
-    <div className="flex">
-      <Sidebar />
+    
+      
       <div className="flex-1 p-8 bg-gray-100">
         <h2 className="text-4xl font-extrabold text-gray-800 mb-8 text-center">
         main functionalities</h2>
@@ -51,7 +51,7 @@ export default function ServicesPage() {
             </div>
           ))}
         </div>
-      </div>
+   
     </div>
   );
 }

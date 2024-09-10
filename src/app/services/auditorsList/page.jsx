@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import Select from 'react-select';
 import headers from './headers'; // Import the static headers
+import { Spinner } from '@nextui-org/react'; // Import the NextUI Spinner
 
 export default function EmployeeData() {
    
@@ -10,14 +11,16 @@ export default function EmployeeData() {
     const [allEmployeeData, setAllEmployeeData] = useState([]); // State to store all employee data
     const [filteredEmployeeData, setFilteredEmployeeData] = useState([]); // State to store filtered employee data
     const [error, setError] = useState(null);
-    
+    const [loading, setLoading] = useState(true); // New state for loading
+
     useEffect(() => {
 
         // Fetch the list of employees when the component loads
         const fetchEmployees = async () => {
            
             try {
-               
+                setLoading(true); // Start loading
+
                 const response = await fetch(`/api/employees`); // Fetching the employee list from your API
                 if (!response.ok) {
                     throw new Error('Failed to fetch employee list');
@@ -46,8 +49,10 @@ export default function EmployeeData() {
 
                 setAllEmployeeData(combinedData);
                 setFilteredEmployeeData(combinedData); // Initially show all data
+                setLoading(false); // Data fetching is complete
             } catch (err) {
                 setError(err.message);
+                setLoading(false); // Data fetching failed
             }
         };
 
@@ -142,10 +147,16 @@ export default function EmployeeData() {
                 />
             </div>
 
+            {loading && (
+                <div className="flex justify-center items-center h-64">
+                    <Spinner size="lg" />
+                </div>
+            )}
+
             {error && <p className="text-red-500">{error}</p>}
 
-            {filteredEmployeeData.length > 0 && (
-                <div className='overflow-y-auto'>
+            {!loading && filteredEmployeeData.length > 0 && (
+                <div className="table-container">
                     <table className="min-w-full border-collapse border-2 rounded-xl border-gray-900">
                         <thead>
                             <tr>
