@@ -147,14 +147,14 @@ export default function MiniDrawer() {
           <NavbarComponent />
         </Toolbar>
       </AppBar> */}
-      <Drawer variant="permanent" open={open} className=''>
+      <Drawer variant="permanent" open={open}>
         {/* <DrawerHeader>
           <IconButton onClick={handleDrawerClose}>
             {theme.direction === 'rtl' ? <ChevronRightIcon /> : <ChevronLeftIcon />}
           </IconButton>
         </DrawerHeader> */}
         <Divider />
-        <List>
+        <List sx={{ mt: 2 }}>
           {menuItems.map((item, index) => (
             <ListItem key={item.text} disablePadding sx={{ display: 'block' }}>
               <ListItemButton
