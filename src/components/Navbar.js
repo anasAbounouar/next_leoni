@@ -2,15 +2,16 @@
 import React from 'react';
 import { Navbar, NavbarBrand, NavbarContent, NavbarItem, Link } from '@nextui-org/react';
 import { AcmeLogo } from '/public/images/Logo.jsx';  // Ensure this path is correct
-import { usePathname } from 'next/navigation';
+import { usePathname,useRouter } from 'next/navigation';
 import { SignedIn, SignedOut, SignInButton, UserButton } from '@clerk/nextjs';
 
 export default function NavbarComponent({ ...props }) {
   const pathname = usePathname();
+  const router = useRouter();
 
   return (
     <Navbar shouldHideOnScroll {...props} className='bg-leoniPrimary'>
-      <NavbarBrand>
+      <NavbarBrand onClick={()=>router.push('/')} className='cursor-pointer'>
         <AcmeLogo />
       </NavbarBrand>
       <NavbarContent className="hidden sm:flex gap-4" justify="center">
