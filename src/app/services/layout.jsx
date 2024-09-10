@@ -8,7 +8,7 @@ const ServicesLayout = ({ children }) => {
   return (
     <div className="flex">
       <Sidebar />
-      <div className="flex-1 p-8 bg-gray-100 overflow-x-auto">
+      <div className="flex-1 p-8 bg-gray-100 overflow-x-auto min-h-dvh">
         {children}
       </div>
     </div>
