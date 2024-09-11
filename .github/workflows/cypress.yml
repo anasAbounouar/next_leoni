@@ -1,11 +1,12 @@
 name: E2E Cypress Tests
 
-# Run the workflow every night at midnight (UTC) and also allow manual triggers
 on:
-  schedule:
-    - cron: '0 0 * * *'  # Every day at midnight UTC
-  workflow_dispatch:
   push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
   e2e-tests:
@@ -37,15 +38,19 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      # Step 5: Set up Cypress
-      - name: Install Cypress
-        run: npm install cypress
+      # Step 5: Start the application in the background using nodemon
+      - name: Start Application 
+        run: npm run dev &
 
-      # Step 6: Run Cypress E2E tests
+      # Step 6: Wait for the application to be ready (on port 3000)
+      - name: Wait for Application
+        run: npx wait-on http://localhost:3000
+
+      # Step 7: Run Cypress E2E tests
       - name: Run Cypress Tests
         run: npx cypress run
 
-      # Step 7: Upload Cypress videos and screenshots as artifacts (optional, for easier debugging)
+      # Step 8: Upload Cypress videos and screenshots as artifacts (optional)
       - name: Upload Cypress Videos
         uses: actions/upload-artifact@v3
         with:
@@ -57,4 +62,3 @@ jobs:
         with:
           name: cypress-screenshots
           path: cypress/screenshots
-
