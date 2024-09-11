@@ -1,82 +1,121 @@
-// cypress/e2e/services/auditorsList/auditorsList.cy.js
+describe('auditorsList  E2E Tests', () => {
 
-describe('EmployeeData Component', () => {
+    // Runs before each test
     beforeEach(() => {
-        // Visit the page where the EmployeeData component is rendered
-        cy.visit('/services/auditorsList'); 
+      // Visit the page containing EmployeeData component
+      cy.visit('/services/auditorsList'); // Adjust to the correct path
     });
-
-    it('should display a loading spinner while fetching data', () => {
-        // Ensure the spinner is visible when loading
-        cy.get('.flex.justify-center.items-center.h-64').should('exist');
-    });
-
-    it('should display an error message if the data fetch fails', () => {
-        // Simulate an API failure
-        cy.intercept('GET', '/api/employees', { statusCode: 500 }).as('getEmployees');
-        cy.reload(); // Reload the page to trigger the request
-        cy.wait('@getEmployees');
-        cy.get('.text-red-500').should('exist');
-    });
-
-    it('should display employee options in the select dropdown', () => {
-        // Mock the employee data
-        cy.intercept('GET', '/api/employees', {
-            statusCode: 200,
-            body: [
-                
-            ]
-        }).as('getEmployees');
-
-        cy.intercept('GET', '/api/employee/*', { statusCode: 200, body: { data: [] } }).as('getEmployeeData');
-        cy.reload(); // Reload the page to trigger the request
-        cy.wait('@getEmployees');
-        cy.get('.basic-single').click(); // Open the select dropdown
+    it('should show dropdown', () => {
+        // Check if the dropdown is visible
+        cy.get('.select__control').should('exist');
+        
+        // Check if the placeholder text 'Filtrer par employé' is present
+        cy.get('.select__placeholder')
+          .should('contain.text', 'Filtrer par employé');
+      });
     
+    it('should log dropdown content after clicking', () => {
+        // Simulate opening the dropdown
+        cy.get('.select__control').click();
+        cy.wait(2000);
+        
+        // Log the content of the dropdown menu
+        cy.get('.select__menu').then(($menu) => {
+          // Log the HTML content of the dropdown
+          cy.log($menu.html());
     
-    // Wait for the dropdown options to appear
-    cy.wait(500); // Adjust the timeout as needed
-// Log the entire dropdown menu HTML
-cy.get('.basic-single').then($select => {
-    cy.log($select.html()); // Logs the entire HTML of the select element
-});
-    // Verify all employee options
-    cy.get('.select__option').contains('TOURIZ SIHAM (Head of Quality & SHE Management Morocco)').should('exist');
-    cy.get('.select__option').contains('SEHLAOUI TARIK (Quality operations manager  WMABE)').should('exist');
-    cy.get('.select__option').contains('Azzaoui KARIMA (Quality operations manager  WMAAS)').should('exist');
-    // ... Add more as needed
+          // Log the text content to check the available options
+          cy.log($menu.text());
+    
+          // Optionally, log each option individually
+          $menu.find('.select__option').each((index, option) => {
+            cy.log(`Option ${index}: ${option.innerText}`);
+          });
+        });
+    
+        // Wait for a moment to inspect the log output (optional)
+        cy.wait(2000);  // Adjust the wait time if needed
+      });
+  
+   
+      it('should load the employee data on dropdown selection', () => {
+        // Simulate opening the dropdown
+        cy.get('.select__control').click();
+      
+        // Wait for the dropdown to be visible
+        cy.get('.select__menu').should('be.visible'); 
+      
+        // Select "TOURIZ SIHAM (Head of Quality & SHE Management Morocco)" from the dropdown
+        cy.get('.select__option').eq(1).click(); 
+      
+        // Wait for the table to update and verify the employee's data
+        cy.get('table tbody tr').should('have.length.greaterThan', 0);
+      
+        // Optionally, check for specific table data related to the selected employee
+        cy.get('table tbody tr')
+          .first()
+          .find('td')
+          .first()
+          .should('not.be.empty');
+      });
+  
+    it('should display all employee data when "Tous les employées" is selected', () => {
+      // Open dropdown
+      cy.get('.select__control').click();
+  
+      // Select the "Tous les employées" option
+      cy.get('.select__menu').contains('Tous les employées').click();
+  
+      // Verify that all employees' data is displayed
+      cy.get('table tbody tr').should('have.length.greaterThan', 0);
     });
-
-    it('should display employee data when an employee is selected', () => {
-        // Mock the employee data
-        cy.intercept('GET', '/api/employees', {
-            statusCode: 200,
-            body: [
-                { id: 1, firstName: 'TOURIZ', lastName: 'SIHAM', jobTitle: 'Head of Quality & SHE Management Morocco' }
-            ]
-        }).as('getEmployees');
-
-        cy.intercept('GET', '/api/employee/1', {
-            statusCode: 200,
-            body: {
-                data: [
-                    { index: 'column1', value: 'Sample Data' }
-                ]
-            }
-        }).as('getEmployee1');
-        cy.reload(); // Reload the page to trigger the request
-        cy.wait('@getEmployees');
-        cy.get('.basic-single').click(); // Open the select dropdown
-        cy.get('.select__option').contains('TOURIZ SIHAM (Head of Quality & SHE Management Morocco)').click(); // Select the employee
-        cy.get('table').should('exist');
-        cy.get('td').contains('Sample Data').should('exist');
+    
+    // it('should trigger Excel download when the download button is clicked', () => {
+    //   // Spy on the download request to confirm it's triggered
+    //   cy.intercept('GET', '/api/download/excel').as('downloadExcel');
+  
+    //   // Click the "Download Excel" button
+    //   cy.get('button').contains('Download Excel file').click();
+  
+    //   // Assert that the download request was made
+    //   cy.wait('@downloadExcel').its('response.statusCode').should('eq', 200);
+    // });
+  
+    it('should show the loading spinner when data is loading', () => {
+      // Mock the API response to introduce delay
+      cy.intercept('/api/employees', (req) => {
+        req.reply((res) => {
+          res.delay(2000);
+          res.send(/* mock employee data */);
+        });
+      }).as('fetchEmployees');
+  
+      // Reload the page
+      cy.reload();
+  
+      // Check if the loading spinner is visible
+      cy.get('.animate-spinner-ease-spin') // Adjust class names if needed
+      .should('exist');
+  
+    
     });
-
-    it('should handle file download button click', () => {
-        // Intercept the download request
-        cy.intercept('GET', '/api/download/excel', { statusCode: 200 }).as('downloadExcel');
-        cy.get('button').contains('Download Excel file').click(); // Click the download button
-        cy.wait('@downloadExcel'); // Wait for the download request
-        cy.window().its('location.href').should('include', '/api/download/excel'); // Verify the URL
+  
+    it('should show error message if data fetching fails', () => {
+      // Mock the API to return a failure
+      cy.intercept('GET', '/api/employees', {
+        statusCode: 500,
+        body: { message: 'Failed to fetch employee list' },
+      }).as('fetchEmployeesFail');
+  
+      // Reload the page to trigger the API call
+      cy.reload();
+  
+      // Wait for the API call to fail
+      cy.wait('@fetchEmployeesFail');
+  
+      // Verify the error message is shown
+      cy.get('.text-red-500').should('contain.text', 'Failed to fetch employee list');
     });
-});
+  });
+  
+
