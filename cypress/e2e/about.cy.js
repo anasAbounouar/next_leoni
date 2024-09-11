@@ -1,4 +1,4 @@
-// cypress/integration/about_spec.js
+// cypress/e2e/about.cy.js
 describe('About Page', () => {
     before(() => {
       // Visit the /about page before running the tests
