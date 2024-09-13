@@ -45,7 +45,7 @@ jobs:
 
       # Wait for the server to start using wait-on (pre-installed)
       - name: Wait for Application
-        run: wait-on http://localhost:3000
+        run: npx wait-on http://localhost:3000
 
       # Run Cypress tests
       - name: Run Cypress Tests
