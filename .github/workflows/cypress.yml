@@ -39,17 +39,17 @@ jobs:
         id: cache-next
         uses: actions/cache@v4
         with:
-          key: nextjs-build-${{ inputs.node_version }}-${{ hashFiles('package.json', 'package-lock.json', 'next.config.js') }}
+          key: nextjs-build-22-${{ hashFiles('package.json', 'package-lock.json', 'next.config.js') }}
           path: .next
           enableCrossOsArchive: true
           fail-on-cache-miss: false
 
-      # Start Next.js server
-      - name: Start Next.js server
-        run: npm run build && npm run start &
-        env:
-          PORT: 3000
-          NEXT_TELEMETRY_DISABLED: 1
+      # # Start Next.js server
+      # - name: Start Next.js server
+      #   run: npm run build && npm run start &
+      #   env:
+      #     PORT: 3000
+      #     NEXT_TELEMETRY_DISABLED: 1
 
       # Wait for the server to be ready
       - name: Wait for server to be ready
@@ -66,9 +66,15 @@ jobs:
           echo "Server did not start in time."
           exit 1
 
-      # Run Cypress tests
-      - name: Run Cypress tests
-        run: npx cypress run
+      - name: Cypress run
+        uses: cypress-io/github-action@v3
+        with:
+          project: ./site
+          browser: chrome
+          build: npm run build
+          start: npm start
+          wait-on: "http://localhost:3000"
+          config-file: cypress.json
 
       # Upload Cypress test results
       - name: Upload Cypress test results
