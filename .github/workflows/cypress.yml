@@ -39,6 +39,9 @@ jobs:
         run: npm run dev &
         env:
           NODE_ENV: production
+         # Install wait-on globally
+      - name: Install wait-on globally
+        run: npm install -g wait-on
 
       # Wait for the server to start using wait-on (pre-installed)
       - name: Wait for Application
