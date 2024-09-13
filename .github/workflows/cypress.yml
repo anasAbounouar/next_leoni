@@ -1,66 +1,78 @@
-name: E2E Cypress Tests
+name: Cypress End-to-End Tests
 
 on:
-  push:
   workflow_dispatch:
+  push:
+  schedule:
+    - cron: "0 0 * * *"  # Runs every night at midnight UTC
 
 jobs:
   e2e-tests:
     runs-on: ubuntu-latest
 
     steps:
-      # Checkout code
-      - name: Checkout Repository
+      # Checkout the latest code
+      - name: Checkout code
         uses: actions/checkout@v3
 
-      # Install Node.js
+      # Set up Node.js environment
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '22'
 
-      # Cache node_modules
-      - name: Cache Node.js modules
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.npm
-            ~/.cache
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
-
-      # Install dependencies, including wait-on
+      # Install dependencies
       - name: Install dependencies
         run: npm ci
 
-      # Start Next.js app in the background
+      # Cache Cypress dependencies
+      - name: Cache Cypress dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/Cypress
+          key: cypress-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            cypress-
+
+      # Cache Next.js build output
+      - name: Cache Next.js build output
+        id: cache-next
+        uses: actions/cache@v4
+        with:
+          key: nextjs-build-${{ inputs.node_version }}-${{ hashFiles('package.json', 'package-lock.json', 'next.config.js') }}
+          path: .next
+          enableCrossOsArchive: true
+          fail-on-cache-miss: false
+
+      # Start Next.js server
       - name: Start Next.js server
         run: npm run build && npm run start &
         env:
-          PORT: 3000  # Adjust if your app runs on a different port
+          PORT: 3000
+          NEXT_TELEMETRY_DISABLED: 1
+
+      # Wait for the server to be ready
       - name: Wait for server to be ready
-        run: timeout 30s bash -c 'until curl -s http://localhost:3000; do sleep 5; done'
-    
+        run: |
+          echo "Waiting for the server to start..."
+          for i in {1..30}; do
+            if curl -s http://localhost:3000 > /dev/null; then
+              echo "Server is up!"
+              exit 0
+            fi
+            echo "Waiting for server..."
+            sleep 10
+          done
+          echo "Server did not start in time."
+          exit 1
 
       # Run Cypress tests
-      - name: Run Cypress Tests
+      - name: Run Cypress tests
         run: npx cypress run
-      - name: Archive server logs
-        if: failure()
-        uses: actions/upload-artifact@v3
-        with:
-          name: server-log
-          path: server.log
-      # Upload Cypress videos and screenshots as artifacts
-      - name: Upload Cypress Videos
-        uses: actions/upload-artifact@v3
-        with:
-          name: cypress-videos
-          path: cypress/videos
 
-      - name: Upload Cypress Screenshots
+      # Upload Cypress test results
+      - name: Upload Cypress test results
         uses: actions/upload-artifact@v3
         with:
-          name: cypress-screenshots
-          path: cypress/screenshots
+          name: cypress-results
+          path: cypress/reports
