@@ -83,23 +83,29 @@ describe('auditorsList  E2E Tests', () => {
     // });
   
     it('should show the loading spinner when data is loading', () => {
-      // Mock the API response to introduce delay
+      // Mock the API response to introduce a delay
       cy.intercept('/api/employees', (req) => {
-        req.reply((res) => {
-          res.delay(2000);
-          res.send(/* mock employee data */);
-        });
+        // Respond with a delay by using setTimeout
+        setTimeout(() => {
+          req.reply({ body: [] }); // Empty array as mock data
+        }, 2000); // 2-second delay
       }).as('fetchEmployees');
-  
-      // Reload the page
-      cy.reload();
-  
+    
+      // Visit the page or trigger the API call
+      cy.visit('/services/auditorsList'); // Ensure this triggers the API call
+    
       // Check if the loading spinner is visible
       cy.get('.animate-spinner-ease-spin') // Adjust class names if needed
-      .should('exist');
-  
+        .should('exist');
     
+      // Wait for the mock response to complete
+      cy.wait('@fetchEmployees');
+    
+      // Ensure that the loading spinner is no longer visible
+      cy.get('.animate-spinner-ease-spin')
+        .should('not.exist');
     });
+    
   
     it('should show error message if data fetching fails', () => {
       // Mock the API to return a failure
