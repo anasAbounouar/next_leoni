@@ -36,21 +36,20 @@ jobs:
 
       # Start Next.js app in the background
       - name: Start Application
-        run: npm run dev &
-        env:
-          NODE_ENV: production
-         # Install wait-on globally
-      - name: Install wait-on globally
-        run: npm install -g wait-on
-
-      # Wait for the server to start using wait-on (pre-installed)
-      - name: Wait for Application
-        run: npx wait-on http://localhost:3000
+        run: |
+          NODE_ENV=test npm run dev > server.log 2>&1 &
+          npx wait-on http://localhost:3000
+    
 
       # Run Cypress tests
       - name: Run Cypress Tests
         run: npx cypress run
-
+      - name: Archive server logs
+        if: failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: server-log
+          path: server.log
       # Upload Cypress videos and screenshots as artifacts
       - name: Upload Cypress Videos
         uses: actions/upload-artifact@v3
