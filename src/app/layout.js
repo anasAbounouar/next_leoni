@@ -14,11 +14,12 @@ import Footer from "../components/Footer";
 
 export default function RootLayout({ children }) {
   return (
-    <ClerkProvider>
-    <html lang="en">
-      
+    <ClerkProvider  publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}>
+    <html lang="en">     
       <body className={`${inter.className} min-h-screen flex flex-col`}>
-        <Providers>
+          <Providers
+             
+          >
           <Navbar />
           <main className="flex-grow min-h-[87dvh]">
             {children}
