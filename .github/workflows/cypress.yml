@@ -35,10 +35,12 @@ jobs:
         run: npm ci
 
       # Start Next.js app in the background
-      - name: Start Application
-        run: |
-          NODE_ENV=test npm run dev > server.log 2>&1 &
-          npx wait-on http://localhost:3000
+      - name: Start Next.js server
+        run: npm run build && npm run start &
+        env:
+          PORT: 3000  # Adjust if your app runs on a different port
+      - name: Wait for server to be ready
+        run: timeout 30s bash -c 'until curl -s http://localhost:3000; do sleep 5; done'
     
 
       # Run Cypress tests
