@@ -44,37 +44,15 @@ jobs:
           enableCrossOsArchive: true
           fail-on-cache-miss: false
 
-      # # Start Next.js server
-      # - name: Start Next.js server
-      #   run: npm run build && npm run start &
-      #   env:
-      #     PORT: 3000
-      #     NEXT_TELEMETRY_DISABLED: 1
+     
+      - name: Build the Application
+        run: npm run build
 
-      # Wait for the server to be ready
-      - name: Wait for server to be ready
-        run: |
-          echo "Waiting for the server to start..."
-          for i in {1..30}; do
-            if curl -s http://localhost:3000 > /dev/null; then
-              echo "Server is up!"
-              exit 0
-            fi
-            echo "Waiting for server..."
-            sleep 10
-          done
-          echo "Server did not start in time."
-          exit 1
-
-      - name: Cypress run
-        uses: cypress-io/github-action@v3
+      - name:  Run Cypress Tests
+        uses: cypress-io/github-action@v6
         with:
-          project: ./site
-          browser: chrome
-          build: npm run build
           start: npm start
-          wait-on: "http://localhost:3000"
-          config-file: cypress.json
+          browser: chrome
 
       # Upload Cypress test results
       - name: Upload Cypress test results
