@@ -49,6 +49,7 @@
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
+    "@clerk/testing": "^1.2.21",
     "autoprefixer": "^10.4.20",
     "cypress": "^13.14.2",
     "eslint": "^8",

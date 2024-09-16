@@ -18,3 +18,8 @@ import './commands'
 
 // Alternatively you can use CommonJS syntax:
 // require('./commands')
+/// <reference types="cypress" />
+import { addClerkCommands } from '@clerk/testing/cypress'
+addClerkCommands({ Cypress, cy })
+
+export {}
