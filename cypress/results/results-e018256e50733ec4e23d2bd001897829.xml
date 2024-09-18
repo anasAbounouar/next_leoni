@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="Mocha Tests" time="15.469" tests="6" failures="0">
+  <testsuite name="Root Suite" timestamp="2024-09-18T22:29:51" tests="0" file="cypress\e2e\services\auditorsList\auditorsList.cy.js" time="0.000" failures="0">
+  </testsuite>
+  <testsuite name="Auditors List E2E Tests" timestamp="2024-09-18T22:29:51" tests="6" time="15.461" failures="0">
+    <testcase name="Auditors List E2E Tests should display the dropdown" time="1.670" classname="should display the dropdown">
+    </testcase>
+    <testcase name="Auditors List E2E Tests should log dropdown content after clicking" time="3.196" classname="should log dropdown content after clicking">
+    </testcase>
+    <testcase name="Auditors List E2E Tests should load the employee data on dropdown selection" time="1.278" classname="should load the employee data on dropdown selection">
+    </testcase>
+    <testcase name="Auditors List E2E Tests should display all employee data when &quot;Tous les employées&quot; is selected" time="1.415" classname="should display all employee data when &quot;Tous les employées&quot; is selected">
+    </testcase>
+    <testcase name="Auditors List E2E Tests should handle error when data fetching fails" time="4.818" classname="should handle error when data fetching fails">
+    </testcase>
+    <testcase name="Auditors List E2E Tests should show the loading spinner when data is loading" time="2.802" classname="should show the loading spinner when data is loading">
+    </testcase>
+  </testsuite>
+</testsuites>
