@@ -8,6 +8,8 @@ describe('About Page', () => {
   
 
   before(() => {
+    cy.clearCookies();
+  cy.clearLocalStorage();
     // Set up Clerk testing token before all tests
     setupClerkTestingToken();
       // Visit the /about page before running the tests

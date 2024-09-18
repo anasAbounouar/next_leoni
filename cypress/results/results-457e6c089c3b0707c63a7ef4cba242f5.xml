@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="Mocha Tests" time="40.022" tests="7" failures="1">
+  <testsuite name="Root Suite" timestamp="2024-09-18T21:56:49" tests="0" file="cypress\e2e\services\auditorsList\auditorsList.cy.js" time="0.000" failures="0">
+  </testsuite>
+  <testsuite name="Auditors List E2E Tests" timestamp="2024-09-18T21:56:49" tests="7" time="40.012" failures="1">
+    <testcase name="Auditors List E2E Tests should verify Clerk is loaded" time="4.519" classname="should verify Clerk is loaded">
+    </testcase>
+    <testcase name="Auditors List E2E Tests should display the dropdown" time="3.182" classname="should display the dropdown">
+    </testcase>
+    <testcase name="Auditors List E2E Tests should log dropdown content after clicking" time="5.286" classname="should log dropdown content after clicking">
+    </testcase>
+    <testcase name="Auditors List E2E Tests should load the employee data on dropdown selection" time="3.541" classname="should load the employee data on dropdown selection">
+    </testcase>
+    <testcase name="Auditors List E2E Tests should display all employee data when &quot;Tous les employées&quot; is selected" time="4.750" classname="should display all employee data when &quot;Tous les employées&quot; is selected">
+    </testcase>
+    <testcase name="Auditors List E2E Tests should handle error when data fetching fails" time="3.723" classname="should handle error when data fetching fails">
+    </testcase>
+    <testcase name="Auditors List E2E Tests should show the loading spinner when data is loading" time="0.000" classname="should show the loading spinner when data is loading">
+      <failure message="Timed out retrying after 10000ms: Expected to find element: `.animate-spinner-ease-spin`, but never found it." type="AssertionError"><![CDATA[AssertionError: Timed out retrying after 10000ms: Expected to find element: `.animate-spinner-ease-spin`, but never found it.
+    at Context.eval (webpack://leonidbaichi/./cypress/e2e/services/auditorsList/auditorsList.cy.js:107:41)]]></failure>
+    </testcase>
+  </testsuite>
+</testsuites>

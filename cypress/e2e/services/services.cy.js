@@ -9,7 +9,9 @@ describe('Services Page', () => {
     setupClerkTestingToken();
   });
 
-    beforeEach(() => {
+  beforeEach(() => {
+    cy.clearCookies();
+    cy.clearLocalStorage();
       // Visit the /services page before each test to ensure the correct page
       cy.visit('/services');
       cy.clerkSignIn({

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="Mocha Tests" time="10.035" tests="2" failures="0">
+  <testsuite name="Root Suite" timestamp="2024-09-18T21:56:34" tests="0" file="cypress\e2e\services\services.cy.js" time="0.000" failures="0">
+  </testsuite>
+  <testsuite name="Services Page" timestamp="2024-09-18T21:56:34" tests="2" time="10.031" failures="0">
+    <testcase name="Services Page should load the page successfully" time="6.742" classname="should load the page successfully">
+    </testcase>
+    <testcase name="Services Page should contain &quot;main functionalities&quot;" time="3.122" classname="should contain &quot;main functionalities&quot;">
+    </testcase>
+  </testsuite>
+</testsuites>

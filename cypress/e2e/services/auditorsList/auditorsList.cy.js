@@ -12,7 +12,8 @@ describe('Auditors List E2E Tests', () => {
 
   // Run before each test
   beforeEach(() => {
-    // Clear any previous intercepts
+    cy.clearCookies();
+    cy.clearLocalStorage();
   
    
 
