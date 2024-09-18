@@ -12,6 +12,7 @@ jobs:
     env:
       NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY }}
       CLERK_SECRET_KEY: ${{ secrets.CLERK_SECRET_KEY }}
+      CYPRESS_baseUrl: 'http://localhost:3000'
 
     steps:
       - name: Checkout code
@@ -46,12 +47,23 @@ jobs:
 
       - name: Build the Application
         run: npm run build
-
+      - name: Start Application
+        run: npm start &
+        env:
+          PORT: 3000
+      - name: Wait for Application to be Ready
+        run: |
+            echo "Waiting for application to be ready..."
+            while ! curl -s http://localhost:3000 > /dev/null; do
+              sleep 5
+            done
+  
       - name: Run Cypress Tests
         uses: cypress-io/github-action@v6
         with:
-          start: npm start
           browser: chrome
+     
+          
 
       - name: Upload Cypress test results
         uses: actions/upload-artifact@v3
