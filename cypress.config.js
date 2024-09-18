@@ -12,6 +12,9 @@ export default defineConfig({
     reporterOptions: {
       mochaFile: 'cypress/results/results-[hash].xml', // Output results in this path
       toConsole: true // Optional: also output to the console
+    },
+    env: {
+      NODE_ENV: "test"
     }
   },
 });
