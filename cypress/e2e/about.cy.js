@@ -11,7 +11,7 @@ describe('About Page', () => {
     // Set up Clerk testing token before all tests
     setupClerkTestingToken();
       // Visit the /about page before running the tests
-    cy.visit('/about');
+    cy.origin('http://localhost:3000/about');
     cy.clerkSignIn({
       strategy: 'password',
       identifier: 'dbaichi@leoni.com', // Replace with test user credentials
@@ -29,7 +29,7 @@ describe('About Page', () => {
     
 
     // Ensure page redirection is correct
-    cy.visit('/about');
+    cy.origin('http://localhost:3000/about');
     
     cy.url().should('not.include', '/sign-in');
  

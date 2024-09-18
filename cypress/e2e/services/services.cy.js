@@ -11,7 +11,7 @@ describe('Services Page', () => {
 
     beforeEach(() => {
       // Visit the /services page before each test to ensure the correct page
-      cy.visit('/services');
+      cy.origin('http://localhost:3000/services');
       cy.clerkSignIn({
         strategy: 'password',
         identifier: 'dbaichi@leoni.com', // Replace with test user credentials
@@ -27,7 +27,7 @@ describe('Services Page', () => {
         }
       });
       // Ensure page redirection is correct
-      cy.visit('/services');
+      cy.origin('http://localhost:3000/services');
     
     cy.url().should('not.include', '/sign-in');
    

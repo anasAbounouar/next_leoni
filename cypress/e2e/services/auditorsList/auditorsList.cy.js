@@ -17,7 +17,7 @@ describe('Auditors List E2E Tests', () => {
    
 
     // Visit auditors list page and perform Clerk sign-in
-    cy.visit('/services/auditorsList');
+    cy.origin('http://localhost:3000/services/auditorsList');
     cy.clerkSignIn({
       strategy: 'password',
       identifier: 'dbaichi@leoni.com', // Replace with test user credentials
@@ -35,7 +35,7 @@ describe('Auditors List E2E Tests', () => {
     
 
     // Ensure page redirection is correct
-    cy.visit('/services/auditorsList');
+    cy.origin('http://localhost:3000/services/auditorsList');
     
     cy.url().should('not.include', '/sign-in');
   
@@ -95,7 +95,7 @@ it('should handle error when data fetching fails', () => {
   }).as('fetchEmployeesFail');
 
   // Load the page and handle the error
-  cy.visit('/services/auditorsList');
+  cy.origin('http://localhost:3000/services/auditorsList');
   cy.wait('@fetchEmployeesFail');
   
   // Assert that the error message is displayed
