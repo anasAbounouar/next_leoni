@@ -8,7 +8,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "nodemon": "nodemon src/server/index.js"
+    "nodemon": "nodemon src/server/index.js",
+    "cypress:run": "NODE_ENV=test cypress run",
+    "cypress:open": "NODE_ENV=test cypress open"
   },
   "dependencies": {
     "@ant-design/icons": "^5.4.0",
@@ -52,6 +54,7 @@
   "devDependencies": {
     "@clerk/testing": "^1.2.21",
     "autoprefixer": "^10.4.20",
+    "cross-env": "^7.0.3",
     "cypress": "^13.14.2",
     "eslint": "^8",
     "eslint-config-next": "14.2.5",
