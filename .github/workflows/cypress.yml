@@ -14,8 +14,6 @@ jobs:
       CLERK_SECRET_KEY: ${{ secrets.CLERK_SECRET_KEY }}
       CYPRESS_baseUrl: 'http://localhost:3000'
       NODE_ENV: test
-      
-
 
     steps:
       - name: Checkout code
@@ -50,23 +48,24 @@ jobs:
 
       - name: Build the Application
         run: npm run build
-      - name: Start Application
-        run: npm start &
+
+      - name: Start Application with Cypress
+        run: |
+          CYPRESS=true npm start &
         env:
           PORT: 3000
+
       - name: Wait for Application to be Ready
         run: |
             echo "Waiting for application to be ready..."
             while ! curl -s http://localhost:3000 > /dev/null; do
               sleep 5
             done
-  
+
       - name: Run Cypress Tests
         uses: cypress-io/github-action@v6
         with:
           browser: chrome
-     
-          
 
       - name: Upload Cypress test results
         uses: actions/upload-artifact@v3
