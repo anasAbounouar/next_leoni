@@ -10,21 +10,17 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Checkout the latest code
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # Set up Node.js environment
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '22'
 
-      # Install dependencies
       - name: Install dependencies
         run: npm ci
 
-      # Cache Cypress dependencies
       - name: Cache Cypress dependencies
         uses: actions/cache@v4
         with:
@@ -33,32 +29,20 @@ jobs:
           restore-keys: |
             cypress-
 
-      # Cache Next.js build output
-      - name: Cache Next.js build output
-        id: cache-next
-        uses: actions/cache@v4
-        with:
-          key: nextjs-build-22-${{ hashFiles('package.json', 'package-lock.json', 'next.config.js') }}
-          path: .next
-          enableCrossOsArchive: true
-          fail-on-cache-miss: false
-
-     
       - name: Build the Application
         run: npm run build
         env:
           NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: "${{secrets.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}}"
           CLERK_SECRET_KEY: "${{secrets.CLERK_SECRET_KEY}}"
 
-      - name:  Run Cypress Tests
+      - name: Run Cypress Tests
         uses: cypress-io/github-action@v6
         with:
           start: npm start
           browser: chrome
 
-      # Upload Cypress test results
-      - name: Upload Cypress screenshots
+      - name: Upload Cypress test results
         uses: actions/upload-artifact@v3
         with:
           name: cypress-results
-          path: cypress/reports
+          path: cypress/results  # Path where Cypress stores test results
