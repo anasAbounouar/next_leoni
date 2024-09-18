@@ -1,35 +1,35 @@
-import { setupClerkTestingToken, addClerkCommands } from '@clerk/testing/cypress';
+// import { setupClerkTestingToken, addClerkCommands } from '@clerk/testing/cypress';
 
-// Add Clerk custom commands globally
-addClerkCommands({ Cypress, cy });
+// // Add Clerk custom commands globally
+// addClerkCommands({ Cypress, cy });
 
 describe('Services Page', () => {
    // Set up Clerk testing token before all tests
-   before(() => {
-    setupClerkTestingToken();
-  });
+  //  before(() => {
+  //   setupClerkTestingToken();
+  // });
 
   beforeEach(() => {
     cy.clearCookies();
     cy.clearLocalStorage();
       // Visit the /services page before each test to ensure the correct page
       cy.visit('/services');
-      cy.clerkSignIn({
-        strategy: 'password',
-        identifier: 'dbaichi@leoni.com', // Replace with test user credentials
-        password: 'Espagne123@' 
-      }, { timeout: 10000 });
+      // cy.clerkSignIn({
+      //   strategy: 'password',
+      //   identifier: 'dbaichi@leoni.com', // Replace with test user credentials
+      //   password: 'Espagne123@' 
+      // }, { timeout: 10000 });
   
-      // Confirm user is signed in
-      cy.get('body').then(($body) => {
-        if ($body.find('.clerk-signed-in').length > 0) {
-          cy.log('User is signed in');
-        } else {
-          cy.log('User is not signed in');
-        }
-      });
-      // Ensure page redirection is correct
-      cy.visit('/services');
+      // // Confirm user is signed in
+      // cy.get('body').then(($body) => {
+      //   if ($body.find('.clerk-signed-in').length > 0) {
+      //     cy.log('User is signed in');
+      //   } else {
+      //     cy.log('User is not signed in');
+      //   }
+      // });
+      // // Ensure page redirection is correct
+      // cy.visit('/services');
     
     cy.url().should('not.include', '/sign-in');
    

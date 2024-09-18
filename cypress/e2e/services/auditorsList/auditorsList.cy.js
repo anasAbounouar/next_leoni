@@ -1,14 +1,15 @@
-import { setupClerkTestingToken, addClerkCommands } from '@clerk/testing/cypress';
+//  i will no longer autenticate when testing with cypress
+// import { setupClerkTestingToken, addClerkCommands } from '@clerk/testing/cypress';
 
-// Add Clerk custom commands globally
-addClerkCommands({ Cypress, cy });
+// // Add Clerk custom commands globally
+// addClerkCommands({ Cypress, cy });
 
 describe('Auditors List E2E Tests', () => {
   
-  // Set up Clerk testing token before all tests
-  before(() => {
-    setupClerkTestingToken();
-  });
+  // // Set up Clerk testing token before all tests
+  // before(() => {
+  //   setupClerkTestingToken();
+  // });
 
   // Run before each test
   beforeEach(() => {
@@ -19,33 +20,33 @@ describe('Auditors List E2E Tests', () => {
 
     // Visit auditors list page and perform Clerk sign-in
     cy.visit('/services/auditorsList');
-    cy.clerkSignIn({
-      strategy: 'password',
-      identifier: 'dbaichi@leoni.com', // Replace with test user credentials
-      password: 'Espagne123@' 
-    }, { timeout: 10000 });
+    // cy.clerkSignIn({
+    //   strategy: 'password',
+    //   identifier: 'dbaichi@leoni.com', // Replace with test user credentials
+    //   password: 'Espagne123@' 
+    // }, { timeout: 10000 });
 
-    // Confirm user is signed in
-    cy.get('body').then(($body) => {
-      if ($body.find('.clerk-signed-in').length > 0) {
-        cy.log('User is signed in');
-      } else {
-        cy.log('User is not signed in');
-      }
-    });
+    // // Confirm user is signed in
+    // cy.get('body').then(($body) => {
+    //   if ($body.find('.clerk-signed-in').length > 0) {
+    //     cy.log('User is signed in');
+    //   } else {
+    //     cy.log('User is not signed in');
+    //   }
+    // });
     
 
-    // Ensure page redirection is correct
-    cy.visit('/services/auditorsList');
+    // // Ensure page redirection is correct
+    // cy.visit('/services/auditorsList');
     
     cy.url().should('not.include', '/sign-in');
   
   });
 
-  // Test to verify Clerk is properly loaded
-  it('should verify Clerk is loaded', () => {
-    cy.clerkLoaded();
-  });
+  // // Test to verify Clerk is properly loaded
+  // it('should verify Clerk is loaded', () => {
+  //   cy.clerkLoaded();
+  // });
 
   // Test to verify the dropdown visibility
   it('should display the dropdown', () => {

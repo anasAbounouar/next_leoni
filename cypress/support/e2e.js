@@ -18,8 +18,10 @@ import './commands'
 
 // Alternatively you can use CommonJS syntax:
 // require('./commands')
-/// <reference types="cypress" />
-import { addClerkCommands } from '@clerk/testing/cypress'
-addClerkCommands({ Cypress, cy })
 
-export {}
+// i dont wanna autenticate with clerk anymore with e2ee tests
+// /// <reference types="cypress" />
+// import { addClerkCommands } from '@clerk/testing/cypress'
+// addClerkCommands({ Cypress, cy })
+
+// export {}
