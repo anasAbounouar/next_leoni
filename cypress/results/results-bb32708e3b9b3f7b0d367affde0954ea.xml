@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="Mocha Tests" time="0.420" tests="1" failures="1">
+  <testsuite name="Root Suite" timestamp="2024-09-18T19:57:48" tests="0" file="cypress\e2e\about.cy.js" time="0.000" failures="0">
+  </testsuite>
+  <testsuite name="About Page" timestamp="2024-09-18T19:57:48" tests="1" time="0.414" failures="1">
+    <testcase name="About Page &quot;before all&quot; hook for &quot;should load the page successfully&quot;" time="0.000" classname="&quot;before all&quot; hook for &quot;should load the page successfully&quot;">
+      <failure message="`cy.origin()` requires the first argument to be a different domain than top. You passed `http://localhost:3000` to the origin command, while top is at `http://localhost:3000`.
+
+Either the intended page was not visited prior to running the cy.origin block or the cy.origin block may not be needed at all.
+
+https://on.cypress.io/origin
+
+Because this error occurred during a `before all` hook we are skipping the remaining tests in the current suite: `About Page`" type="CypressError"><![CDATA[CypressError: `cy.origin()` requires the first argument to be a different domain than top. You passed `http://localhost:3000` to the origin command, while top is at `http://localhost:3000`.
+
+Either the intended page was not visited prior to running the cy.origin block or the cy.origin block may not be needed at all.
+
+https://on.cypress.io/origin
+
+Because this error occurred during a `before all` hook we are skipping the remaining tests in the current suite: `About Page`
+    at Validator.validateLocation (http://localhost:3000/__cypress/runner/cypress_runner.js:121796:68)
+    at Context.origin (http://localhost:3000/__cypress/runner/cypress_runner.js:121499:17)
+    at wrapped (http://localhost:3000/__cypress/runner/cypress_runner.js:138442:43)
+From Your Spec Code:
+    at Context.eval (webpack://leonidbaichi/./cypress/e2e/about.cy.js:13:7)]]></failure>
+    </testcase>
+  </testsuite>
+</testsuites>

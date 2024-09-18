@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="Mocha Tests" time="0.394" tests="2" failures="1">
+  <testsuite name="Root Suite" timestamp="2024-09-18T20:00:46" tests="0" file="cypress\e2e\services\services.cy.js" time="0.000" failures="0">
+  </testsuite>
+  <testsuite name="Services Page" timestamp="2024-09-18T20:00:46" tests="2" time="0.381" failures="1">
+    <testcase name="Services Page &quot;before each&quot; hook for &quot;should load the page successfully&quot;" time="0.000" classname="&quot;before each&quot; hook for &quot;should load the page successfully&quot;">
+      <failure message="`cy.origin()` requires the first argument to be a different domain than top. You passed `http://localhost:3000` to the origin command, while top is at `http://localhost:3000`.
+
+Either the intended page was not visited prior to running the cy.origin block or the cy.origin block may not be needed at all.
+
+https://on.cypress.io/origin
+
+Because this error occurred during a `before each` hook we are skipping the remaining tests in the current suite: `Services Page`" type="CypressError"><![CDATA[CypressError: `cy.origin()` requires the first argument to be a different domain than top. You passed `http://localhost:3000` to the origin command, while top is at `http://localhost:3000`.
+
+Either the intended page was not visited prior to running the cy.origin block or the cy.origin block may not be needed at all.
+
+https://on.cypress.io/origin
+
+Because this error occurred during a `before each` hook we are skipping the remaining tests in the current suite: `Services Page`
+    at Validator.validateLocation (http://localhost:3000/__cypress/runner/cypress_runner.js:121796:68)
+    at Context.origin (http://localhost:3000/__cypress/runner/cypress_runner.js:121499:17)
+    at wrapped (http://localhost:3000/__cypress/runner/cypress_runner.js:138442:43)
+From Your Spec Code:
+    at Context.eval (webpack://leonidbaichi/./cypress/e2e/services/services.cy.js:15:7)]]></failure>
+    </testcase>
+  </testsuite>
+</testsuites>

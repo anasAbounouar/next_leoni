@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="Mocha Tests" time="0.435" tests="1" failures="1">
+  <testsuite name="Root Suite" timestamp="2024-09-18T19:52:34" tests="0" file="cypress\e2e\about.cy.js" time="0.000" failures="0">
+  </testsuite>
+  <testsuite name="About Page" timestamp="2024-09-18T19:52:34" tests="1" time="0.428" failures="1">
+    <testcase name="About Page &quot;before all&quot; hook for &quot;should load the page successfully&quot;" time="0.000" classname="&quot;before all&quot; hook for &quot;should load the page successfully&quot;">
+      <failure message="`cy.origin()` requires the last argument to be a function. You passed: ``
+
+https://on.cypress.io/origin
+
+Because this error occurred during a `before all` hook we are skipping the remaining tests in the current suite: `About Page`" type="CypressError"><![CDATA[CypressError: `cy.origin()` requires the last argument to be a function. You passed: ``
+
+https://on.cypress.io/origin
+
+Because this error occurred during a `before all` hook we are skipping the remaining tests in the current suite: `About Page`
+    at Validator.validate (http://localhost:3000/__cypress/runner/cypress_runner.js:121748:68)
+    at Context.origin (http://localhost:3000/__cypress/runner/cypress_runner.js:121490:17)
+    at wrapped (http://localhost:3000/__cypress/runner/cypress_runner.js:138442:43)
+From Your Spec Code:
+    at Context.eval (webpack://leonidbaichi/./cypress/e2e/about.cy.js:14:7)]]></failure>
+    </testcase>
+  </testsuite>
+</testsuites>
