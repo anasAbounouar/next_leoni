@@ -1,9 +1,9 @@
 import { clerkSetup } from '@clerk/testing/cypress'
 import { defineConfig } from "cypress";
-import dotenv from 'dotenv';
+// import dotenv from 'dotenv';
 
-// Load environment variables from .env.test
-dotenv.config({ path: '.env.test' });
+// // Load environment variables from .env.test
+// dotenv.config({ path: '.env.test' });
 export default defineConfig({
   e2e: {
     setupNodeEvents(on, config) {
@@ -17,8 +17,9 @@ export default defineConfig({
       toConsole: true // Optional: also output to the console
     },
     env: {
+      NODE_ENV:  "test",
       // Include NODE_ENV in Cypress environment variables
-      NODE_ENV: process.env.NODE_ENV || 'test',
+      // NODE_ENV: process.env.NODE_ENV || 'test',
     }
   },
 });

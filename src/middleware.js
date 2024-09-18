@@ -5,13 +5,15 @@ const isPublicRoute = createRouteMatcher(['/sign-in(.*)', '/sign-up(.*)']);
 
 // Middleware to handle authentication
 export default clerkMiddleware((auth, request) => {
-  
-  // Check if the route is public or if we are in a test environment
-  if (!isPublicRoute(request) && process.env.NODE_ENV !== 'development' && process.env.NODE_ENV !== 'test') {
-    // Protect the route if it's not public and not in development or test environments
+  if (process.env.NODE_ENV === "development" || process.env.CYPRESS) {
+    // Skip Clerk authentication in test or development environments
+    console.log('Skipping Clerk Authentication in Cypress/Development');
+    return;
+  }
+
+  if (!isPublicRoute(request)) {
     auth().protect();
   }
-  return;
 });
 
 // Middleware configuration
