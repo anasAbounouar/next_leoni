@@ -1,4 +1,4 @@
-name: Cypress End-to-End Tests
+name: E2E Test Workflow with Cypress
 
 on:
   workflow_dispatch:
@@ -14,14 +14,17 @@ jobs:
       CLERK_SECRET_KEY: ${{ secrets.CLERK_SECRET_KEY }}
 
     steps:
+      # Checkout the latest code from the repository
       - name: Checkout code
         uses: actions/checkout@v3
 
+      # Set up Node.js environment
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '22'
 
+      # Cache Node.js modules to speed up installation
       - name: Cache Node.js modules
         uses: actions/cache@v4
         with:
@@ -33,9 +36,11 @@ jobs:
           restore-keys: |
             node-
 
+      # Install dependencies only if not cached
       - name: Install dependencies
         run: npm ci
 
+      # Cache Cypress dependencies to speed up Cypress installs
       - name: Cache Cypress dependencies
         uses: actions/cache@v4
         with:
@@ -44,41 +49,48 @@ jobs:
           restore-keys: |
             cypress-
 
+      # Build the application
       - name: Build the Application
         run: npm run build
 
+      # Start the application with Cypress
       - name: Start Application with Cypress
         run: |
           CYPRESS=true npm start &
         env:
           PORT: 3000
 
+      # Wait for the application to be ready
       - name: Wait for Application to be Ready
         run: |
-            echo "Waiting for application to be ready..."
-            while ! curl -s http://localhost:3000 > /dev/null; do
-              sleep 5
-            done
+          echo "Waiting for application to be ready..."
+          while ! curl -s http://localhost:3000 > /dev/null; do
+            sleep 5
+          done
 
+      # Run Cypress tests using the Cypress GitHub Action
       - name: Run Cypress Tests
         uses: cypress-io/github-action@v6
         with:
           browser: chrome
 
+      # Upload Cypress test results as artifacts
       - name: Upload Cypress test results
         uses: actions/upload-artifact@v3
         with:
           name: cypress-results
-          path: cypress/results  # Path where Cypress stores test results
+          path: cypress/results
 
+      # Upload Cypress screenshots as artifacts
       - name: Upload Cypress screenshots
         uses: actions/upload-artifact@v3
         with:
           name: cypress-screenshots
-          path: cypress/screenshots  # Path where Cypress stores screenshots
+          path: cypress/screenshots
 
+      # Upload Cypress videos as artifacts
       - name: Upload Cypress videos
         uses: actions/upload-artifact@v3
         with:
           name: cypress-videos
-          path: cypress/videos  # Path where Cypress stores videos
+          path: cypress/videos

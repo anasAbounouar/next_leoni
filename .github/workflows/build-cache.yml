@@ -1,0 +1,19 @@
+name:  Cross-Repo CI Workflow
+
+on:
+  push:
+  workflow_dispatch:
+    inputs:
+      node_version: 
+        default: '22'
+        type: choice
+        options:
+          - 20
+          - 21
+          - 22
+
+jobs:
+  call-reusable-workflow:
+    uses: "./.github/workflows/reusable-main.yml"
+    with:
+      node_version: ${{ inputs.node_version || '22' }}

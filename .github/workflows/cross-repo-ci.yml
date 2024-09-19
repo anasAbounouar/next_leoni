@@ -1,4 +1,4 @@
-name: Main CI Workflow
+name: Build and Cache Workflow
 
 on:
   workflow_call:
@@ -7,21 +7,10 @@ on:
         description: 'Node.js version to use'
         required: true
         type: string
-      run_tests:
-        description: 'Whether to run tests'
-        required: false
-        type: boolean
-        default: false
-    outputs:
-      used_node_version:
-        description: 'The Node.js version used'
-        value: ${{ jobs.build.outputs.node_version }}
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    outputs:
-      node_version: ${{ steps.get_node_version.outputs.node_version }}
 
     steps:
       # Checkout the latest code from the repository
@@ -39,8 +28,10 @@ jobs:
         id: cache-node-modules
         uses: actions/cache@v4
         with:
-          key: node-deps-${{ inputs.node_version }}-${{ hashFiles('package-lock.json') }}
           path: node_modules
+          key: node-deps-${{ inputs.node_version }}-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            node-deps-${{ inputs.node_version }}
           enableCrossOsArchive: true
 
       # Install dependencies only if not cached
@@ -53,21 +44,13 @@ jobs:
         id: cache-next
         uses: actions/cache@v4
         with:
-          key: nextjs-build-${{ inputs.node_version }}-${{ hashFiles('package.json', 'package-lock.json', 'next.config.js') }}
           path: .next
+          key: nextjs-build-${{ inputs.node_version }}-${{ hashFiles('package.json', 'package-lock.json', 'next.config.js') }}
+          restore-keys: |
+            nextjs-build-${{ inputs.node_version }}
           enableCrossOsArchive: true
           fail-on-cache-miss: false
-
-      # Run tests if the run_tests input is true
-      - name: Run tests
-        if: ${{ inputs.run_tests }}
-        run: npm test
 
       # Build the project
       - name: Build project
         run: npm run build
-
-      # Output the Node.js version used
-      - name: Get Node.js version
-        id: get_node_version
-        run: echo "node_version=${{ inputs.node_version }}" >> $GITHUB_OUTPUT
