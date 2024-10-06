@@ -1,6 +1,13 @@
 // headers.js
 const headers = [
     {
+        column: 0,
+        level1: null,
+        level2: null,
+        level3: null,
+        level4: 'Actions' // Actions column as the first column
+    },
+    {
         column: 1,
         level1: null,
         level2: null,
@@ -293,6 +300,7 @@ const headers = [
         level2: null,
         level3: 'PRODUCT AUDIT',
         level4: 'Has performed on at least 3 Product Audits per year'
-    }
+    },
+    
 ];
 export default headers;

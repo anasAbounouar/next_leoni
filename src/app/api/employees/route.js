@@ -1,66 +1,98 @@
+// /app/api/employees/route.js
+
 import fs from 'fs';
 import path from 'path';
 import * as XLSX from 'xlsx';
 
-export function GET(req, res) {
+/**
+ * Helper function to get the Excel file path
+ */
+const getFilePath = () => {
+    return path.join(process.cwd(), 'ressources', 'Auditors qualifications WMABE 2024-2025.xlsx');
+};
 
-    // Prepare the response headers
-    const headers = {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*', // Allow all origins (adjust as needed)
-        'Access-Control-Allow-Methods': 'GET, POST, OPTIONS', // Allow the necessary methods
-        'Access-Control-Allow-Headers': 'Content-Type', // Allow the necessary headers
-    };
-
-    // Handle preflight OPTIONS request
-    if (req.method === 'OPTIONS') {
-        return new Response(null, { status: 204, headers });
-    }
-
-    const filePath = path.join(process.cwd(), 'ressources', 'Auditors qualifications WMABE 2024-2025.xlsx');
-    console.log('Resolved file path:', filePath);
-
+/**
+ * Helper function to read data from the Excel file
+ */
+const readExcelData = async () => {
+    const filePath = getFilePath();
     try {
-        // Check if the file is accessible synchronously
-        fs.accessSync(filePath, fs.constants.R_OK);
-        console.log('File is accessible');
+        // Check if the file is accessible (read-only for GET)
+        await fs.promises.access(filePath, fs.constants.R_OK);
 
-        // Read the file buffer synchronously
-        const fileBuffer = fs.readFileSync(filePath);
-        console.log('File buffer size:', fileBuffer.length); // Log the buffer size
-
-        // Parse the workbook from the buffer
+        // Read and parse the Excel file
+        const fileBuffer = await fs.promises.readFile(filePath);
         const workbook = XLSX.read(fileBuffer, { type: 'buffer' });
-        console.log('Workbook successfully read');
 
         const sheetName = 'WMABE'; // Ensure this matches your sheet name
         const worksheet = workbook.Sheets[sheetName];
 
         if (!worksheet) {
-            console.error(`Error: Sheet named '${sheetName}' not found.`);
-            return res.status(404).json({ error: `Sheet named '${sheetName}' not found.` });
+            throw new Error(`Sheet named '${sheetName}' not found.`);
         }
 
         // Convert sheet to JSON
-        console.log('Converting sheet to JSON...');
         const data = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-        console.log('Data:', data.slice(0, 5)); // Log the first few rows of data
 
-        // Process and filter data
-        const employeeList = data.slice(9).map(row => ({
-            id: row[0], // Assuming 'No.' is in the first column
-            firstName: row[1]?.trim(), // Assuming 'First Name' is in the second column
-            lastName: row[2]?.trim(), // Assuming 'Last Name' is in the third column
-            jobTitle: row[3]?.trim() // Assuming 'Actual job title / position / function' is in the fourth column
-        })).filter(employee => employee.id && employee.firstName && employee.lastName && employee.jobTitle);
+        // Assuming that the first 9 rows are headers or irrelevant data
+        const employeeRows = data.slice(9);
 
-        // res.status(200).json(employeeList);
-        return new Response(JSON.stringify(employeeList ), {
-            status: 200,
-            headers: { 'Content-Type': 'application/json' },
-          });
+        // Map each row to an employee object, ensuring data integrity
+        const employees = employeeRows.map(row => {
+            const [id, lastName, firstName, jobTitle, homePlant, ...rest] = row;
+            return {
+                id: typeof id === 'number' ? id : null, // Ensure ID is a number
+                lastName: typeof lastName === 'string' ? lastName.trim() : '',
+                firstName: typeof firstName === 'string' ? firstName.trim() : '',
+                jobTitle: typeof jobTitle === 'string' ? jobTitle.trim() : '',
+                homePlant: typeof homePlant === 'string' ? homePlant.trim() : '',
+                // Add other fields as necessary
+            };
+        });
+
+        // Filter out any malformed entries
+        const validEmployees = employees.filter(emp => 
+            emp.id !== null && 
+            emp.lastName && 
+            emp.firstName && 
+            emp.jobTitle && 
+            emp.homePlant
+        );
+
+        return validEmployees;
     } catch (error) {
-        console.error('Error fetching employee list:', error.message);
-        res.status(500).json({ error: 'Error processing file: ' + error.message });
+        throw error;
+    }
+}
+
+/**
+ * GET handler to fetch all employees
+ */
+export async function GET(request) {
+    // Prepare the response headers
+    const responseHeaders = {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*', // Allow all origins (adjust as needed)
+        'Access-Control-Allow-Methods': 'GET, PUT, DELETE, OPTIONS', // Allow necessary methods
+        'Access-Control-Allow-Headers': 'Content-Type', // Allow necessary headers
+    };
+
+    // Handle preflight OPTIONS request
+    if (request.method === 'OPTIONS') {
+        return new Response(null, { status: 204, headers: responseHeaders });
+    }
+
+    try {
+        const employees = await readExcelData();
+        return new Response(JSON.stringify(employees), {
+            status: 200,
+            headers: responseHeaders
+        });
+    } catch (error) {
+        console.error('Error processing GET /api/employees request:', error.message);
+        return new Response(JSON.stringify({ error: 'Error processing file: ' + error.message }), {
+            status: 500,
+            headers: responseHeaders
+        });
     }
 }

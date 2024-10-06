@@ -116,7 +116,7 @@
 //     }
 // });
 
-// app.get('/api/employee/:number', (req, res) => {
+// app.get('/api/employees/:number', (req, res) => {
 //     const { number } = req.params;
 //     const filePath = path.join(__dirname, '../../ressources/Auditors qualifications WMABE 2024-2025.xlsx');
 
