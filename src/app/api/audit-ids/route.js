@@ -46,20 +46,59 @@ export async function GET() {
     const headerRowIndex = 5; // Adjust based on your Excel sheet's structure
     const headers = data[headerRowIndex] || [];
 
+    // Define the month fields
+    const monthFields = [
+      "Feb",
+      "March",
+      "Apr",
+      "May",
+      "June",
+      "July",
+      "Aug",
+      "Sept",
+      "Oct",
+      "Nov",
+      "Dec",
+      "Jan",
+    ];
+
+    // Trim headers to remove any accidental whitespace
+    const trimmedHeaders = headers.map((header) =>
+      typeof header === "string" ? header.trim() : header
+    );
+
+    // Log trimmed headers for debugging
+    console.log("Trimmed Headers:", trimmedHeaders);
+
     const tableData = data
       .slice(headerRowIndex + 1)
-      .map((row) => {
+      .map((row, index) => {
         const rowObject = {};
-        headers.forEach((header, index) => {
-          rowObject[header] = row[index] || "";
+        trimmedHeaders.forEach((header, colIndex) => {
+          rowObject[header] = row[colIndex] !== undefined ? String(row[colIndex]).trim() : "";
         });
-        return rowObject;
+        return { rowObject, rowIndex: index + headerRowIndex + 1 }; // Include rowIndex for logging
       })
-      .filter(
-        (row) =>
-          row["Site / BU / Department"] &&
-          row["Site / BU / Department"] !== ""
-      );
+      .filter(({ rowObject, rowIndex }) => {
+        const auditId = rowObject["Audit ID"];
+        const auditIdExists = auditId && auditId !== "";
+
+        // Check if at least one month field is non-empty
+        const hasAtLeastOneMonth = monthFields.some(
+          (month) => rowObject[month] && rowObject[month] !== ""
+        );
+
+        // Log each row's auditId and month status for debugging
+        console.log(
+          `Row ${rowIndex}: Audit ID exists? ${auditIdExists}, Has at least one month? ${hasAtLeastOneMonth}`
+        );
+
+        return auditIdExists && hasAtLeastOneMonth;
+      })
+      .map(({ rowObject }) => rowObject); // After filtering, return only the rowObject
+
+    // Log the number of filtered rows
+    console.log(`Total filtered rows: ${tableData.length}`);
 
     // Return the response with the JSON data
     return NextResponse.json({ tableData }, { status: 200 });

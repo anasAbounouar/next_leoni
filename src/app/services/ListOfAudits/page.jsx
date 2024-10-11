@@ -22,6 +22,7 @@ import {
   DialogActions,
   CircularProgress,
   Alert,
+  Grid,
 } from "@mui/material";
 import {
   FiEdit,
@@ -29,6 +30,8 @@ import {
   FiSave,
   FiX,
   FiAlertCircle,
+  FiSearch,
+  FiXCircle,
 } from "react-icons/fi";
 import Swal from "sweetalert2";
 import { styled } from "@mui/material/styles";
@@ -47,6 +50,7 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 
 export default function ListeDesAudits() {
   const [auditData, setAuditData] = useState([]);
+  const [filteredAuditData, setFilteredAuditData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [editAuditId, setEditAuditId] = useState(null);
@@ -55,6 +59,7 @@ export default function ListeDesAudits() {
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [auditToDelete, setAuditToDelete] = useState(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [filterAuditId, setFilterAuditId] = useState("");
 
   // Original month extraction logic
   const getMonth = (row) => {
@@ -103,6 +108,7 @@ export default function ListeDesAudits() {
         }));
 
         setAuditData(processedData);
+        setFilteredAuditData(processedData); // Initialize filtered data
       } catch (error) {
         setError(`Failed to fetch audit data: ${error.message}`);
         console.error("Fetch Audit Data Error:", error);
@@ -113,6 +119,20 @@ export default function ListeDesAudits() {
 
     fetchAuditData();
   }, []);
+
+  // Handle filtering when filterAuditId changes
+  useEffect(() => {
+    if (filterAuditId.trim() === "") {
+      setFilteredAuditData(auditData);
+    } else {
+      const filtered = auditData.filter((audit) =>
+        audit["Audit ID"]
+          .toLowerCase()
+          .includes(filterAuditId.trim().toLowerCase())
+      );
+      setFilteredAuditData(filtered);
+    }
+  }, [filterAuditId, auditData]);
 
   if (loading)
     return (
@@ -143,7 +163,7 @@ export default function ListeDesAudits() {
     { key: "actions", label: "Actions" },
   ];
 
-  const rows = auditData.map((row, index) => ({
+  const rows = filteredAuditData.map((row, index) => ({
     key: index,
     site: row["Site / BU / Department"],
     processes: row["Processes"],
@@ -243,26 +263,26 @@ export default function ListeDesAudits() {
       // Construct the updated audit object with correct month fields
       const updatedAudit = {
         "Site / BU / Department": editAuditData.site,
-        "Processes": editAuditData.processes,
-        "Auditor": editAuditData.auditor,
+        Processes: editAuditData.processes,
+        Auditor: editAuditData.auditor,
         "Co Auditor": editAuditData.coAuditor,
-        "Result": editAuditData.result,
-        "Remark": editAuditData.remark,
-        "Status": editAuditData.status,
+        Result: editAuditData.result,
+        Remark: editAuditData.remark,
+        Status: editAuditData.status,
         "Audit ID": editAuditData.auditId, // Include Audit ID in payload
         // Set all month fields to empty except the edited one
-        "Feb": "",
-        "March": "",
-        "Apr": "",
-        "May": "",
-        "June": "",
-        "July": "",
-        "Aug": "",
-        "Sept": "",
-        "Oct": "",
-        "Nov": "",
-        "Dec": "",
-        "Jan": "",
+        Feb: "",
+        March: "",
+        Apr: "",
+        May: "",
+        June: "",
+        July: "",
+        Aug: "",
+        Sept: "",
+        Oct: "",
+        Nov: "",
+        Dec: "",
+        Jan: "",
       };
 
       // Set the specific month field
@@ -285,6 +305,11 @@ export default function ListeDesAudits() {
         );
 
         setAuditData(updatedData);
+        setFilteredAuditData(updatedData.filter((audit) =>
+          audit["Audit ID"]
+            .toLowerCase()
+            .includes(filterAuditId.trim().toLowerCase())
+        ));
         setEditAuditId(null);
         setEditAuditData({});
         showSnackbar("Audit updated successfully");
@@ -311,7 +336,13 @@ export default function ListeDesAudits() {
           (audit) => audit.auditId !== auditToDelete
         );
         setAuditData(updatedData);
+        setFilteredAuditData(updatedData.filter((audit) =>
+          audit["Audit ID"]
+            .toLowerCase()
+            .includes(filterAuditId.trim().toLowerCase())
+        ));
         setAuditToDelete(null);
+        setDeleteDialogOpen(false);
         showSnackbar("Audit deleted successfully");
       } else {
         const errorData = await response.json();
@@ -348,10 +379,40 @@ export default function ListeDesAudits() {
   };
 
   return (
-    <div className="p-4 ">
+    <div className="p-4 mx-10">
       <Typography variant="h4" gutterBottom align="center">
         Liste des Audits
       </Typography>
+
+      {/* Filter Section */}
+      <Paper elevation={3} className="p-4 mb-4">
+        <Grid container spacing={2} alignItems="center">
+          <Grid item xs={12} sm={6} md={4}>
+            <TextField
+              label="Filter by Audit ID"
+              variant="outlined"
+              size="small"
+              fullWidth
+              value={filterAuditId}
+              onChange={(e) => setFilterAuditId(e.target.value)}
+              InputProps={{
+                endAdornment: filterAuditId && (
+                  <IconButton
+                    onClick={() => setFilterAuditId("")}
+                    edge="end"
+                  >
+                    <FiXCircle />
+                  </IconButton>
+                ),
+              }}
+            />
+          </Grid>
+          <Grid item xs={12} sm={6} md={4}>
+            {/* Additional filters can be added here */}
+          </Grid>
+        </Grid>
+      </Paper>
+
       <TableContainer component={Paper} elevation={3}>
         <Table>
           <TableHead>
@@ -364,213 +425,223 @@ export default function ListeDesAudits() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {rows.map((item) => {
-              const isEditing = editAuditId === item.auditId;
-              return (
-                <StyledTableRow key={item.key}>
-                  {/* Site / BU / Department */}
-                  <TableCell>
-                    {isEditing ? (
-                      <TextField
-                        value={editAuditData.site}
-                        onChange={(e) =>
-                          handleInputChange("site", e.target.value)
-                        }
-                        variant="outlined"
-                        size="small"
-                        fullWidth
-                      />
-                    ) : (
-                      item.site
-                    )}
-                  </TableCell>
+            {rows.length > 0 ? (
+              rows.map((item) => {
+                const isEditing = editAuditId === item.auditId;
+                return (
+                  <StyledTableRow key={item.key}>
+                    {/* Site / BU / Department */}
+                    <TableCell>
+                      {isEditing ? (
+                        <TextField
+                          value={editAuditData.site}
+                          onChange={(e) =>
+                            handleInputChange("site", e.target.value)
+                          }
+                          variant="outlined"
+                          size="small"
+                          fullWidth
+                        />
+                      ) : (
+                        item.site
+                      )}
+                    </TableCell>
 
-                  {/* Processes */}
-                  <TableCell>
-                    {isEditing ? (
-                      <TextField
-                        value={editAuditData.processes}
-                        onChange={(e) =>
-                          handleInputChange("processes", e.target.value)
-                        }
-                        variant="outlined"
-                        size="small"
-                        fullWidth
-                      />
-                    ) : (
-                      item.processes
-                    )}
-                  </TableCell>
+                    {/* Processes */}
+                    <TableCell>
+                      {isEditing ? (
+                        <TextField
+                          value={editAuditData.processes}
+                          onChange={(e) =>
+                            handleInputChange("processes", e.target.value)
+                          }
+                          variant="outlined"
+                          size="small"
+                          fullWidth
+                        />
+                      ) : (
+                        item.processes
+                      )}
+                    </TableCell>
 
-                  {/* Auditor */}
-                  <TableCell>
-                    {isEditing ? (
-                      <TextField
-                        value={editAuditData.auditor}
-                        onChange={(e) =>
-                          handleInputChange("auditor", e.target.value)
-                        }
-                        variant="outlined"
-                        size="small"
-                        fullWidth
-                      />
-                    ) : (
-                      item.auditor
-                    )}
-                  </TableCell>
+                    {/* Auditor */}
+                    <TableCell>
+                      {isEditing ? (
+                        <TextField
+                          value={editAuditData.auditor}
+                          onChange={(e) =>
+                            handleInputChange("auditor", e.target.value)
+                          }
+                          variant="outlined"
+                          size="small"
+                          fullWidth
+                        />
+                      ) : (
+                        item.auditor
+                      )}
+                    </TableCell>
 
-                  {/* Co Auditor */}
-                  <TableCell>
-                    {isEditing ? (
-                      <TextField
-                        value={editAuditData.coAuditor}
-                        onChange={(e) =>
-                          handleInputChange("coAuditor", e.target.value)
-                        }
-                        variant="outlined"
-                        size="small"
-                        fullWidth
-                      />
-                    ) : (
-                      item.coAuditor
-                    )}
-                  </TableCell>
+                    {/* Co Auditor */}
+                    <TableCell>
+                      {isEditing ? (
+                        <TextField
+                          value={editAuditData.coAuditor}
+                          onChange={(e) =>
+                            handleInputChange("coAuditor", e.target.value)
+                          }
+                          variant="outlined"
+                          size="small"
+                          fullWidth
+                        />
+                      ) : (
+                        item.coAuditor
+                      )}
+                    </TableCell>
 
-                  {/* Month */}
-                  <TableCell>
-                    {isEditing ? (
-                      <TextField
-                        value={editAuditData.month}
-                        onChange={(e) =>
-                          handleInputChange("month", e.target.value)
-                        }
-                        variant="outlined"
-                        size="small"
-                        fullWidth
-                        placeholder="e.g., Aug: NP03"
-                      />
-                    ) : (
-                      item.month
-                    )}
-                  </TableCell>
+                    {/* Month */}
+                    <TableCell>
+                      {isEditing ? (
+                        <TextField
+                          value={editAuditData.month}
+                          onChange={(e) =>
+                            handleInputChange("month", e.target.value)
+                          }
+                          variant="outlined"
+                          size="small"
+                          fullWidth
+                          placeholder="e.g., Aug: NP03"
+                        />
+                      ) : (
+                        item.month
+                      )}
+                    </TableCell>
 
-                  {/* Audit ID (Editable) */}
-                  <TableCell>
-                    {isEditing ? (
-                      <TextField
-                        value={editAuditData.auditId}
-                        onChange={(e) =>
-                          handleInputChange("auditId", e.target.value)
-                        }
-                        variant="outlined"
-                        size="small"
-                        fullWidth
-                      />
-                    ) : (
-                      <Typography>{item.auditId}</Typography>
-                    )}
-                  </TableCell>
+                    {/* Audit ID (Editable) */}
+                    <TableCell>
+                      {isEditing ? (
+                        <TextField
+                          value={editAuditData.auditId}
+                          onChange={(e) =>
+                            handleInputChange("auditId", e.target.value)
+                          }
+                          variant="outlined"
+                          size="small"
+                          fullWidth
+                        />
+                      ) : (
+                        <Typography>{item.auditId}</Typography>
+                      )}
+                    </TableCell>
 
-                  {/* Result */}
-                  <TableCell>
-                    {isEditing ? (
-                      <TextField
-                        value={editAuditData.result}
-                        onChange={(e) =>
-                          handleInputChange("result", e.target.value)
-                        }
-                        variant="outlined"
-                        size="small"
-                        fullWidth
-                      />
-                    ) : (
-                      item.result
-                    )}
-                  </TableCell>
+                    {/* Result */}
+                    <TableCell>
+                      {isEditing ? (
+                        <TextField
+                          value={editAuditData.result}
+                          onChange={(e) =>
+                            handleInputChange("result", e.target.value)
+                          }
+                          variant="outlined"
+                          size="small"
+                          fullWidth
+                        />
+                      ) : (
+                        item.result
+                      )}
+                    </TableCell>
 
-                  {/* Remark */}
-                  <TableCell>
-                    {isEditing ? (
-                      <TextField
-                        value={editAuditData.remark}
-                        onChange={(e) =>
-                          handleInputChange("remark", e.target.value)
-                        }
-                        variant="outlined"
-                        size="small"
-                        fullWidth
-                      />
-                    ) : (
-                      item.remark
-                    )}
-                  </TableCell>
+                    {/* Remark */}
+                    <TableCell>
+                      {isEditing ? (
+                        <TextField
+                          value={editAuditData.remark}
+                          onChange={(e) =>
+                            handleInputChange("remark", e.target.value)
+                          }
+                          variant="outlined"
+                          size="small"
+                          fullWidth
+                        />
+                      ) : (
+                        item.remark
+                      )}
+                    </TableCell>
 
-                  {/* Status */}
-                  <TableCell>
-                    {isEditing ? (
-                      <TextField
-                        value={editAuditData.status}
-                        onChange={(e) =>
-                          handleInputChange("status", e.target.value)
-                        }
-                        variant="outlined"
-                        size="small"
-                        fullWidth
-                      />
-                    ) : (
-                      item.status
-                    )}
-                  </TableCell>
+                    {/* Status */}
+                    <TableCell>
+                      {isEditing ? (
+                        <TextField
+                          value={editAuditData.status}
+                          onChange={(e) =>
+                            handleInputChange("status", e.target.value)
+                          }
+                          variant="outlined"
+                          size="small"
+                          fullWidth
+                        />
+                      ) : (
+                        item.status
+                      )}
+                    </TableCell>
 
-                  {/* Actions */}
-                  <TableCell>
-                    {isEditing ? (
-                      <>
-                        <Tooltip title="Save">
-                          <IconButton
-                            size="small"
-                            color="primary"
-                            onClick={handleSaveClick}
-                          >
-                            <FiSave />
-                          </IconButton>
-                        </Tooltip>
-                        <Tooltip title="Cancel">
-                          <IconButton
-                            size="small"
-                            color="secondary"
-                            onClick={handleCancelClick}
-                          >
-                            <FiX />
-                          </IconButton>
-                        </Tooltip>
-                      </>
-                    ) : (
-                      <>
-                        <Tooltip title="Edit">
-                          <IconButton
-                            size="small"
-                            color="warning"
-                            onClick={() => handleEditClick(item)}
-                          >
-                            <FiEdit />
-                          </IconButton>
-                        </Tooltip>
-                        <Tooltip title="Delete">
-                          <IconButton
-                            size="small"
-                            color="error"
-                            onClick={() => openDeleteDialog(item.auditId)}
-                          >
-                            <FiTrash2 />
-                          </IconButton>
-                        </Tooltip>
-                      </>
-                    )}
-                  </TableCell>
-                </StyledTableRow>
-              );
-            })}
+                    {/* Actions */}
+                    <TableCell>
+                      {isEditing ? (
+                        <>
+                          <Tooltip title="Save">
+                            <IconButton
+                              size="small"
+                              color="primary"
+                              onClick={handleSaveClick}
+                            >
+                              <FiSave />
+                            </IconButton>
+                          </Tooltip>
+                          <Tooltip title="Cancel">
+                            <IconButton
+                              size="small"
+                              color="secondary"
+                              onClick={handleCancelClick}
+                            >
+                              <FiX />
+                            </IconButton>
+                          </Tooltip>
+                        </>
+                      ) : (
+                        <>
+                          <Tooltip title="Edit">
+                            <IconButton
+                              size="small"
+                              color="warning"
+                              onClick={() => handleEditClick(item)}
+                            >
+                              <FiEdit />
+                            </IconButton>
+                          </Tooltip>
+                          <Tooltip title="Delete">
+                            <IconButton
+                              size="small"
+                              color="error"
+                              onClick={() => openDeleteDialog(item.auditId)}
+                            >
+                              <FiTrash2 />
+                            </IconButton>
+                          </Tooltip>
+                        </>
+                      )}
+                    </TableCell>
+                  </StyledTableRow>
+                );
+              })
+            ) : (
+              <TableRow>
+                <TableCell colSpan={columns.length} align="center">
+                  <Typography variant="subtitle1">
+                    No audits found matching the filter criteria.
+                  </Typography>
+                </TableCell>
+              </TableRow>
+            )}
           </TableBody>
         </Table>
       </TableContainer>
