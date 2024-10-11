@@ -13,9 +13,37 @@ import {
   TextField,
   Snackbar,
   Paper,
+  Tooltip,
+  IconButton,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
+  CircularProgress,
+  Alert,
 } from "@mui/material";
-import { FiEdit, FiTrash2, FiSave, FiX } from "react-icons/fi";
+import {
+  FiEdit,
+  FiTrash2,
+  FiSave,
+  FiX,
+  FiAlertCircle,
+} from "react-icons/fi";
 import Swal from "sweetalert2";
+import { styled } from "@mui/material/styles";
+
+// Styled components for better visual appearance
+const StyledTableCell = styled(TableCell)(({ theme }) => ({
+  fontWeight: "bold",
+  backgroundColor: theme.palette.grey[200],
+}));
+
+const StyledTableRow = styled(TableRow)(({ theme }) => ({
+  "&:nth-of-type(odd)": {
+    backgroundColor: theme.palette.action.hover,
+  },
+}));
 
 export default function ListeDesAudits() {
   const [auditData, setAuditData] = useState([]);
@@ -26,6 +54,7 @@ export default function ListeDesAudits() {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [auditToDelete, setAuditToDelete] = useState(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
   // Original month extraction logic
   const getMonth = (row) => {
@@ -85,8 +114,21 @@ export default function ListeDesAudits() {
     fetchAuditData();
   }, []);
 
-  if (loading) return <div>Loading audit data...</div>;
-  if (error) return <div className="text-red-500">{error}</div>;
+  if (loading)
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <CircularProgress />
+      </div>
+    );
+
+  if (error)
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <Alert severity="error" icon={<FiAlertCircle />}>
+          {error}
+        </Alert>
+      </div>
+    );
 
   const columns = [
     { key: "site", label: "Site / BU / Department" },
@@ -282,9 +324,16 @@ export default function ListeDesAudits() {
     }
   };
 
-  // Open Delete Confirmation Modal
-  const openDeleteModal = (auditId) => {
+  // Open Delete Confirmation Dialog
+  const openDeleteDialog = (auditId) => {
     setAuditToDelete(auditId);
+    setDeleteDialogOpen(true);
+  };
+
+  // Close Delete Confirmation Dialog
+  const closeDeleteDialog = () => {
+    setAuditToDelete(null);
+    setDeleteDialogOpen(false);
   };
 
   // Show Snackbar Notification
@@ -299,17 +348,18 @@ export default function ListeDesAudits() {
   };
 
   return (
-    <div className="p-2">
-      <TableContainer component={Paper}>
+    <div className="p-4 ">
+      <Typography variant="h4" gutterBottom align="center">
+        Liste des Audits
+      </Typography>
+      <TableContainer component={Paper} elevation={3}>
         <Table>
           <TableHead>
             <TableRow>
               {columns.map((column) => (
-                <TableCell key={column.key}>
-                  <Typography variant="subtitle1" fontWeight="bold">
-                    {column.label}
-                  </Typography>
-                </TableCell>
+                <StyledTableCell key={column.key}>
+                  <Typography variant="subtitle1">{column.label}</Typography>
+                </StyledTableCell>
               ))}
             </TableRow>
           </TableHead>
@@ -317,7 +367,7 @@ export default function ListeDesAudits() {
             {rows.map((item) => {
               const isEditing = editAuditId === item.auditId;
               return (
-                <TableRow key={item.key}>
+                <StyledTableRow key={item.key}>
                   {/* Site / BU / Department */}
                   <TableCell>
                     {isEditing ? (
@@ -476,87 +526,78 @@ export default function ListeDesAudits() {
                   <TableCell>
                     {isEditing ? (
                       <>
-                        <Button
-                          size="small"
-                          color="primary"
-                          onClick={handleSaveClick}
-                          startIcon={<FiSave />}
-                          style={{ marginRight: "8px" }}
-                          variant="contained"
-                        >
-                          Save
-                        </Button>
-                        <Button
-                          size="small"
-                          color="secondary"
-                          onClick={handleCancelClick}
-                          startIcon={<FiX />}
-                          variant="outlined"
-                        >
-                          Cancel
-                        </Button>
+                        <Tooltip title="Save">
+                          <IconButton
+                            size="small"
+                            color="primary"
+                            onClick={handleSaveClick}
+                          >
+                            <FiSave />
+                          </IconButton>
+                        </Tooltip>
+                        <Tooltip title="Cancel">
+                          <IconButton
+                            size="small"
+                            color="secondary"
+                            onClick={handleCancelClick}
+                          >
+                            <FiX />
+                          </IconButton>
+                        </Tooltip>
                       </>
                     ) : (
                       <>
-                        <Button
-                          size="small"
-                          color="warning"
-                          onClick={() => handleEditClick(item)}
-                          startIcon={<FiEdit />}
-                          style={{ marginRight: "8px" }}
-                          variant="contained"
-                        >
-                          Edit
-                        </Button>
-                        <Button
-                          size="small"
-                          color="error"
-                          onClick={() => openDeleteModal(item.auditId)}
-                          startIcon={<FiTrash2 />}
-                          variant="contained"
-                        >
-                          Delete
-                        </Button>
+                        <Tooltip title="Edit">
+                          <IconButton
+                            size="small"
+                            color="warning"
+                            onClick={() => handleEditClick(item)}
+                          >
+                            <FiEdit />
+                          </IconButton>
+                        </Tooltip>
+                        <Tooltip title="Delete">
+                          <IconButton
+                            size="small"
+                            color="error"
+                            onClick={() => openDeleteDialog(item.auditId)}
+                          >
+                            <FiTrash2 />
+                          </IconButton>
+                        </Tooltip>
                       </>
                     )}
                   </TableCell>
-                </TableRow>
+                </StyledTableRow>
               );
             })}
           </TableBody>
         </Table>
       </TableContainer>
 
-      {/* Delete Confirmation Modal */}
-      {auditToDelete && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-          <div className="bg-white rounded-lg p-6 w-96">
-            <Typography variant="h6" gutterBottom>
-              Confirm Deletion
-            </Typography>
-            <Typography gutterBottom>
-              Are you sure you want to delete this audit?
-            </Typography>
-            <div className="flex justify-end mt-4">
-              <Button
-                variant="outlined"
-                color="secondary"
-                onClick={() => setAuditToDelete(null)}
-                style={{ marginRight: "8px" }}
-              >
-                Cancel
-              </Button>
-              <Button
-                variant="contained"
-                color="error"
-                onClick={handleDelete}
-              >
-                Delete
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Delete Confirmation Dialog */}
+      <Dialog
+        open={deleteDialogOpen}
+        onClose={closeDeleteDialog}
+        aria-labelledby="delete-dialog-title"
+        aria-describedby="delete-dialog-description"
+      >
+        <DialogTitle id="delete-dialog-title">Confirm Deletion</DialogTitle>
+        <DialogContent>
+          <DialogContentText id="delete-dialog-description">
+            Are you sure you want to delete this audit? This action cannot be
+            undone.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={closeDeleteDialog} color="secondary">
+            Cancel
+          </Button>
+          <Button onClick={handleDelete} color="error" variant="contained">
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       {/* Snackbar Notification */}
       <Snackbar
