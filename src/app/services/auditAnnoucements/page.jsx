@@ -1,31 +1,60 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button, TextField, Typography, Box, Paper, Grid } from '@mui/material';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import Swal from 'sweetalert2';
+import Select from 'react-select';
 
 export default function AuditAnnouncement() {
   const [selectedFile, setSelectedFile] = useState(null);
   const [fileName, setFileName] = useState('');
+  const [auditID, setAuditID] = useState('');
+  const [auditIDs, setAuditIDs] = useState([]);
+
+  useEffect(() => {
+    // Fetch the audit IDs from your API
+    fetch('/api/audit-ids')
+      .then(response => response.json())
+      .then(data => setAuditIDs(data.tableData.map(audit => ({
+        value: audit['Audit ID'],
+        label: audit['Audit ID']
+      }))))
+      .catch(error => console.error('Error fetching audit IDs:', error));
+  }, []);
 
   const handleFileChange = (event) => {
     const file = event.target.files[0];
     setSelectedFile(file);
-    setFileName(file.name);
+    
+    // Update the file name based on audit ID and selected file extension
+    if (auditID && file) {
+      const fileExt = file.name.split('.').pop();
+      const newFileName = `Audit Announcement VDA6.3 - P21 ${auditID}.${fileExt}`;
+      setFileName(newFileName); // Update the fileName state
+    }
+  };
+
+  const handleAuditIDChange = (option) => {
+    setAuditID(option ? option.value : '');
+    
+    // Update the file name if a file is already selected
+    if (selectedFile) {
+      const fileExt = selectedFile.name.split('.').pop();
+      setFileName(option ? `Audit Announcement VDA6.3 - P21 ${option.value}.${fileExt}` : selectedFile.name);
+    }
   };
 
   const handleConfirm = () => {
-    if (selectedFile) {
+    if (selectedFile && auditID) {
       const formData = new FormData();
       formData.append('file', selectedFile);
-      formData.append('fileName', fileName);
 
-      fetch(`/api/AuditAnnouncements/upload`, {
+      fetch(`/api/ressources/${auditID}/announcement`, { // Updated API endpoint
         method: 'POST',
         body: formData,
       })
-        .then((response) => {
+        .then(response => {
           if (response.ok) {
             Swal.fire(
               'Confirmed!',
@@ -34,11 +63,12 @@ export default function AuditAnnouncement() {
             );
             setFileName('');
             setSelectedFile(null);
+            setAuditID('');
           } else {
             throw new Error('Error during file upload');
           }
         })
-        .catch((error) => {
+        .catch(error => {
           console.error('Upload error:', error);
           Swal.fire({
             title: 'Error',
@@ -50,7 +80,7 @@ export default function AuditAnnouncement() {
     } else {
       Swal.fire({
         title: 'Error',
-        text: 'Please attach a file before confirming.',
+        text: 'Please select an audit ID and attach a file before confirming.',
         icon: 'error',
         confirmButtonText: 'OK',
       });
@@ -72,9 +102,21 @@ export default function AuditAnnouncement() {
           Audit Announcement
         </Typography>
         <Typography variant="body1" component="p" gutterBottom align="center">
-          Please attach the audit file, rename if necessary, and confirm your action.
+          Select the audit ID, attach the file, rename if necessary, and confirm your action.
         </Typography>
         <Grid container spacing={2} alignItems="center">
+          <Grid item xs={12}>
+            <Select
+              value={auditID ? { value: auditID, label: auditID } : null}
+              onChange={handleAuditIDChange}
+              options={auditIDs}
+              className="basic-single"
+              classNamePrefix="select"
+              placeholder="Select Audit ID"
+              isClearable
+              isSearchable
+            />
+          </Grid>
           <Grid item xs={12}>
             <Button
               variant="contained"
@@ -83,7 +125,7 @@ export default function AuditAnnouncement() {
               fullWidth
               sx={{ textTransform: 'none', mt: 2 }}
             >
-              Upload file
+              {selectedFile ? `File Selected: ${selectedFile.name}` : 'Upload file'}
               <input type="file" hidden onChange={handleFileChange} />
             </Button>
           </Grid>
